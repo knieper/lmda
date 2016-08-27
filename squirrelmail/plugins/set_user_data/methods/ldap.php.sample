@@ -1,0 +1,149 @@
+<?php
+
+/*
+ * Configuration file for LDAP data handler
+ *
+ * SquirrelMail Set User Data Plugin
+ * Version 1.0
+ *
+ * Copyright (c) 2009 Ian Goldstein <ian@novoops.com>
+ * Licensed under the GNU GPL. For full terms see the file COPYING
+ *
+ * @package plugins
+ * @subpackage set_user_data
+ *
+ */ 
+ 
+ 
+
+
+
+
+// Set this value to 1 to use the configuration of the first (i.e. zeroth)
+// LDAP addressbook from the main SquirrelMail config file
+//
+$settings['main'] = 0;
+
+
+
+// If the previous value is not 1, set these values to the correct ones for
+// your LDAP server
+//
+$settings['host'] = 'ldap.domain.com';       // hostname
+$settings['port'] = 389;                     // port (defaults to 389)
+$settings['base'] = 'dc=domain,dc=com',      // base distinguished name
+$settings['charset'] = 'utf-8'               // charset (defaults to utf-8)
+
+
+
+// Set this value to 1 if anonymous bind should be used instead of the
+// Squirrelmail username and password.
+//
+$settings['anonymousbind'] = 0;
+
+
+
+// If anonymous binds are not allowed to access the data, this template
+// will be used for binding to LDAP. The username can be inserted into
+// the template using '{user}' as an insertion variable.
+//
+// FOr Microsoft Active Directory, this would typically be:
+//   MyWindowsDomain\\{user}
+//
+$settings['rdnbind'] = 'uid={user},ou=people,dc=domain,dc=com';
+
+
+
+// Set this to the name of the LDAP attribute which contains the username.
+// Typically this is 'UID' for Unix and 'sAMAccountName' for Microsoft
+// Active Directory
+//
+$settings['user'] = 'UID';
+
+
+
+// Set these to the names of the LDAP attributes where the full name and
+// email address are stored
+//
+$settings['name'] = 'cn';
+$settings['email'] = 'mail';
+
+
+
+// Set this to indicate the LDAP attribute which holds additional email
+// addresses. For example, under Microsoft Active Directory, it is
+// 'proxyaddresses'. Set it to empty ('') if none.
+//
+$settings['aliases'] = 'proxyaddress';
+
+
+
+// If the previous value was set, this value can be set to indicate that
+// these alias values contain a prefix such as 'SMTP: user@example.com'
+// which should be removed. Microsoft Active Directory uses 'SMTP'. Set
+// it to empty ('') if none.
+//
+$settings['aliasprefix'] = 'SMTP';
+
+
+
+// Rules can be used to modify lookup values as well as results. In addition,
+// if a value cannot be retrieved directly from an external source, it is
+// possible to derive the value using rules. See the RULES document for
+// complete details on rule syntax.
+//
+// There are 4 types of rules defined below. Some are used prior to a lookup
+// to allow the key value used for the lookup to be modified. Other are
+// used after the lookup to adjust the results.
+//
+// For each type of rule, the total number of rules must be set. If set to 0
+// then that rule type will not be used. After the number of rules are set,
+// each rule must be listed in consecutive order.
+//
+// See the passwd.php.sample file for an example set of rules.
+
+
+// Data key rules are used to adjust the key value used to lookup user data.
+// The key value is typically the username, but it can be adjusted as needed
+// prior to the search using rules.
+//
+$settings['datakeyrules'] = 0;
+//$settings['datakeyrule1'] = '';
+
+
+// Data rules are used after the data has been located to derive and/or
+// adjust the email address or full name.
+//
+$settings['datarules'] = 0;
+//$settings['datarule1'] = '';
+
+
+// Login key rules are used to adjust the key value used to lookup logins by
+// email when login lookups are enabled. The key value is typically the login
+// name, but can be adjusted as needed prior to the search using rules.
+//
+$settings['loginkeyrules'] = 0;
+//$settings['loginkeyrule1'] = '';
+
+
+// Login rules are used after the login lookup has been done to further adjust
+// the login name as needed.
+//
+$settings['loginrules'] = 0;
+//$settings['loginrule1'] = '';
+
+
+
+// THE FOLLOWING VALUE SHOULD ***NOT*** BE CHANGED
+//
+// This setting indicates the actual data handler to be used in
+// order to retrieve the data. If this config file has been
+// renamed or copied to an alternate file, the following setting
+// must still remain set as-is in order to access the proper
+// file in the set_user_data/handlers directory.
+//
+$settings['handler'] = 'ldap';
+
+
+
+?>

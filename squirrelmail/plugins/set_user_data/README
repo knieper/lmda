@@ -1,0 +1,230 @@
+Set User Data plugin for SquirrelMail
+=====================================
+Version 1.0
+
+Copyright (c) 2009 Ian Goldstein <ian@novoops.com>
+
+
+
+Description
+===========
+
+This plugin retrieves a user's full name and email address from an external
+source, writing them to the user preferences. This allows users to start
+sending emails without having to first setup these values. Also, if
+SquirrelMail is configured to not allow users to change their name and
+email address, this plugin can be used to ensure that these values are
+kept synchronized with the external source. Changes from external source
+can also be used to automatically update the corresponding data in
+squirrelmail. This plugin also allows login by email address performed by
+doing a lookup as well as modification of the login name if necessary.
+
+Currently, the following external data sources are supported:
+
+  text     - plain text file
+  passwd   - /etc/passwd file(s) via POSIX functions or direct access
+  virtual  - /etc/postfix/virtual file
+  script   - Script execution to retrieve data
+  vpopmail - Vpopmail access via it's vuserinfo program
+  ldap     - LDAP and Microsoft Active Directory access
+  dba      - DBM-like database access
+  mysql    - MySQL access
+  pgsql    - PostgreSQL access
+
+This plugin was inspired by the Retreive User Data plugin by Ralf Kraudelt.
+My initial goal was to improve the functionality of the passwd data source
+handler to allow email addresses to be derived from the userid as well as
+allow it to function when posix functions were not available. However,
+additional problems were found with the original plugin, including:
+
+  - full name was only being updated when email address changed, which
+    prevented name only changes from being copied into SquirrelMail
+
+  - full name was only being written to the primary identity in user
+    preferences, and thus not correctly stored for multiple identities
+
+  - mechanisms to minimize unnecessary data access did not work as well
+    as I would have liked
+
+In the end it became apparent that a complete re-write was required, which
+enabled the addition of much more functionality. In addition, this plugin
+was designed to meet current Squirrelmail plugin guidelines. It should be
+noted that much credit should go to Ralf Kraudelt for his original plugin,
+as it was the basis for this plugin, which likely would not have been built
+without it.
+
+
+
+Features
+========
+- retrieve user's email address and full name from external data source(s)
+- option to update data if it has been changed in external data source
+- option to only set data once, and optionally only if no identity is set
+- delays recheck for changes to minimize unnecessary data access
+- additional data handlers and methods can easily be added
+- configuation for data methods only required for those in use
+- additional data handlers for other source can easily be added
+- multiple data sources can be accessed to retreive users' data
+- user full name and email address(es) can come from different sources
+- supports multiple identities from external data sources
+- stores full name with corresponding identity for multiple identities
+- can update full name if changed, even if email address unchanged
+- can lookup login name against data sources to convert email addresses
+  into corresponding login names
+- data rules for deriving or adjusting data values with support for
+  comparison, assignment, character replacement, case conversion,
+  insertion variables, temporary variables and regular expressions
+- can use rules to adjust username lookup value as well as login name
+
+
+
+Data Handler Features
+=====================
+
+text
+  - supports simple delimited text files with one user entry per line
+  - can set delimiter as well as username/fullname/email field positions
+  - full name and email fields can be ommitted (i.e. derived by rules)
+  - option to ignore comment lines starting with '#'
+  - option to support continuation lines (those starting with space/tab)
+  - supports multiple email addresses per record or multiple records per user
+
+passwd
+  - supports posix functions as well as direct file access
+  - supports alternate passwd and group files
+  - enables rules to be applied based on group membership
+  - gets full name from passwd file (derive email address from rules)
+
+virtual
+  - supports Postfix virtual file (should support Sendmail as well)
+  - allows for login by email address
+  - supports retrieval of multiple email addresses/aliases for user
+
+script
+  - executes an external script to retreive full name and/or email address
+  - supports return of multiple email addresses and email/name pairs
+
+vpopmail
+  - uses vuserinfo binary to retreive full name from comment field
+
+ldap
+  - supports anonymous bind or rdn bind with SquirrelMail username & password
+  - flexible configuration of LDAP attributes for username, fullname &  email
+  - supports additional email addresses including removal of prefixed text
+  - option to use LDAP address book specified SquirrelMail main config file
+
+dba
+  - supports DMB-link databases
+  - supports dbm, ndbm, gdbm, db2, db3 and cdb database types
+
+mysql
+  - retrieves full name and/or email address from a MySQL server
+  - configuration for MySQL server/port, username, password, database & table
+  - flexility in field names for username, full name and email address
+  - full name and email fields can be ommitted (i.e. derived by rules)
+  - option for persistent connections
+
+pgsql
+  - retrieves full name and/or email address from a PostgreSQL server
+  - configuration for MySQL server/port, username, password, database & table
+  - flexility in field names for username, full name and email address
+  - full name and email fields can be ommitted (i.e. derived by rules)
+  - option for persistent connections
+
+
+
+License
+=======
+
+This plugin is released under the GNU General Public License. For full terms
+se the file COPYING
+
+
+
+Donations
+=========
+
+If you or your company make regular use of this software, please consider
+supporting Open Source development by donating to the authors or inquire
+about hiring them to consult on other projects. Donation links for the
+author(s) are as follows:
+
+  Ian Goldstein
+  https://sourceforge.net/donate/index.php?user_id=2543214
+
+
+
+
+Requirements
+============
+
+  * It is assumed that this plugin should work with SquirrelMail 1.4.0+
+  * However, it has only been tested with 1.4.19 at this point
+
+
+
+Original Retreive User Data Plugin Credits
+==========================================
+
+Original author:
+  Ralf Kraudelt <kraude@wiwi.uni-rostock.de>
+
+Additional contributors:
+  code cleanup:
+    Hannu Tikka <hannu.tikka@rpkk.fi>
+  support for SM 1.4.0 and mutiple identities:
+    Ken Brush <ken@wirex.com>
+
+LDAP support:
+  code and ideas:
+    Chris Birmingham <Chris.Birmingham@opentelecommunications.com>
+  code cleanup:
+    Lee Hoffman <lee@terabolic.com>
+  code suggestions:
+    Henrique de Moraes Holschuh <hmh@ima.sp.gov.br>
+
+MySQL support:
+  Thijs Kinkhorst <thijs@jaze.nl>
+
+PostgreSQL support:
+  Mark Bergsma <mark@nedworks.org>
+
+Vpopmail support:
+  Dominique Leuenberger <dominique.leuenberger@gibb.ch>
+
+Active Directory support:
+  Ken Brush <ken@wirex.com>
+
+
+
+To Do
+=====
+
+  * Test all data handlers
+  * Possible...
+    - ability to use regular expr to determine method do use
+    - text handler
+        alternate EOL chars for text files
+        fixed field length records for text files
+    - virtual handler
+        should we add any special handling in case email field contains
+          a regular expression, @domain or user (w/o domain)?
+    - should we use SM globals $edit_identity or $edit_name for anything? 
+    - should we support multiple records per user with cdb datbase type?
+    - single identity option
+        always write to username/full_name and set identities to 1
+        skip this setting if !$edit_identities?
+    - FAQ document
+
+
+
+Change Log
+==========
+
+  v0.3  2009/06/30  Ian Goldstein <ian@novoops.com>
+    * Major overhaul of code
+    * Allows login lookups using same methods as data retrieval
+
+  v0.1  2009/06/16  Ian Goldstein <ian@novoops.com>
+    * Preliminary version
+

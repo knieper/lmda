@@ -1,0 +1,95 @@
+Installing the Set User Data plugin
+===================================
+
+1) Start with untaring the file into the plugins directory.
+   Here is an example for the 1.0 version of the plugin:
+
+   $ cd plugins
+   $ tar -zxvf set_user_data-1.0.tar.gz
+
+2) Decide if you want to store the plugin configuration file in the plugin
+   directory or in the main SquirrelMail config directory.
+
+   A) To store the configuration file in the plugin directory, change into
+      the set_user_data directory, copy config.php.sample to config.php and
+      and edit config.php, making adjustments as necessary.
+
+      $ cd set_user_data
+      $ cp config.php.sample config.php
+      $ vi config.php
+
+   B) To store the configuration file in the main SquirrelMain config
+      directory, change into the set_user_data directory, copy
+      config.php.sample to ../../config/config_set_user_data.php
+      and edit ../../config/config_set_user_data.php, making adjustments
+      as necessary.
+
+      $ cd set_user_data
+      $ cp config.php.sample ../../config/config_set_user_data.php
+      $ vi ../../config/config_set_user_data.php
+
+3) In the previous step, at least one data access method should have been
+   selected in main configuration file. You now must configure the settings
+   for this data handler. Go to the methods directory and copy the
+   appropriate sample settings file and edit it as necessary. For example,
+   if using the passwd method:
+
+     $ cd methods
+     $ cp passwd.php.sample passwd.php
+     $ vi passwd.php
+
+   If you want to store this configuration file in the main SquirrelMail
+   directory, adjust these commands as follows:
+
+     $ cd methods
+     $ cp passwd.php.sample ../../../config/config_set_user_data_passwd.php
+     $ vi ../../config/config_set_user_data_passwd.php
+
+   If multiple methods have been set in the main configuration file, then
+   this step must be repeated for each method (See the comments in the main
+   configuraiton file for information on how to use more than one handler
+   and/or to use a handler with more than one set of config values).
+
+4) Go to your config directory and run conf.pl.  Choose option 8 and move
+   the plugin from the "Available Plugins" category to the "Installed
+   Plugins" category. Save and exit.
+
+     $ cd ../../config/
+     $ ./conf.pl
+
+
+5) (OPTIONAL) If you want to prevent users from changing their email address
+   and/or name in outging mail, when in the configuration tool, select
+   option "4. General Options" and set "Allow editing of identity" and/or
+   "Allow editing of name" to false.
+
+
+
+Upgrading
+=========
+
+1) Start with untaring the file into the plugins directory.
+   Here is an example for the 1.0 version of the plugin:
+
+   $ cd plugins
+   $ tar -zxvf set_user_data-1.0.tar.gz
+
+2) Change into the set_user_data plugin directory and check your config.php
+   file against the new version to see if there are any new settings that
+   you must add to your config.php file.
+
+   $ diff -u config.php config.php.sample
+
+   If you store your configuration file in the main SquirrelMail config
+   directory, adjust this command as follows:
+
+   $ diff -u ../../config/config_set_user_data.php config.php.sample
+
+   Or simply replace your configuration file with the provided sample and
+   reconfigure the plugin from scratch (see step 2 under the installation
+   procedure above).
+
+3) Change into the setting directory and repeat step 2 for each of the
+   data methods in use.
+
+

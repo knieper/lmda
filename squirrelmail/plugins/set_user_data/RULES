@@ -1,0 +1,216 @@
+RULES
+=====
+
+
+Overview
+
+  For data access methods and login lookup methods, rules can be defined
+  which will allow the lookup key and/or the results to be modified. This
+  will allow adjustments for logins by email address and/or adjustments
+  to the email address and full names retreived from external sources.
+  This will also allow email addresses or full names to be derived when
+  using sources that do not contain that data.
+
+
+
+Rule Definition
+
+  In the configuration file for a method a 'rules' value is set to
+  indicate the number of rules, and each rule is defined in the
+  settings 'rule1', 'rule2', etc. See the examples in the sample
+  configuration file for the passwd data handler.
+
+  The types of rule sets that can be defined are:
+
+    datakeyrules   adjusts key (username) used to lookup email/name
+    datarules      adjusts email address and full name after retrieval
+    loginkeyrules  adjusts key (login name) used to lookup login by email
+    loginrules     adjusts login name after lookup by email address
+    
+  For each rule set, the number of rules must be set, and each rule must
+  be set as well. For example, if two rules were needed for adjustments
+  to the email address and/or full name after lookup, the 'datarules'
+  setting would be 2, and 'datarule1' and 'datarule2' would be set to
+  the actual rules to be used.
+
+
+
+Rule Structure
+
+  Each rule must contain a space delimited list of commands, where each
+  command consists of a variable, followed by an operator and a value.
+
+
+
+Rule Processing
+
+  Rules defined for a method are evaluated in numerical order, and the
+  commands within each rule are executed in left-to-right order.
+
+  Mutliple conditionals are allowed, and if any conditionals in a rule
+  are not met, the rule is skipped and processing continues with the
+  next rule. In addition, any invalid rules (e.g. invalid operators)
+  are skipped. However, it is important to note that even if a rule
+  is skipped, any assignments done prior to the conditional or error
+  that cause the rule to be skipped will have already been completed.
+
+  A "default" rule can be created by not including any conditionals.
+
+  Normally, if all conditionals for a rule are met (or a default rule
+  is found), no futher rules are processed. If processing must continue
+  with the next rule, include a '+' as the last character in the rule
+  separated from any preceding characters with at least one space.
+
+
+
+Predefined Variables
+
+  key        the lookup key used for data retrieval or login lookups
+  user       the login username
+  email      email address
+  name       full name
+  group      group membership (i.e. groups the user belongs to)
+  mainemail  the first (i.e. primary) email address
+
+  Variable names are not case sensitive.
+
+  For data retrieval, the key will typically hold the username, but it
+  can be modified by datakeyrules. After the data has been retrieved the
+  email and name variables will be set based on the results, but can be
+  adjusted by datarules.
+
+  For login lookups, the key will typcially hold the login name as
+  entered by the user, but it can be modified by loginkeyrules. After the
+  lookup is done, the user variable will hold the name to use for user
+  login, but can be adjusted by loginrules.
+
+  Setting the key to an empty value (e.g. using 'key=' in a loginkeyrule)
+  should effectively disable the search, while setting the user to an
+  empty value in a loginrule should prevent login. These can be utilized
+  along with conditionals to either avoid login lookups of some values
+  and to prevent logins for specific usernames. The email variable can
+  also be set to an empty value in a datarule to prevent a specific email
+  address from being used.
+
+  The 'group' variable can only be used for simple conditional operations
+  (?= or !=) and will only be available after the user has been located
+  by the passwd data handler. In addition it cannot be used with variable
+  modifiers or as an insertion variable.
+
+  Variables will be avaiable as follows in the various rule sets:
+
+    datakeyrules  - key
+    datarules     - key, user, email, name, mainemail
+    loginkeyrules - key
+    loginrules    - key, user
+
+
+
+Additional Variables
+
+  Other variables are automatically created when they are used in an
+  assignment operation. Once set, they can be used as insertion vars
+  as well as for conditionals.
+
+
+
+Variable Modifiers
+
+  n:    name - part prior to first '@' (entire value if none)
+  d:    domain - part after first '@' (nothing if none)
+  t:    tld - part after last '.' (nothing if none)
+  l:    lowercase
+  u:    uppercase
+  i:    initial caps case
+
+  A varible can be prefixed with a modifier to reference a specific
+  portion of the variable or to change the case of the value. For example,
+  'd:email' refers to only the domain name portion of the email address.
+  Modifiers can be used at all points where variables are used, including
+  as insertion variables and for assignment operations.
+
+
+
+Conditional Operators
+
+  ?=    variable must match value for rule to apply
+  !=    variable must not match value for rule to apply
+  ~=    variable must match a regular expression for rule to apply
+
+
+
+Assignment Operators
+
+  =     assigns a specific value
+  ^=    insert a character to replace another character
+
+  When using the '^=' operator, the first character of the value is
+  the character to be inserted, and the next is the character to be
+  replaced. This can optionally be followed by the number of the
+  occurrance to replace, with 1 indicating the first (default), 2
+  the second, etc. You can use -1 for the last occurrance, -2 for
+  second to last, etc. If 0 is used, all occurrences are replaced.
+
+
+
+Insertion Variables
+
+  Insertion variables can be included in a value for conditionals
+  and assignment operations. Variables other than 'group', will be
+  inserted into the value if they are detected within { } brackets.
+  For example, {user} will be replace with the username. Predefined
+  and additional variables can be used, as can variable modifiers.
+  Any unknown variables will be treated as literals.
+
+  After a regular expression conditional operation, any captured
+  subexpressions are available as {1}, {2}, {3}, etc.
+
+
+  In addition, {} will be replaced with a space character, and to
+  insert a literal { character, use {{.
+
+
+
+Command Examples
+
+  conditionals
+
+    group?=users              rule used if member of 'users' group
+    user!=admin               rule used if user is not 'admin'
+    t:email?=uk               rule used if email tld is .uk
+    user~=/\.com$/           rule used if user ends with '.com'
+
+  basic assignments
+
+    email=admin@domain.com    sets a specific email address
+    email={user}@domain.com   appends text to userid to form email
+    email=admin@{user}        prepends text to userid to form email
+
+  replace by character
+
+    email^=@.           replace first '.' with '@'
+    email^=@.-2         replace 2nd to last '.' with '@'
+    n:email^=+.0        replace all '.' with '+' in email name portion
+
+  advanced examples
+
+    email={username} email^=@-2
+         set email address to username with 2nd to last '.' as '@'
+         i.e. first.last.domain.com --> first.last@domain.com
+
+    user~=/^(.+)@www\.(.+)$/ user={1}@{2}
+         removes 'www.' from user name
+         i.e. user@www.domain.com --> user@domain.com
+
+
+    n:email~=/^(\w+)\.(\w+)$/ name={i:1}{}{i:2}
+         users capitalized first.last in email for full name
+         i.e. first.last@domain.com --> First Last
+        
+   
+
+Rule Examples
+
+  See the sample configuration file for the passwd data method for
+  a set of example rules
+
