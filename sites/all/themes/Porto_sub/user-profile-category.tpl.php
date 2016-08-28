@@ -25,11 +25,11 @@
  */
 
 ?>
-<?php if ($title && $title != t(History)) : ?>
+<?php if ($title && $title != t('History')) : ?>
   <h3><?php print $title; ?></h3>
 <?php endif; ?>
 
-<?php if ($title != t(History)) : ?>
+<?php if ($title != t('History')) : ?>
 <dl<?php print $attributes; ?>>
   <?php print $profile_items; ?>
 </dl>
