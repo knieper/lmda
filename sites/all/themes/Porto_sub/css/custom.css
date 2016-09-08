@@ -397,3 +397,6 @@ body.boxed .body {
 	border-top-color: #750202;
 }
 
+.captcha {
+	max-width: 100%;
+}
