@@ -11,3 +11,6 @@ sites/*/civicrm.settings.php.old
 
 #ignore ds store
 */.DS_Store
+
+#ignore htaccess file
+.htaccess
