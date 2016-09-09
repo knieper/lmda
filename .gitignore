@@ -1,0 +1,16 @@
+# Ignore configuration files that may contain sensitive information.
+sites/*/settings*.php
+
+# Ignore paths that contain user-generated content.
+sites/*/files
+sites/*/private
+
+#ignore Civicrm settings
+sites/*/civicrm.settings.php
+sites/*/civicrm.settings.php.old
+
+#ignore ds store
+*/.DS_Store
+
+#ignore htaccess file
+.htaccess
