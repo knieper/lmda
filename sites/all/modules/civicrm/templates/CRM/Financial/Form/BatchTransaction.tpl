@@ -1,8 +1,8 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2016                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -24,7 +24,7 @@
  +--------------------------------------------------------------------+
 *}
 {* this template is used for batch transaction screen, assign/remove transactions to batch  *}
-{if $statusID eq 1}
+{if in_array($batchStatus, array('Open', 'Reopened'))}
 <div class="crm-form-block crm-search-form-block">
   <div class="crm-accordion-wrapper crm-batch_transaction_search-accordion collapsed">
     <div class="crm-accordion-header crm-master-accordion-header">
@@ -54,12 +54,12 @@
           {/if}
           {include file="CRM/Contribute/Form/Search/Common.tpl"}
         </table>
-        <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="botttom"}</div>
+	<div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
       </div>
     </div>
   </div>
 </div>
-{if $statusID eq 1}
+{if in_array($batchStatus, array('Open', 'Reopened'))}
 <div class="form-layout-compressed">{$form.trans_assign.html}&nbsp;{$form.submit.html}</div><br/>
 {/if}
 <div id="ltype">
@@ -69,7 +69,7 @@
     <table id="crm-transaction-selector-assign-{$entityID}" cellpadding="0" cellspacing="0" border="0">
       <thead>
       <tr>
-        <th class="crm-transaction-checkbox">{if $statusID eq 1}{$form.toggleSelect.html}{/if}</th>
+        <th class="crm-transaction-checkbox">{if in_array($batchStatus, array('Open', 'Reopened'))}{$form.toggleSelect.html}{/if}</th>
         <th class="crm-contact-type"></th>
         <th class="crm-contact-name">{ts}Name{/ts}</th>
         <th class="crm-amount">{ts}Amount{/ts}</th>
@@ -94,8 +94,8 @@ CRM.$(function($) {
     CRM.$('.crm-batch_transaction_search-accordion:not(.collapsed)').crmAccordionToggle();
   });
   var batchStatus = {/literal}{$statusID}{literal};
-  // build transaction listing only for open batches
-  if (batchStatus == 1) {
+  {/literal}{if $validStatus}{literal}
+    // build transaction listing only for open/reopened batches
     var paymentInstrumentID = {/literal}{if $paymentInstrumentID neq null}{$paymentInstrumentID}{else}'null'{/if}{literal};
     if (paymentInstrumentID != 'null') {
       buildTransactionSelectorAssign( true );
@@ -158,10 +158,9 @@ CRM.$(function($) {
         CRM.$("#crm-transaction-selector-remove-{/literal}{$entityID}{literal} input[id^='mark_y_']").prop('checked',false);
       }
     });
-  }
-  else {
+  {/literal}{else}{literal}
     buildTransactionSelectorRemove();
-  }
+  {/literal}{/if}{literal}
 });
 
 function enableActions( type ) {
@@ -178,7 +177,7 @@ function buildTransactionSelectorAssign(filterSearch) {
   var sourceUrl = {/literal}'{crmURL p="civicrm/ajax/rest" h=0 q="className=CRM_Financial_Page_AJAX&fnName=getFinancialTransactionsList&snippet=4&context=financialBatch&entityID=$entityID&notPresent=1&statusID=$statusID"}'{literal};
   if ( filterSearch ) {
     sourceUrl = sourceUrl+"&search=1";
-    var ZeroRecordText = '<div class="status messages">{/literal}{ts escape="js"}No Contributions found for your search criteria.{/ts}{literal}</li></ul></div>';
+    var ZeroRecordText = '<div class="status messages">{/literal}{ts escape="js"}None found.{/ts}{literal}</li></ul></div>';
   }
 
   crmBatchSelector1 = CRM.$('#crm-transaction-selector-assign-{/literal}{$entityID}{literal}').dataTable({

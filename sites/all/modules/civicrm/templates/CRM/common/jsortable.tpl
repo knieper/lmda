@@ -1,8 +1,8 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2016                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -41,7 +41,7 @@
       });
       return optionId;
     }
-    
+
     // for date sorting see http://wiki.civicrm.org/confluence/display/CRMDOC/Sorting+Date+Fields+in+dataTables+Widget
     var useAjax = {/literal}{if $useAjax}1{else}0{/if}{literal},
       sourceUrl = '',
@@ -154,6 +154,7 @@
           "bAutoWidth": false,
           "aoColumns": columns,
           "bSort": true,
+          "sDom": 'ti',
           "oLanguage":{
             "sEmptyTable": noRecordFoundMsg,
             "sZeroRecords": noRecordFoundMsg
@@ -165,7 +166,7 @@
 
   //plugin to sort on currency
   cj.fn.dataTableExt.oSort['currency-asc']  = function(a,b) {
-    var symbol = "{/literal}{$config->defaultCurrencySymbol($config->defaultSymbol)}{literal}";
+    var symbol = "{/literal}{$config->defaultCurrencySymbol()}{literal}";
     var x = (a == "-") ? 0 : a.replace( symbol, "" );
     var y = (b == "-") ? 0 : b.replace( symbol, "" );
     x = parseFloat( x );
@@ -174,7 +175,7 @@
   };
 
   cj.fn.dataTableExt.oSort['currency-desc'] = function(a,b) {
-    var symbol = "{/literal}{$config->defaultCurrencySymbol($config->defaultSymbol)}{literal}";
+    var symbol = "{/literal}{$config->defaultCurrencySymbol()}{literal}";
     var x = (a == "-") ? 0 : a.replace( symbol, "" );
     var y = (b == "-") ? 0 : b.replace( symbol, "" );
     x = parseFloat( x );

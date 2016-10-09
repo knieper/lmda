@@ -1,9 +1,9 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2016                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -23,28 +23,29 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*/
+ */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2014
- * $Id$
- *
+ * @copyright CiviCRM LLC (c) 2004-2016
  */
 
 /**
- * This class generates form components for Tag
- *
+ * This class generates form components for Tag.
  */
 class CRM_Admin_Form_Tag extends CRM_Admin_Form {
   protected $_isTagSet;
 
   /**
-   * Function to build the form
-   *
-   * @return void
-   * @access public
+   * Explicitly declare the entity api name.
+   */
+  public function getDefaultEntity() {
+    return 'Tag';
+  }
+
+  /**
+   * Build the form object.
    */
   public function buildQuickForm() {
     $this->setPageTitle($this->_isTagSet ? ts('Tag Set') : ts('Tag'));
@@ -76,6 +77,14 @@ class CRM_Admin_Form_Tag extends CRM_Admin_Form {
 
       if (!$this->_isTagSet) {
         $this->add('select', 'parent_id', ts('Parent Tag'), $allTag, FALSE, array('class' => 'crm-select2'));
+
+        // Tagsets are not selectable by definition so only include the selectable field if NOT a tagset.
+        $selectable = $this->add('checkbox', 'is_selectable', ts('Selectable?'));
+        // Selectable should be checked by default when creating a new tag
+        if ($this->_action == CRM_Core_Action::ADD) {
+          $selectable->setValue(1);
+        }
+
       }
 
       $this->assign('isTagSet', $this->_isTagSet);
@@ -85,14 +94,14 @@ class CRM_Admin_Form_Tag extends CRM_Admin_Form {
       $this->add('text', 'name', ts('Name'),
         CRM_Core_DAO::getAttribute('CRM_Core_DAO_Tag', 'name'), TRUE
       );
-      $this->addRule('name', ts('Name already exists in Database.'), 'objectExists', array('CRM_Core_DAO_Tag', $this->_id));
+      $this->addRule('name', ts('Name already exists in Database.'), 'objectExists', array(
+          'CRM_Core_DAO_Tag',
+          $this->_id,
+        ));
 
       $this->add('text', 'description', ts('Description'),
         CRM_Core_DAO::getAttribute('CRM_Core_DAO_Tag', 'description')
       );
-
-      //@lobo haven't a clue why the checkbox isn't displayed (it should be checked by default
-      $this->add('checkbox', 'is_selectable');
 
       $isReserved = $this->add('checkbox', 'is_reserved', ts('Reserved?'));
 
@@ -122,11 +131,7 @@ class CRM_Admin_Form_Tag extends CRM_Admin_Form {
   }
 
   /**
-   * Function to process the form
-   *
-   * @access public
-   *
-   * @return void
+   * Process the form submission.
    */
   public function postProcess() {
     $params = $ids = array();
@@ -150,6 +155,10 @@ class CRM_Admin_Form_Tag extends CRM_Admin_Form {
       $params['is_reserved'] = 0;
     }
 
+    if (!isset($params['is_selectable'])) {
+      $params['is_selectable'] = 0;
+    }
+
     if ($this->_action == CRM_Core_Action::DELETE) {
       if ($this->_id > 0) {
         $tag = civicrm_api3('tag', 'getsingle', array('id' => $this->_id));
@@ -164,4 +173,3 @@ class CRM_Admin_Form_Tag extends CRM_Admin_Form {
   }
 
 }
-

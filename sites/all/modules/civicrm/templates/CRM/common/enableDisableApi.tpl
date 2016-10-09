@@ -1,8 +1,8 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2016                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -42,13 +42,20 @@
 
     function save() {
       $row.closest('table').block();
-      CRM.api3(info.entity, info.action, {id: info.id, field: 'is_active', value: enabled ? 0 : 1}, {success: successMsg}).done(refresh);
+      var params = {id: info.id};
+      if (info.action == 'setvalue') {
+        params.field = 'is_active';
+        params.value = enabled ? 0 : 1;
+      } else {
+        params.is_active = enabled ? 0 : 1;
+      }
+      CRM.api3(info.entity, info.action, params, {success: successMsg}).done(refresh);
     }
 
     function checkResponse(e, response) {
       if (response.illegal) {
         $(this).dialog('option', 'buttons', [
-          {text: {/literal}'{ts escape="js"}Close{/ts}'{literal}, click: function() {$(this).dialog('close');}, icons: {primary: 'ui-icon-close'}}
+          {text: {/literal}'{ts escape="js"}Close{/ts}'{literal}, click: function() {$(this).dialog('close');}, icons: {primary: 'fa-times'}}
         ]);
       }
     }
@@ -64,7 +71,8 @@
           url: CRM.url('civicrm/ajax/statusmsg', {entity: info.entity, id: info.id}),
           title: ts('{/literal}{ts escape="js" 1='%1'}Disable %1{/ts}{literal}', {1: fieldLabel}),
           options: {{/literal}yes: '{ts escape="js"}Yes{/ts}', no: '{ts escape="js"}No{/ts}'{literal}},
-          width: 300
+          width: 300,
+          height: 'auto'
         })
           .on('crmLoad', checkResponse)
           .on('crmConfirm:yes', save);

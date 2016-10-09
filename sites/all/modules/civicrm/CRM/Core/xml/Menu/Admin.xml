@@ -218,6 +218,14 @@
      <weight>95</weight>
   </item>
   <item>
+     <path>civicrm/admin/setting/preferences/date</path>
+     <title>Date Preferences</title>
+     <page_callback>CRM_Admin_Form_PreferencesDate</page_callback>
+     <adminGroup>Customize Data and Screens</adminGroup>
+     <icon>admin/small/36.png</icon>
+     <weight>97</weight>
+  </item>
+  <item>
      <path>civicrm/admin/menu</path>
      <title>Navigation Menu</title>
      <desc>Add or remove menu items, and modify the order of items on the navigation menu.</desc>
@@ -269,6 +277,7 @@
      <page_callback>CRM_Admin_Page_MessageTemplates</page_callback>
      <adminGroup>Communications</adminGroup>
      <icon>admin/small/template.png</icon>
+     <access_arguments>edit message templates</access_arguments>
      <weight>30</weight>
   </item>
   <item>
@@ -276,6 +285,7 @@
      <title>Message Templates</title>
      <desc>Add/Edit Message Templates</desc>
      <page_callback>CRM_Admin_Form_MessageTemplates</page_callback>
+     <access_arguments>edit message templates</access_arguments>
      <weight>262</weight>
   </item>
   <item>
@@ -283,6 +293,8 @@
      <title>Schedule Reminders</title>[A
      <desc>Schedule Reminders.</desc>
      <page_callback>CRM_Admin_Page_ScheduleReminders</page_callback>
+     <access_callback>1</access_callback>
+     <access_arguments>administer CiviCRM;edit all events</access_arguments>
      <adminGroup>Communications</adminGroup>
      <icon>admin/small/template.png</icon>
      <weight>40</weight>
@@ -356,7 +368,7 @@
   </item>
   <item>
      <path>civicrm/admin/setting/localization</path>
-     <title>Languages, Currency, Location</title>
+     <title>Languages, Currency, Locations</title>
      <page_callback>CRM_Admin_Form_Setting_Localization</page_callback>
      <adminGroup>Localization</adminGroup>
      <icon>admin/small/36.png</icon>
@@ -407,7 +419,7 @@
      <path>civicrm/admin/synchUser</path>
      <title>Synchronize Users to Contacts</title>
      <desc>Automatically create a CiviCRM contact record for each CMS user record.</desc>
-     <page_callback>CRM_Admin_Page_CMSUser</page_callback>
+     <page_callback>CRM_Admin_Form_CMSUser</page_callback>
      <adminGroup>Users and Permissions</adminGroup>
      <icon>admin/small/Synch_user.png</icon>
      <weight>20</weight>
@@ -475,7 +487,7 @@
   <item>
      <path>civicrm/admin/setting/misc</path>
      <title>Misc (Undelete, PDFs, Limits, Logging, Captcha, etc.)</title>
-   	 <desc>Enable undelete/move to trash feature, detailed change logging, ReCAPTCHA to protect forms.</desc>
+     <desc>Enable undelete/move to trash feature, detailed change logging, ReCAPTCHA to protect forms.</desc>
      <page_callback>CRM_Admin_Form_Setting_Miscellaneous</page_callback>
      <adminGroup>System Settings</adminGroup>
      <icon>admin/small/36.png</icon>
@@ -711,8 +723,8 @@
      <access_arguments>administer CiviCRM,access CiviCRM</access_arguments>
   </item>
   <item>
-     <path>civicrm/ajax/mapping1</path>
-     <page_callback>CRM_Admin_Page_AJAX::mappingList1</page_callback>
+     <path>civicrm/ajax/recipientListing</path>
+     <page_callback>CRM_Admin_Page_AJAX::recipientListing</page_callback>
      <access_arguments>administer CiviCRM,access CiviCRM</access_arguments>
   </item>
   <item>
@@ -747,6 +759,12 @@
   <item>
     <path>civicrm/admin/badgelayout/add</path>
     <page_callback>CRM_Badge_Form_Layout</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/admin/ckeditor</path>
+    <title>Configure CKEditor</title>
+    <page_callback>CRM_Admin_Page_CKEditorConfig</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
 </menu>
