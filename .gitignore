@@ -15,3 +15,6 @@ sites/*/civicrm.settings.php.old
 
 #ignore htaccess file
 .htaccess
+
+#ignore dev mods
+sites/all/modules/civicrm_reroute_email/
