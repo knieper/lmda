@@ -221,8 +221,7 @@ class CRM_Report_Form_Instance {
     $navigationDefaults = array();
 
     if (!isset($defaults['permission'])) {
-      $permissions = array_flip(CRM_Core_Permission::basicPermissions());
-      $defaults['permission'] = $permissions['CiviReport: access CiviReport'];
+      $defaults['permission'] = 'access CiviReport';
     }
 
     $userFrameworkResourceURL = CRM_Core_Config::singleton()->userFrameworkResourceURL;
@@ -369,7 +368,7 @@ class CRM_Report_Form_Instance {
     // CRM-17310 my reports functionality - we should set owner if the checkbox is 1,
     // it seems to be not set at all if unchecked.
     if (!empty($formValues['add_to_my_reports'])) {
-      $params['owner_id'] = CRM_Core_Session::singleton()->getLoggedInContactID();
+      $params['owner_id'] = CRM_Core_Session::getLoggedInContactID();
     }
     else {
       $params['owner_id'] = 'null';
