@@ -369,6 +369,7 @@ class CRM_Contact_BAO_Query {
     'email',
     'im',
     'address_name',
+    'master_id',
   );
 
   /**
@@ -1537,7 +1538,10 @@ class CRM_Contact_BAO_Query {
 
     self::filterCountryFromValuesIfStateExists($formValues);
 
-    foreach ($formValues as $id => $values) {
+    foreach ($formValues as $id => &$val) {
+      // CRM-19374 - we don't want to change $val in $formValues.
+      // Assign it to a temp variable which operates while iteration.
+      $values = $val;
 
       if (self::isAlreadyProcessedForQueryFormat($values)) {
         $params[] = $values;
@@ -1616,6 +1620,13 @@ class CRM_Contact_BAO_Query {
         }
 
         if (array_key_exists($fromRange, $formValues) && array_key_exists($toRange, $formValues)) {
+          // relative dates are not processed correctly as lower date value were ignored,
+          // to ensure both high and low date value got added IF there is relative date,
+          // we need to reset $formValues by unset and then adding again via CRM_Contact_BAO_Query::fixDateValues(...)
+          if (!empty($formValues[$id])) {
+            unset($formValues[$fromRange]);
+            unset($formValues[$toRange]);
+          }
           CRM_Contact_BAO_Query::fixDateValues($formValues[$id], $formValues[$fromRange], $formValues[$toRange]);
           continue;
         }
@@ -2863,9 +2874,7 @@ class CRM_Contact_BAO_Query {
     }
     elseif (is_array($value)) {
       foreach ($value as $k => $v) {
-        if (!empty($k)) {
-          $clause[$k] = "($alias $op '%" . CRM_Core_DAO::VALUE_SEPARATOR . CRM_Utils_Type::escape($v, 'String') . CRM_Core_DAO::VALUE_SEPARATOR . "%')";
-        }
+        $clause[$k] = "($alias $op '%" . CRM_Core_DAO::VALUE_SEPARATOR . CRM_Utils_Type::escape($v, 'String') . CRM_Core_DAO::VALUE_SEPARATOR . "%')";
       }
     }
     else {
@@ -2929,7 +2938,15 @@ class CRM_Contact_BAO_Query {
       $statii[] = '"Added"';
     }
 
-    $ssClause = $this->addGroupContactCache($value, NULL, "contact_a", $op);
+    //CRM-19589: contact(s) removed from a Smart Group, resides in civicrm_group_contact table
+    $ssClause = NULL;
+    if (empty($gcsValues) || // if no status selected
+      in_array("'Added'", $statii) ||  // if both Added and Removed statuses are selected
+      (count($statii) == 1 && $statii[0] == 'Removed') // if only Removed status is selected
+    ) {
+      $ssClause = $this->addGroupContactCache($value, NULL, "contact_a", $op);
+    }
+
     $isSmart = (!$ssClause) ? FALSE : TRUE;
     if (!is_array($value) &&
       count($statii) == 1 &&
@@ -2942,7 +2959,7 @@ class CRM_Contact_BAO_Query {
     }
     $groupClause = NULL;
 
-    if (!$isSmart) {
+    if (!$isSmart || in_array("'Added'", $statii)) {
       $groupIds = implode(',', (array) $value);
       $gcTable = "`civicrm_group_contact-{$groupIds}`";
       $joinClause = array("contact_a.id = {$gcTable}.contact_id");
@@ -2976,6 +2993,7 @@ class CRM_Contact_BAO_Query {
     if (strpos($op, 'NULL') === FALSE) {
       $this->_qill[$grouping][] = ts("Group Status %1", array(1 => implode(' ' . ts('or') . ' ', $statii)));
     }
+
     if ($groupClause) {
       $this->_where[$grouping][] = $groupClause;
     }
@@ -3547,6 +3565,7 @@ WHERE  $smartGroupClause
         $contactIds[] = substr($values[0], CRM_Core_Form::CB_PREFIX_LEN);
       }
     }
+    CRM_Utils_Type::validateAll($contactIds, 'Positive');
     if (!empty($contactIds)) {
       $this->_where[0][] = " ( contact_a.id IN (" . implode(',', $contactIds) . " ) ) ";
     }
@@ -4138,12 +4157,12 @@ civicrm_relationship.is_permission_a_b = 0
       if (!empty($dateValueLow)) {
         $date = date('Ymd', strtotime($dateValueLow[2]));
         $where[$grouping][] = "civicrm_relationship.$dateField >= $date";
-        $this->_qill[$grouping][] = ($dateField == 'end_date' ? ts('Relationship Ended on or After') : ts('Relationship Recorded Start Date On or Before')) . " " . CRM_Utils_Date::customFormat($date);
+        $this->_qill[$grouping][] = ($dateField == 'end_date' ? ts('Relationship Ended on or After') : ts('Relationship Recorded Start Date On or After')) . " " . CRM_Utils_Date::customFormat($date);
       }
       if (!empty($dateValueHigh)) {
         $date = date('Ymd', strtotime($dateValueHigh[2]));
         $where[$grouping][] = "civicrm_relationship.$dateField <= $date";
-        $this->_qill[$grouping][] = ($dateField == 'end_date' ? ts('Relationship Ended on or Before') : ts('Relationship Recorded Start Date On or After')) . " " . CRM_Utils_Date::customFormat($date);
+        $this->_qill[$grouping][] = ($dateField == 'end_date' ? ts('Relationship Ended on or Before') : ts('Relationship Recorded Start Date On or Before')) . " " . CRM_Utils_Date::customFormat($date);
       }
     }
   }

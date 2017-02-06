@@ -52,7 +52,11 @@ class CRM_Core_Payment_PayPalIPN extends CRM_Core_Payment_BaseIPN {
    * @throws CRM_Core_Exception
    */
   public function __construct($inputData) {
-    $this->setInputParameters($inputData);
+    //CRM-19676
+    $params = (!empty($inputData['custom'])) ?
+      array_merge($inputData, json_decode($inputData['custom'], TRUE)) :
+      $inputData;
+    $this->setInputParameters($params);
     parent::__construct();
   }
 
@@ -334,7 +338,7 @@ class CRM_Core_Payment_PayPalIPN extends CRM_Core_Payment_BaseIPN {
     }
 
     $paymentProcessorID = $this->retrieve('processor_id', 'Integer', FALSE);
-    if (!empty($paymentProcessorID)) {
+    if (empty($paymentProcessorID)) {
       $processorParams = array(
         'user_name' => $this->retrieve('receiver_email', 'String', FALSE),
         'payment_processor_type_id' => CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'PayPal_Standard', 'id', 'name'),

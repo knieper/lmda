@@ -336,10 +336,10 @@ class CRM_Contribute_Selector_Search extends CRM_Core_Selector_Base implements C
     $componentId = $componentContext = NULL;
     if ($this->_context != 'contribute') {
       // @todo explain the significance of context & why we do not get these i that context.
-      $qfKey = CRM_Utils_Request::retrieve('key', 'String', CRM_Core_DAO::$_nullObject);
-      $componentId = CRM_Utils_Request::retrieve('id', 'Positive', CRM_Core_DAO::$_nullObject);
-      $componentAction = CRM_Utils_Request::retrieve('action', 'String', CRM_Core_DAO::$_nullObject);
-      $componentContext = CRM_Utils_Request::retrieve('compContext', 'String', CRM_Core_DAO::$_nullObject);
+      $qfKey = CRM_Utils_Request::retrieve('key', 'String');
+      $componentId = CRM_Utils_Request::retrieve('id', 'Positive');
+      $componentAction = CRM_Utils_Request::retrieve('action', 'String');
+      $componentContext = CRM_Utils_Request::retrieve('compContext', 'String');
 
       if (!$componentContext &&
         $this->_compContext
@@ -418,6 +418,12 @@ class CRM_Contribute_Selector_Search extends CRM_Core_Selector_Base implements C
 
       if ($result->is_pay_later && CRM_Utils_Array::value('contribution_status_name', $row) == 'Pending') {
         $row['contribution_status'] .= ' (' . ts('Pay Later') . ')';
+        $links[CRM_Core_Action::ADD] = array(
+          'name' => ts('Pay with Credit Card'),
+          'url' => 'civicrm/contact/view/contribution',
+          'qs' => 'reset=1&action=update&id=%%id%%&cid=%%cid%%&context=%%cxt%%&mode=live',
+          'title' => ts('Pay with Credit Card'),
+        );
       }
       elseif (CRM_Utils_Array::value('contribution_status_name', $row) == 'Pending') {
         $row['contribution_status'] .= ' (' . ts('Incomplete Transaction') . ')';

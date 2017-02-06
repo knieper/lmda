@@ -100,7 +100,7 @@ class CRM_Core_BAO_Dashboard extends CRM_Core_DAO_Dashboard {
    *   array of dashlets
    */
   public static function getContactDashlets($contactID = NULL) {
-    $contactID = $contactID ? $contactID : CRM_Core_Session::singleton()->getLoggedInContactID();
+    $contactID = $contactID ? $contactID : CRM_Core_Session::getLoggedInContactID();
     $dashlets = array();
 
     // Get contact dashboard dashlets.
@@ -108,7 +108,7 @@ class CRM_Core_BAO_Dashboard extends CRM_Core_DAO_Dashboard {
       'contact_id' => $contactID,
       'is_active' => 1,
       'dashboard_id.is_active' => 1,
-      'options' => array('sort' => 'weight'),
+      'options' => array('sort' => 'weight', 'limit' => 0),
       'return' => array(
         'id',
         'weight',
@@ -184,7 +184,7 @@ class CRM_Core_BAO_Dashboard extends CRM_Core_DAO_Dashboard {
         'domain_id' => CRM_Core_Config::domainID(),
         'option.limit' => 0,
       ));
-    $contactID = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $contactID = CRM_Core_Session::getLoggedInContactID();
     $allDashlets = CRM_Utils_Array::index(array('name'), $getDashlets['values']);
     $defaultDashlets = array();
     $defaults = array('blog' => 1, 'getting-started' => '0');
@@ -493,6 +493,9 @@ class CRM_Core_BAO_Dashboard extends CRM_Core_DAO_Dashboard {
   public static function deleteDashlet($dashletID) {
     $dashlet = new CRM_Core_DAO_Dashboard();
     $dashlet->id = $dashletID;
+    if (!$dashlet->find(TRUE)) {
+      return FALSE;
+    }
     $dashlet->delete();
     return TRUE;
   }
