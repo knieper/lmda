@@ -13,8 +13,9 @@ sites/*/civicrm.settings.php.old
 #ignore ds store
 */.DS_Store
 
-#ignore htaccess file
+#ignore htaccess file & robots
 .htaccess
+robots.txt
 
 #ignore dev mods
 sites/all/modules/civicrm_reroute_email/
