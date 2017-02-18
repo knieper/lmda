@@ -1,0 +1,40 @@
+<?php
+
+// editing the label on the registration form, based on the hook from the email registration module
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function minor_tweaks_form_user_login_alter(&$form, &$form_state) {
+  $form['name']['#title'] = variable_get('email_registration_login_with_username', TRUE)
+    ? t('E-mail Address')
+    : t('E-mail Address');
+  $form['name']['#description'] = variable_get('email_registration_login_with_username', TRUE)
+      ? t('Enter your e-mail address.')
+      : t('Enter your e-mail address.');
+  $form['name']['#element_validate'][] = 'email_registration_user_login_validate';
+  $form['pass']['#description'] = t('Enter the password that accompanies your e-mail.');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function minor_tweaks_form_user_login_block_alter(&$form, &$form_state) {
+  $form['name']['#title'] = variable_get('email_registration_login_with_username', TRUE)
+    ? t('E-mail Address')
+    : t('E-mail Address');
+  $form['name']['#element_validate'][] = 'email_registration_user_login_validate';
+}
+
+//call minor tweaks module after email_registration module
+/**
+ * Implements hook_module_implements_alter().
+ */
+function minor_tweaks_module_implements_alter(&$implementations, $hook) {
+	if (($hook == 'minor_tweaks_form_user_login_alter') && isset($implementations['minor_tweaks'])) {
+    $group = $implementations['minor_tweaks'];
+    unset($implementations['minor_tweaks']);
+    $implementations['minor_tweaks'] = $group;
+  }
+
+}
