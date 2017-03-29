@@ -4,9 +4,9 @@ dependencies[] = civicrm_entity_inline
 package = CiviCRM Entity
 core = 7.x
 version = 1.0-beta1
-; Information added by Drupal.org packaging script on 2017-01-23
-version = "7.x-2.0-beta5"
+; Information added by Drupal.org packaging script on 2017-02-18
+version = "7.x-2.0-beta6"
 core = "7.x"
 project = "civicrm_entity"
-datestamp = "1485133686"
+datestamp = "1487404687"
 
