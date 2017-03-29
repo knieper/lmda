@@ -484,3 +484,14 @@ body.boxed .body {
 .pricing-table .plan{
 	margin-right: 0px;
 }
+
+/****** CIVICRM specific tweaks *******/
+.crm-container .crm-section .label{
+	white-space: normal;
+	text-align: right;
+	width: 25%;
+}
+
+.crm-container .crm-section .content{
+	margin-left: 26%;
+}
