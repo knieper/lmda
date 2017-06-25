@@ -132,8 +132,21 @@ function civicrm_entity_views_extras_views_data() {
   //----------------------------------------------------------------
 
   // Membership
+  $data['civicrm_membership']['civicrm_membership_payment'] = array(
+    'title' => t('CiviCRM Membership Payment'),
+    'help' => t('Relates Membership Payment to Membership'),
+    'real field' => 'id',
+    'relationship' => array(
+      'base' => 'civicrm_membership_payment',
+      'base field' => 'membership_id',
+      'handler' => 'views_handler_relationship',
+      'label' => t('CiviCRM Membership Payment'),
+    ),
+  );
+
+
   $data['civicrm_membership_payment']['civicrm_membership'] = array(
-    'title' => t('CiviCRM Member'),
+    'title' => t('CiviCRM Membership'),
     'help' => t('Relates Membership to Membership Payment'),
     'real field' => 'membership_id',
     'relationship' => array(
@@ -155,6 +168,48 @@ function civicrm_entity_views_extras_views_data() {
       'label' => t('CiviCRM Contributions'),
     ),
   );
+
+  //----------------------------------------------------------------
+  // CIVICRM Participant Payment - RELATIONSHIPS
+  //----------------------------------------------------------------
+
+  // Participant
+  $data['civicrm_participant']['civicrm_participant_payment'] = array(
+    'title' => t('CiviCRM Participant Payment'),
+    'help' => t('Relates Participant Payment to Participant'),
+    'real field' => 'id',
+    'relationship' => array(
+      'base' => 'civicrm_participant_payment',
+      'base field' => 'participant_id',
+      'handler' => 'views_handler_relationship',
+      'label' => t('CiviCRM Participant Payment'),
+    ),
+  );
+
+  $data['civicrm_participant_payment']['civicrm_participant'] = array(
+    'title' => t('CiviCRM Participant'),
+    'help' => t('Relates Participant to Participant Payment'),
+    'real field' => 'participant_id',
+    'relationship' => array(
+      'base' => 'civicrm_participant',
+      'base field' => 'id',
+      'handler' => 'views_handler_relationship',
+      'label' => t('CiviCRM Participant'),
+    ),
+  );
+  // Contribution
+  $data['civicrm_participant_payment']['civicrm_contribution'] = array(
+    'title' => t('CiviCRM Contributions'),
+    'help' => t('Relates Contribution to Membership Payment'),
+    'real field' => 'contribution_id',
+    'relationship' => array(
+      'base' => 'civicrm_contribution',
+      'base field' => 'id',
+      'handler' => 'views_handler_relationship',
+      'label' => t('CiviCRM Contributions'),
+    ),
+  );
+
 
   //----------------------------------------------------------------
   // CIVICRM Relationship - RELATIONSHIPS
@@ -294,6 +349,89 @@ function civicrm_entity_views_extras_views_data() {
       'base field' => 'id',
       'handler' => 'views_handler_relationship',
       'label' => t('CiviCRM Price Field Value'),
+    ),
+  );
+
+//----------------------------------------------------------------
+  // CIVICRM World Region
+  //----------------------------------------------------------------
+  $data['civicrm_worldregion']['table']['group'] = t('CiviCRM World Region');
+
+  $data['civicrm_worldregion']['table']['base'] = array(
+    'field' => 'id',
+    'title' => t('CiviCRM World Regions'),
+    'help' => t("View displays CiviCRM World Regions"),
+  );
+
+  //----------------------------------------------------------------
+  // CIVICRM World Region - FIELDS
+  //----------------------------------------------------------------
+
+  // ID
+  $data['civicrm_worldregion']['id'] = array(
+    'title' => t('ID'),
+    'help' => t('The numeric ID of the world region'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+      'numeric' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
+  // Name
+  $data['civicrm_worldregion']['name'] = array(
+    'title' => t('Name'),
+    'help' => t('The world region name'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+      'allow empty' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
+  //----------------------------------------------------------------
+  // CIVICRM Country Relationships
+  //----------------------------------------------------------------
+  $data['civicrm_address']['civicrm_country'] = array(
+    'title' => t('CiviCRM Country'),
+    'help' => t('Relates Country to Address'),
+    'real field' => 'country_id',
+    'relationship' => array(
+      'base' => 'civicrm_country',
+      'base field' => 'id',
+      'handler' => 'views_handler_relationship',
+      'label' => t('CiviCRM Country'),
+    ),
+  );
+
+
+  $data['civicrm_country']['civicrm_worldregion'] = array(
+    'title' => t('CiviCRM World Region'),
+    'help' => t('Relates World Region to Country'),
+    'real field' => 'region_id',
+    'relationship' => array(
+      'base' => 'civicrm_worldregion',
+      'base field' => 'id',
+      'handler' => 'views_handler_relationship',
+      'label' => t('CiviCRM World Region'),
     ),
   );
 

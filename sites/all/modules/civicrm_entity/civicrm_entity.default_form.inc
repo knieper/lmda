@@ -357,13 +357,14 @@ function civicrm_entity_form_validate(&$form, &$form_state) {
   // validate name for contact
   if ($entity_type == 'civicrm_contact') {
     if ($form_state['values']['contact_type'] == 'Individual') {
-      if (!isset($form['first_name']) && !isset($form['middle_name']) && !isset($form['last_name'])) {
-        form_set_error('contact_type', t('Individual contact type, form must include at least one of first, middle, or last name fields.'));
+      if (!isset($form['first_name']) && !isset($form['middle_name']) && !isset($form['last_name']) && !isset($form['display_name'])) {
+        form_set_error('contact_type', t('Individual contact type, form must include at least one of first, middle, last or display name fields.'));
       }
-      elseif (empty($form_state['values']['first_name']) && empty($form_state['values']['middle_name']) && empty($form_state['values']['last_name'])) {
-        form_set_error('first_name', t('At least one of first, middle, or last names must be set when contact type is set to Individual.'));
+      elseif (empty($form_state['values']['first_name']) && empty($form_state['values']['middle_name']) && empty($form_state['values']['last_name']) && empty($form_state['values']['display_name'])) {
+        form_set_error('first_name', t('At least one of first, middle, last or display names must be set when contact type is set to Individual.'));
         form_set_error('middle_name');
         form_set_error('last_name');
+        form_set_error('display_name');
       }
     }
     elseif ($form_state['values']['contact_type'] == 'Household') {
@@ -445,9 +446,50 @@ function civicrm_entity_form_submit(&$form, &$form_state) {
   $entity->changed = time();
 
   $wrapper = entity_metadata_wrapper($entity_type, $entity);
-  field_attach_submit($entity_type, $entity, $form, $form_state);
+  //field_attach_submit($entity_type, $entity, $form, $form_state);
 
-  $wrapper->save();
+  //$wrapper->save();
+  // handling for civicrm entity reference fields on civicrm entities
+  $target_id_columns = array();
+  if ($entity->is_new) {
+    foreach ($form as $key => $form_field) {
+      if (strpos($key, 'field_') === 0) {
+        $field = field_info_field($key);
+        if ($field['type'] == 'civicrm_entity_reference') {
+          $ief_id = $form_field['und']['#ief_id'];
+          $host_entity_type = $form_state['inline_entity_form'][$ief_id]['instance']['entity_type'];
+          if ($host_entity_type == $entity_type) {
+            $target_id_columns[$key] = array($field['settings']['host_source_id'] => $field['settings']['target_id_column']);
+          }
+        }
+      }
+    }
+
+    if (!empty($target_id_columns)) {
+      // first save the entity
+      $wrapper->save();
+      // then update civicrm entity target id values with host id
+      foreach ($target_id_columns as $key => $target_id_column) {
+        $host_id = key($target_id_column);
+        $target_id = reset($target_id_column);
+        $ief_id = $form[$key]['und']['#ief_id'];
+        foreach ($form_state['inline_entity_form'][$ief_id]['entities'] as $item_index => $item) {
+          if(!empty($form_state['inline_entity_form'][$ief_id]['entities'][$item_index]['entity']->is_new)) {
+            $form_state['inline_entity_form'][$ief_id]['entities'][$item_index]['entity']->{$target_id} = $entity->{$host_id};
+          }
+        }
+      }
+      // this will create the civicrm entity reference fields entities
+      field_attach_submit($entity_type, $entity, $form, $form_state);
+    }
+  }
+  // is update, handle "normally"
+  else {
+    field_attach_submit($entity_type, $entity, $form, $form_state);
+    $wrapper->save();
+  }
+
+
 
   $t_args = array(
     '%label' => entity_label($entity_type, $entity),
