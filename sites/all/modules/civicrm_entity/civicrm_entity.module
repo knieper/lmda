@@ -243,15 +243,39 @@ function  civicrm_entity_op_access($op, $entity_type, $entity = NULL, $account =
  * Implements hook_views_data_alter().
  */
 function civicrm_entity_views_data_alter(&$data) {
-  // unset auto-generated custom field views handlers due to civicrm_entity entity metadata coming from API getfields call
+
   $civicrm_entity_types = civicrm_entity_get_supported_entity_info();
+
   foreach ($civicrm_entity_types as $civicrm_entity_type => $info) {
     foreach ($data[$civicrm_entity_type] as $property => $prop_info) {
+      // unset auto-generated custom field views handlers due to civicrm_entity entity metadata coming from API getfields call
       if (strpos($property, 'custom_') === 0) {
-        unset($data[$civicrm_entity_type][$property]);
+        $name_array = explode('_', $property);
+        if(isset($name_array[1]) && is_numeric($name_array[1])) {
+          unset($data[$civicrm_entity_type][$property]);
+        }
       }
     }
   }
+
+ if(!empty($data['civicrm_contribution_recur']['next_sched_contribution'])) {
+    foreach($data['civicrm_contribution_recur'] as $property => $property_data) {
+      if(strpos($property, 'next_sched_contribution') === 0) {
+        $property_name_components = explode('_', $property);
+        if(!empty($property_name_components[3])) {
+          $new_name = $property_name_components[0] . '_' . $property_name_components[1] . '_' . $property_name_components[2] . '_date_' . $property_name_components[3] . (!empty($property_name_components[4]) ? ('_' . $property_name_components[4]) : '');
+        }
+        else {
+          $new_name = implode('_', $property_name_components) . '_date';
+        }
+
+        $data['civicrm_contribution_recur'][$new_name] = $data['civicrm_contribution_recur'][$property];
+        unset($data['civicrm_contribution_recur'][$property]);
+
+      }
+    }
+  }
+
 }
 
 
@@ -726,6 +750,54 @@ function civicrm_entity_supported_entities_info() {
       ),
     ),
   );
+  $civicrm_entity_info['civicrm_contribution_recur'] = array(
+    'civicrm entity name' => 'contribution_recur',
+    'label property' => 'id',
+    'permissions' => array(
+      'view' => array('access CiviContribute', 'administer CiviCRM'),
+      'edit' => array('edit contributions', 'administer CiviCRM'),
+      'update' => array('edit contributions', 'administer CiviCRM'),
+      'create' => array('edit contributions', 'administer CiviCRM'),
+      'delete' => array(
+        'edit contributions',
+        'delete in CiviContribute',
+        'administer CiviCRM',
+      ),
+    ),
+    'theme' => array(
+      'template' => 'civicrm-contribution-recur',
+      'path' => drupal_get_path('module', 'civicrm_entity') . '/templates',
+    ),
+    'display suite' => array(
+      'link fields' => array(
+        array(
+          'link_field' => 'contact_id',
+          'target' => 'civicrm_contact',
+        ),
+        array(
+          'link_field' => 'payment_processor_id',
+          'target' => 'civicrm_payment_processor',
+        ),
+        array(
+          'link_field' => 'financial_type_id',
+          'target' => 'civicrm_contribution',
+        ),
+        array(
+          'link_field' => 'campaign_id',
+          'target' => 'civicrm_campaign',
+        ),
+      ),
+      'option fields' => array('financial_type_id', 'contribution_status_id', 'payment_instrument_id'),
+      'boolean fields' => array('is_test', 'is_email_receipt', 'auto_renew'),
+      'date fields' => array(
+        'create_date',
+        'modified_date',
+        'cancel_date',
+        'end_date',
+        'failure_retry_date',
+      ),
+    ),
+  );
   $civicrm_entity_info['civicrm_contribution_page'] = array(
     'civicrm entity name' => 'contribution_page',
     'label property' => 'title',
@@ -1097,6 +1169,34 @@ function civicrm_entity_supported_entities_info() {
       ),
     ),
   );
+  $civicrm_entity_info['civicrm_im'] = array(
+    'civicrm entity name' => 'im',
+    'label property' => 'name',
+    'permissions' => array(
+      'view' => array('view all contacts'),
+      'edit' => array('edit all contacts'),
+      'update' => array('edit all contacts'),
+      'create' => array('edit all contacts'),
+      'delete' => array('delete contacts'),
+    ),
+    'theme' => array(
+      'template' => 'civicrm-im',
+      'path' => drupal_get_path('module', 'civicrm_entity') . '/templates',
+    ),
+    'display suite' => array(
+      'link fields' => array(
+        array(
+          'link_field' => 'contact_id',
+          'target' => 'civicrm_contact',
+        ),
+      ),
+      'option fields' => array(
+        'location_type_id',
+        'provider_id',
+      ),
+      'boolean fields' => array('is_primary', 'is_billing'),
+    ),
+  );
   $civicrm_entity_info['civicrm_line_item'] = array(
     'civicrm entity name' => 'line_item',
     'label property' => 'label',
@@ -1161,6 +1261,10 @@ function civicrm_entity_supported_entities_info() {
           'target' => 'civicrm_phone',
         ),
         array(
+          'link_field' => 'im_id',
+          'target' => 'civicrm_im',
+        ),
+        array(
           'link_field' => 'address_2_id',
           'target' => 'civicrm_address',
         ),
@@ -1171,6 +1275,10 @@ function civicrm_entity_supported_entities_info() {
         array(
           'link_field' => 'email_2_id',
           'target' => 'civicrm_email',
+        ),
+        array(
+          'link_field' => 'im_2_id',
+          'target' => 'civicrm_im',
         ),
       ),
       'option fields' => array(),
@@ -1826,7 +1934,32 @@ function civicrm_entity_supported_entities_info() {
       ),
     ),
   );
-
+  $civicrm_entity_info['civicrm_website'] = array(
+    'civicrm entity name' => 'website',
+    'label property' => 'url',
+    'permissions' => array(
+      'view' => array('view all contacts'),
+      'edit' => array('edit all contacts'),
+      'update' => array('edit all contacts'),
+      'create' => array('edit all contacts'),
+      'delete' => array('delete contacts'),
+    ),
+    'theme' => array(
+      'template' => 'civicrm-website',
+      'path' => drupal_get_path('module', 'civicrm_entity') . '/templates',
+    ),
+    'display suite' => array(
+      'link fields' => array(
+        array(
+          'link_field' => 'contact_id',
+          'target' => 'civicrm_contact',
+        ),
+      ),
+      'option fields' => array(
+        'website_type_id',
+      ),
+    ),
+  );
   return $civicrm_entity_info;
 }
 
@@ -2345,6 +2478,7 @@ function civicrm_entity_get_field_widget($field_spec, $civicrm_entity) {
     'address',
     'phone',
     'email',
+    'im',
     'relationship',
     'membership_type',
     'activity',
@@ -2544,6 +2678,12 @@ function civicrm_entity_civicrm_contact_label_callback($entity, $entity_type) {
       '!phone' => $entity->phone,
     ));
   }
+  elseif (isset($entity->im) && !empty($entity->im)) {
+    $label = t('!label <!im>', array(
+      '!label' => $label,
+      '!im' => $entity->im,
+    ));
+  }
   return $label;
 }
 
@@ -2731,7 +2871,7 @@ function civicrm_entity_action_create_user($contact, $is_active, $notify = FALSE
   if (empty($contact['display_name'])) {
     $contact['display_name'] = $contact['email'];
   }
-  
+
   // Check if the requested username is available.
   $errors = array();
   $config = CRM_Core_Config::singleton();
@@ -3014,6 +3154,87 @@ function civicrm_entity_contact_send_email($contact, $subject, $message_text, $m
     'subject' => $subject,
     'details' => $message_html,
   ));
+}
+
+/**
+ * Callback for Unassign CiviCRM Contact from Group Rules action
+ *
+ * @param $contact
+ * @param $group_ids
+ */
+function civicrm_entity_rules_action_assign_contact_to_group($contact, $group_ids) {
+  if(!civicrm_initialize()) {
+    return;
+  }
+  try {
+    foreach ($group_ids AS $key => $group) {
+      $contact_id = $contact->id->value();
+      $params = array(
+        'sequential' => 1,
+        'contact_id' => $contact_id,
+        'group_id' => $group,
+      );
+      $get_result = civicrm_api3('GroupContact', 'Get', $params);
+      if(!$get_result['count']) {
+        $params = array(
+          'contact_id' => $contact_id,
+          'group_id' => $group,
+        );
+        $create_result = civicrm_api3('GroupContact', 'Create', $params);
+      }
+    }
+  }
+  catch (CiviCRM_API3_Exception $e) {
+    watchdog('civicrm_entity', t('Error assigning contact to groups via Assign CiviCRM Contact to Group rule'));
+  }
+}
+
+/**
+ * Callback for Assign CiviCRM Contact to Group Rules action
+ *
+ * @param $contact
+ * @param $group_ids
+ */
+function civicrm_entity_rules_action_unassign_contact_to_group($contact, $group_ids) {
+  if(!civicrm_initialize()) {
+    return;
+  }
+  try {
+    foreach ($group_ids AS $key => $group) {
+      $contact_id = $contact->id->value();
+      $params = array(
+        'contact_id' => $contact_id,
+        'group_id' => $group,
+      );
+      $delete_result = civicrm_api3('GroupContact', 'delete', $params);
+    }
+  }
+  catch (CiviCRM_API3_Exception $e) {
+    watchdog('civicrm_entity', t('Error unassigning contact to groups via Assign CiviCRM Contact from Group rule'));
+  }
+}
+
+/**
+ * Callback for Assign CiviCRM Contact to Group Rules action, Group selection options list
+ *
+ * @return array
+ */
+function civicrm_entity_rules_assign_contact_group_options_list() {
+  $group_query = new EntityFieldQuery();
+  $groups = $group_query->entityCondition('entity_type', 'civicrm_group')
+    ->propertyCondition('is_active', 1)
+    ->propertyOrderBy('title', 'ASC')
+    ->execute();
+
+  $options = array();
+  if(count($groups['civicrm_group'])) {
+    $group_entities = entity_load('civicrm_group', array_keys($groups['civicrm_group']));
+
+    foreach ($group_entities AS $key => $group) {
+      $options[$key] = $group->title;
+    }
+  }
+  return $options;
 }
 
 /**
