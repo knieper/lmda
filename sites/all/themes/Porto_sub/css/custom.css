@@ -495,3 +495,8 @@ body.boxed .body {
 .crm-container .crm-section .content{
 	margin-left: 26%;
 }
+
+.crm-section input[type="radio"] + label{
+	padding-left: .25em;
+	padding-right: .5em;
+}

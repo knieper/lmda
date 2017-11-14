@@ -1,5 +1,5 @@
 name = Porto sub
-description = A sub-theme of Porto. 
+description = A sub-theme of Porto.
 core = 7.x
 engine = phptemplate
 
@@ -7,6 +7,8 @@ base theme = porto
 
 ; Call style sheets.
 stylesheets[all][] = css/custom.css
+;Add custom js
+scripts[] = js/lmdajs.js
 
 ; Define theme block regions.
 regions[header_top] = Header Top
