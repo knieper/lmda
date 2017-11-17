@@ -33,9 +33,9 @@ jQuery(document).ready(function ($) {
   console.log($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val());
 
   if($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val() == 0){
-     $(this).parents("fieldset.crm-profile-view").addClass('hidden');
+     $("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").parents("fieldset.crm-profile-view").addClass('hidden');
      console.log('this was called');
-     console.log($(this).parents("fieldset.crm-profile-view"));
+     console.log( $("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").parents("fieldset.crm-profile-view"));
   }
 
 
