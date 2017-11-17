@@ -29,4 +29,12 @@ jQuery(document).ready(function ($) {
       $("label[for='CIVICRM_QFID_1_payment_processor_id']").replaceWith('<label for="CIVICRM_QFID_1_payment_processor_id">Credit card via PayPal</label>');
     });
 
+// hide honoree section on confirmation page if values are blank
+  console.log($("#CIVICRM_QFID_0_4").val());
+  if($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val() == "No"){
+     $(this).parent().parent().parent().parent().addClass('hidden');
+  }
+
+
+
 });
