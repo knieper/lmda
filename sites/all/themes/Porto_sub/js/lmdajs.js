@@ -30,9 +30,12 @@ jQuery(document).ready(function ($) {
     });
 
 // hide honoree section on confirmation page if values are blank
-  console.log($("#CIVICRM_QFID_0_4").val());
-  if($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val() == "No"){
-     $(this).parent().parent().parent().parent().addClass('hidden');
+  console.log($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val());
+
+  if($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val() == 0){
+     var test = $(this).parent().parent().parent().parent().addClass('hidden');
+     console.log('this was called');
+     console.log(test);
   }
 
 
