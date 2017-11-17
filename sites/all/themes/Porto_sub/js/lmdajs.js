@@ -30,10 +30,10 @@ jQuery(document).ready(function ($) {
     });
 
 // hide honoree section on confirmation page if values are blank
-  if($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val() == 0)){
+  if($("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").val() == 0){
      $("div.crm-contribution-confirm-form-block").find("#CIVICRM_QFID_0_4").parents("fieldset.crm-profile-view").addClass('hidden');
   }
-  if($("div.crm-contribution-thankyou-form-block").find("#CIVICRM_QFID_0_4").val() == 0)){
+  if($("div.crm-contribution-thankyou-form-block").find("#CIVICRM_QFID_0_4").val() == 0){
     $("div.crm-contribution-thankyou-form-block").find("#CIVICRM_QFID_0_4").parents("fieldset.crm-profile-view").addClass('hidden');
 
   }
