@@ -25,7 +25,7 @@ jQuery(document).ready(function ($) {
 
 
 /*adjust paypal US label to be 'Pay by credit card using PayPal'*/
-  $("#priceset").on('change', function(){
+  $("#priceset").on('keyup', function(){
       $("label[for='CIVICRM_QFID_1_payment_processor_id']").replaceWith('<label for="CIVICRM_QFID_1_payment_processor_id">Credit card via PayPal</label>');
     });
 
