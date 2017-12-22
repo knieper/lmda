@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -341,7 +341,7 @@ class CRM_Case_Form_Activity extends CRM_Activity_Form_Activity {
       return TRUE;
     }
 
-    return parent::formrule($fields, $files, $self);
+    return parent::formRule($fields, $files, $self);
   }
 
   /**
@@ -589,7 +589,7 @@ class CRM_Case_Form_Activity extends CRM_Activity_Form_Activity {
     //CRM-5695
     //check for notification settings for assignee contacts
     $selectedContacts = array('contact_check');
-    $activityContacts = CRM_Core_OptionGroup::values('activity_contacts', FALSE, FALSE, FALSE, NULL, 'name');
+    $activityContacts = CRM_Activity_BAO_ActivityContact::buildOptions('record_type_id', 'validate');
     $assigneeID = CRM_Utils_Array::key('Activity Assignees', $activityContacts);
     if (Civi::settings()->get('activity_assignee_notification')) {
       $selectedContacts[] = 'assignee_contact_id';

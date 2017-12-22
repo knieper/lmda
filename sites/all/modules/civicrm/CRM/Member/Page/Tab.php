@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -192,7 +192,14 @@ class CRM_Member_Page_Tab extends CRM_Core_Page {
 
     //Below code gives list of all Membership Types associated
     //with an Organization(CRM-2016)
-    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypesByOrg($this->_contactId);
+    $membershipTypesResult = civicrm_api3('MembershipType', 'get', array(
+      'member_of_contact_id' => $this->_contactId,
+      'options' => array(
+        'limit' => 0,
+      ),
+    ));
+    $membershipTypes = CRM_Utils_Array::value('values', $membershipTypesResult, NULL);
+
     foreach ($membershipTypes as $key => $value) {
       $membershipTypes[$key]['action'] = CRM_Core_Action::formLink(self::membershipTypeslinks(),
         $mask,

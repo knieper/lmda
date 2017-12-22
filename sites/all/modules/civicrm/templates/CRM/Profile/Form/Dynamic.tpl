@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -36,7 +36,7 @@
 
   <div class="crm-submit-buttons">
     <span class="crm-button">{$form._qf_Edit_upload_delete.html}</span>
-    <a class="button cancel" href="{$cancelURL}">{ts}Cancel{/ts}</a>
+    <a class="button cancel" href="{$cancelURL}">{$cancelButtonText}</a>
   </div>
 {else}
 {if ! empty( $fields )}
@@ -154,7 +154,7 @@
               {if $n eq 'email_greeting' or  $n eq 'postal_greeting' or $n eq 'addressee'}
                 {include file="CRM/Profile/Form/GreetingType.tpl"}
               {elseif ( $n eq 'group' && $form.group ) || ( $n eq 'tag' && $form.tag )}
-                {include file="CRM/Contact/Form/Edit/TagsAndGroups.tpl" type=$n context="profile"}
+                {include file="CRM/Contact/Form/Edit/TagsAndGroups.tpl" type=$n context="profile" tableLayout=1}
               {elseif ( $form.$n.name eq 'image_URL' )}
                 {$form.$n.html}
                 {if !empty($imageURL)}
@@ -171,12 +171,7 @@
                 &nbsp;{$form.$phone_ext_field.html}
                 {/if}
               {else}
-                {if
-                ( ( $n eq 'birth_date' ) or ( $n eq 'deceased_date' ) or ( $n eq 'activity_date_time' ) ) and $field.is_view neq 1 }
-                {include file="CRM/common/jcalendar.tpl" elementName=$n}
-                {else}
-                  {$form.$n.html}
-                {/if}
+                {$form.$n.html}
                 {if $field.html_type eq 'Autocomplete-Select'}
                   {if $field.data_type eq 'ContactReference'}
                     {include file="CRM/Custom/Form/ContactReference.tpl" element_name = $n}
@@ -226,7 +221,7 @@
         <a class="button cancel" href="{$cancelURL}">
           <span>
             <i class="crm-i fa-times"></i>
-            {ts}Cancel{/ts}
+            {$cancelButtonText}
           </span>
         </a>
       </div>

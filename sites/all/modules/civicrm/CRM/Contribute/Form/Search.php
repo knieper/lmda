@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -280,6 +280,7 @@ class CRM_Contribute_Form_Search extends CRM_Core_Form_Search {
         'contribution_product_id',
         'invoice_id',
         'payment_instrument_id',
+        'contribution_batch_id',
       );
       CRM_Contact_BAO_Query::processSpecialFormValue($this->_formValues, $specialParams);
 
@@ -296,18 +297,16 @@ class CRM_Contribute_Form_Search extends CRM_Core_Form_Search {
         }
       }
 
-      if (!defined('CIVICRM_GROUPTREE')) {
-        $group = CRM_Utils_Array::value('group', $this->_formValues);
-        if ($group && !is_array($group)) {
-          unset($this->_formValues['group']);
-          $this->_formValues['group'][$group] = 1;
-        }
+      $group = CRM_Utils_Array::value('group', $this->_formValues);
+      if ($group && !is_array($group)) {
+        unset($this->_formValues['group']);
+        $this->_formValues['group'][$group] = 1;
+      }
 
-        if ($group && is_array($group)) {
-          unset($this->_formValues['group']);
-          foreach ($group as $notImportant => $groupID) {
-            $this->_formValues['group'][$groupID] = 1;
-          }
+      if ($group && is_array($group)) {
+        unset($this->_formValues['group']);
+        foreach ($group as $groupID) {
+          $this->_formValues['group'][$groupID] = 1;
         }
       }
     }
@@ -386,6 +385,16 @@ class CRM_Contribute_Form_Search extends CRM_Core_Form_Search {
     if ($status) {
       $this->_formValues['contribution_status_id'] = array($status => 1);
       $this->_defaults['contribution_status_id'] = array($status => 1);
+    }
+
+    $pcpid = (array) CRM_Utils_Request::retrieve('pcpid', 'String', $this);
+    if ($pcpid) {
+      // Add new pcpid to the tail of the array...
+      foreach ($pcpid as $pcpIdList) {
+        $this->_formValues['contribution_pcp_made_through_id'][] = $pcpIdList;
+      }
+      // and avoid any duplicate
+      $this->_formValues['contribution_pcp_made_through_id'] = array_unique($this->_formValues['contribution_pcp_made_through_id']);
     }
 
     $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this);

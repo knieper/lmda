@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -43,7 +43,7 @@
  * This provides greater consistency/predictability after flushing.
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Core_PseudoConstant {
 
@@ -220,7 +220,7 @@ class CRM_Core_PseudoConstant {
     if (strpos($fieldName, 'custom_') === 0 && is_numeric($fieldName[7])) {
       $customField = new CRM_Core_BAO_CustomField();
       $customField->id = (int) substr($fieldName, 7);
-      $options = $customField->getOptions();
+      $options = $customField->getOptions($context);
       if ($options && $flip) {
         $options = array_flip($options);
       }
@@ -548,6 +548,7 @@ class CRM_Core_PseudoConstant {
       return $var;
     }
 
+    /* @var CRM_Core_DAO $object */
     $object = new $name();
 
     $object->selectAdd();
@@ -565,6 +566,10 @@ class CRM_Core_PseudoConstant {
 
     if (!$all) {
       $object->$filter = 1;
+      $aclClauses = array_filter($name::getSelectWhereClause());
+      foreach ($aclClauses as $clause) {
+        $object->whereAdd($clause);
+      }
     }
 
     $object->find();
@@ -904,18 +909,12 @@ WHERE  id = %1";
    */
   public static function allGroup($groupType = NULL, $excludeHidden = TRUE) {
     $condition = CRM_Contact_BAO_Group::groupTypeCondition($groupType, $excludeHidden);
-
-    if (!self::$group) {
-      self::$group = array();
-    }
-
     $groupKey = ($groupType ? $groupType : 'null') . !empty($excludeHidden);
 
-    if (!isset(self::$group[$groupKey])) {
-      self::$group[$groupKey] = NULL;
-      self::populate(self::$group[$groupKey], 'CRM_Contact_DAO_Group', FALSE, 'title', 'is_active', $condition);
+    if (!isset(Civi::$statics[__CLASS__]['groups']['allGroup'][$groupKey])) {
+      self::populate(Civi::$statics[__CLASS__]['groups']['allGroup'][$groupKey], 'CRM_Contact_DAO_Group', FALSE, 'title', 'is_active', $condition);
     }
-    return self::$group[$groupKey];
+    return Civi::$statics[__CLASS__]['groups']['allGroup'][$groupKey];
   }
 
   /**
@@ -1003,7 +1002,7 @@ WHERE  id = %1";
    *   Db column name/label.
    * @param bool $reset
    *   Reset relationship types if true.
-   * @param bool|NULL $isActive
+   * @param bool $isActive
    *   Filter by is_active. NULL to disable.
    *
    * @return array

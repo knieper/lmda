@@ -3,7 +3,7 @@
   +--------------------------------------------------------------------+
   | CiviCRM version 4.7                                                |
   +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2016                                |
+  | Copyright CiviCRM LLC (c) 2004-2017                                |
   +--------------------------------------------------------------------+
   | This file is a part of CiviCRM.                                    |
   |                                                                    |
@@ -28,23 +28,23 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
- * $Id$
- *
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
- * BAO object for civicrm_prevnext_cache table
+ * BAO object for civicrm_prevnext_cache table.
  */
 class CRM_Core_BAO_PrevNextCache extends CRM_Core_DAO_PrevNextCache {
 
   /**
-   * @param $cacheKey
-   * @param $id1
-   * @param $id2
+   * Get the previous and next keys.
+   *
+   * @param string $cacheKey
+   * @param int $id1
+   * @param int $id2
    * @param int $mergeId
-   * @param NULL $join
-   * @param NULL $where
+   * @param string $join
+   * @param string $where
    * @param bool $flip
    *
    * @return array
@@ -113,8 +113,10 @@ WHERE  cacheKey     = %3 AND
   }
 
   /**
+   * Delete an item from the prevnext cache table based on the entity.
+   *
    * @param int $id
-   * @param NULL $cacheKey
+   * @param string $cacheKey
    * @param string $entityTable
    */
   public static function deleteItem($id = NULL, $cacheKey = NULL, $entityTable = 'civicrm_contact') {
@@ -136,9 +138,11 @@ WHERE  cacheKey     = %3 AND
   }
 
   /**
-   * @param $id1
-   * @param $id2
-   * @param NULL $cacheKey
+   * Delete from the previous next cache table for a pair of ids.
+   *
+   * @param int $id1
+   * @param int $id2
+   * @param string $cacheKey
    * @param bool $isViceVersa
    * @param string $entityTable
    */
@@ -159,6 +163,16 @@ WHERE  cacheKey     = %3 AND
     CRM_Core_DAO::executeQuery($sql, $params);
   }
 
+  /**
+   * Mark contacts as being in conflict.
+   *
+   * @param int $id1
+   * @param int $id2
+   * @param string $cacheKey
+   * @param array $conflicts
+   *
+   * @return bool
+   */
   public static function markConflict($id1, $id2, $cacheKey, $conflicts) {
     if (empty($cacheKey) || empty($conflicts)) {
       return FALSE;
@@ -214,6 +228,7 @@ WHERE  cacheKey     = %3 AND
    * @param bool $includeConflicts
    *   Should we return rows that have already been idenfified as having a conflict.
    *   When this is TRUE you should be careful you do not set up a loop.
+   * @param array $params
    *
    * @return array
    */
@@ -272,7 +287,7 @@ FROM   civicrm_prevnext_cache pn
 
       if (!empty($select)) {
         $extraData = array();
-        foreach ($select as $dfield => $sfield) {
+        foreach ($select as $sfield) {
           $extraData[$sfield]  = $dao->$sfield;
         }
         $main[$count] = array(
@@ -311,7 +326,9 @@ FROM   civicrm_prevnext_cache pn
   }
 
   /**
-   * @param $cacheKey
+   * Get count of matching rows.
+   *
+   * @param string $cacheKey
    * @param string $join
    * @param string $where
    * @param string $op
@@ -349,11 +366,16 @@ WHERE (pn.cacheKey $op %1 OR pn.cacheKey $op %2)
    * @param bool $checkPermissions
    *   Respect logged in user's permissions.
    *
+   * @param int $searchLimit
+   *  Limit for the number of contacts to be used for comparison.
+   *  The search methodology finds all matches for the searchedContacts so this limits
+   *  the number of searched contacts, not the matches found.
+   *
    * @return bool
    * @throws \CRM_Core_Exception
    * @throws \CiviCRM_API3_Exception
    */
-  public static function refillCache($rgid, $gid, $cacheKeyString, $criteria, $checkPermissions) {
+  public static function refillCache($rgid, $gid, $cacheKeyString, $criteria, $checkPermissions, $searchLimit = 0) {
     if (!$cacheKeyString && $rgid) {
       $cacheKeyString = CRM_Dedupe_Merger::getMergeCacheKeyString($rgid, $gid, $criteria, $checkPermissions);
     }
@@ -372,7 +394,7 @@ WHERE (pn.cacheKey $op %1 OR pn.cacheKey $op %2)
     // 2. FILL cache
     $foundDupes = array();
     if ($rgid && $gid) {
-      $foundDupes = CRM_Dedupe_Finder::dupesInGroup($rgid, $gid);
+      $foundDupes = CRM_Dedupe_Finder::dupesInGroup($rgid, $gid, $searchLimit);
     }
     elseif ($rgid) {
       $contactIDs = array();
@@ -380,7 +402,7 @@ WHERE (pn.cacheKey $op %1 OR pn.cacheKey $op %2)
         $contacts = civicrm_api3('Contact', 'get', array_merge(array('options' => array('limit' => 0), 'return' => 'id'), $criteria['contact']));
         $contactIDs = array_keys($contacts['values']);
       }
-      $foundDupes = CRM_Dedupe_Finder::dupes($rgid, $contactIDs, $checkPermissions);
+      $foundDupes = CRM_Dedupe_Finder::dupes($rgid, $contactIDs, $checkPermissions, $searchLimit);
     }
 
     if (!empty($foundDupes)) {
@@ -549,7 +571,7 @@ WHERE  cacheKey LIKE %1
     $cacheKey = "civicrm search {$qfKey}";
 
     $query = "
-SELECT count(id)
+SELECT count(*)
 FROM   civicrm_prevnext_cache
 WHERE  cacheKey LIKE %1
   AND  is_selected = 1

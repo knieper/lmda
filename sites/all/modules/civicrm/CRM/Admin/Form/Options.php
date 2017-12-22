@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -49,6 +49,12 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
    * @var array
    */
   protected $_gLabel;
+
+  /**
+   * Is this Option Group Domain Specific
+   * @var bool
+   */
+  protected $_domainSpecific = FALSE;
 
   /**
    * Pre-process
@@ -74,6 +80,7 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
       'name'
     );
     $this->_gLabel = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup', $this->_gid, 'title');
+    $this->_domainSpecific = in_array($this->_gName, CRM_Core_OptionGroup::$_domainIDGroups);
     $url = "civicrm/admin/options/{$this->_gName}";
     $params = "reset=1";
 
@@ -132,7 +139,10 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
     }
     // CRM-11516
     if ($this->_gName == 'payment_instrument' && $this->_id) {
-      $defaults['financial_account_id'] = CRM_Financial_BAO_FinancialTypeAccount::getFinancialAccount($this->_id, 'civicrm_option_value', 'financial_account_id');
+      $defaults['financial_account_id'] = CRM_Contribute_PseudoConstant::getRelationalFinancialAccount($this->_id, NULL, 'civicrm_option_value');
+    }
+    if (empty($this->_id) || !CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionValue', $this->_id, 'color')) {
+      $defaults['color'] = '#ffffff';
     }
     return $defaults;
   }
@@ -169,6 +179,18 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
         CRM_Core_DAO::getAttribute('CRM_Core_DAO_OptionValue', 'value'),
         TRUE
       );
+      $this->addRule('value',
+        ts('This Value already exists in the database for this option group. Please select a different Value.'),
+        'optionExists',
+        array('CRM_Core_DAO_OptionValue', $this->_id, $this->_gid, 'value', $this->_domainSpecific)
+      );
+    }
+    else {
+      $this->add('text', 'icon', ts('Icon'), array('class' => 'crm-icon-picker', 'title' => ts('Choose Icon'), 'allowClear' => TRUE));
+    }
+
+    if (in_array($this->_gName, array('activity_status', 'case_status'))) {
+      $this->add('color', 'color', ts('Color'));
     }
 
     if (!in_array($this->_gName, array(
@@ -177,12 +199,10 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
         'addressee',
       )) && !$isReserved
     ) {
-      $domainSpecificOptionGroups = array('from_email_address');
-      $domainSpecific = in_array($this->_gName, $domainSpecificOptionGroups) ? TRUE : FALSE;
       $this->addRule('label',
-        ts('This Label already exists in the database for this option group. Please select a different Value.'),
+        ts('This Label already exists in the database for this option group. Please select a different Label.'),
         'optionExists',
-        array('CRM_Core_DAO_OptionValue', $this->_id, $this->_gid, 'label', $domainSpecific)
+        array('CRM_Core_DAO_OptionValue', $this->_id, $this->_gid, 'label', $this->_domainSpecific)
       );
     }
 
@@ -212,17 +232,22 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
       );
     }
 
-    $required = FALSE;
-    if ($this->_gName == 'custom_search') {
-      $required = TRUE;
+    if ($this->_gName == 'activity_status') {
+      $this->add('select',
+        'filter',
+        ts('Status Type'),
+        array(
+          CRM_Activity_BAO_Activity::INCOMPLETE => ts('Incomplete'),
+          CRM_Activity_BAO_Activity::COMPLETED => ts('Completed'),
+          CRM_Activity_BAO_Activity::CANCELLED => ts('Cancelled'),
+        )
+      );
     }
-    elseif ($this->_gName == 'redaction_rule' || $this->_gName == 'engagement_index') {
-      if ($this->_gName == 'redaction_rule') {
-        $this->add('checkbox',
-          'filter',
-          ts('Regular Expression?')
-        );
-      }
+    if ($this->_gName == 'redaction_rule') {
+      $this->add('checkbox',
+        'filter',
+        ts('Regular Expression?')
+      );
     }
     if ($this->_gName == 'participant_listing') {
       $this->add('text',
@@ -236,7 +261,7 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
       $this->add('wysiwyg', 'description',
         ts('Description'),
         array('rows' => 4, 'cols' => 80),
-        $required
+        $this->_gName == 'custom_search'
       );
     }
 
@@ -425,7 +450,7 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
       }
     }
     else {
-      $params = $ids = array();
+      $ids = array();
       $params = $this->exportValues();
 
       // allow multiple defaults within group.
@@ -455,6 +480,10 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
         }
       }
 
+      if (isset($params['color']) && strtolower($params['color']) == '#ffffff') {
+        $params['color'] = 'null';
+      }
+
       $groupParams = array('name' => ($this->_gName));
       $optionValue = CRM_Core_OptionValue::addOptionValue($params, $groupParams, $this->_action, $this->_id);
 
@@ -474,6 +503,8 @@ class CRM_Admin_Form_Options extends CRM_Admin_Form {
             1 => $this->_gLabel,
             2 => $optionValue->label,
           )), ts('Saved'), 'success');
+
+      $this->ajaxResponse['optionValue'] = $optionValue->toArray();
     }
   }
 

@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -108,21 +108,19 @@ class CRM_Core_Page_AJAX {
     }
     $priceSetId = CRM_Price_BAO_PriceSet::getFor($context, $id, NULL);
     if ($priceSetId) {
-      $result = CRM_Price_BAO_PriceSet::setIsQuickConfig($priceSetId, 0);
+      $sql = "UPDATE
+       civicrm_price_set cps
+       INNER JOIN civicrm_price_set_entity cpse ON cps.id = cpse.price_set_id
+       INNER JOIN {$context} ce ON cpse.entity_id = ce.id AND ce.id = %1
+       SET cps.is_quick_config = 0, cps.financial_type_id = IF(cps.financial_type_id IS NULL, ce.financial_type_id, cps.financial_type_id)
+      ";
+      CRM_Core_DAO::executeQuery($sql, array(1 => array($id, 'Integer')));
+
       if ($context == 'civicrm_event') {
-        $sql = "UPDATE
-          civicrm_price_set cps
-          INNER JOIN civicrm_discount cd ON cd.price_set_id = cps.id
-          SET cps.is_quick_config = 0
-          WHERE cd.entity_id = (%1) AND cd.entity_table = 'civicrm_event' ";
-        $params = array(1 => array($id, 'Integer'));
-        CRM_Core_DAO::executeQuery($sql, $params);
         CRM_Core_BAO_Discount::del($id, $context);
       }
     }
-    if (!$result) {
-      $priceSetId = NULL;
-    }
+
     CRM_Utils_JSON::output($priceSetId);
   }
 
@@ -214,6 +212,16 @@ class CRM_Core_Page_AJAX {
     CRM_Utils_System::setHttpHeader('Cache-Control', "max-age=$ttl, public");
   }
 
+  /**
+   * Set defaults for sort and pager.
+   *
+   * @param int $defaultOffset
+   * @param int $defaultRowCount
+   * @param string $defaultSort
+   * @param string $defaultsortOrder
+   *
+   * @return array
+   */
   public static function defaultSortAndPagerParams($defaultOffset = 0, $defaultRowCount = 25, $defaultSort = NULL, $defaultsortOrder = 'asc') {
     $params = array(
       '_raw_values' => array(),
@@ -246,6 +254,14 @@ class CRM_Core_Page_AJAX {
     return $params;
   }
 
+  /**
+   * Validate ajax input parameters.
+   *
+   * @param array $requiredParams
+   * @param array $optionalParams
+   *
+   * @return array
+   */
   public static function validateParams($requiredParams = array(), $optionalParams = array()) {
     $params = array();
 

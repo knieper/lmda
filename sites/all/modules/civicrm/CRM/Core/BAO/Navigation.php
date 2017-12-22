@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Core_BAO_Navigation extends CRM_Core_DAO_Navigation {
 
@@ -55,27 +55,6 @@ class CRM_Core_BAO_Navigation extends CRM_Core_DAO_Navigation {
    */
   public static function setIsActive($id, $is_active) {
     return CRM_Core_DAO::setFieldValue('CRM_Core_DAO_Navigation', $id, 'is_active', $is_active);
-  }
-
-  /**
-   * Get existing / build navigation for CiviCRM Admin Menu.
-   *
-   * @return array
-   *   associated array
-   */
-  public static function getMenus() {
-    $menus = array();
-
-    $menu = new CRM_Core_DAO_Menu();
-    $menu->domain_id = CRM_Core_Config::domainID();
-    $menu->find();
-
-    while ($menu->fetch()) {
-      if ($menu->title) {
-        $menus[$menu->path] = $menu->title;
-      }
-    }
-    return $menus;
   }
 
   /**
@@ -264,124 +243,96 @@ FROM civicrm_navigation WHERE domain_id = $domainID {$whereClause} ORDER BY pare
   /**
    * Build navigation tree.
    *
-   * @param array $navigationTree
-   *   Nested array of menus.
-   * @param int $parentID
-   *   Parent id.
-   * @param bool $navigationMenu
-   *   True when called for building top navigation menu.
-   *
    * @return array
    *   nested array of menus
    */
-  public static function buildNavigationTree(&$navigationTree, $parentID, $navigationMenu = TRUE) {
-    $whereClause = " parent_id IS NULL";
-
-    if ($parentID) {
-      $whereClause = " parent_id = {$parentID}";
-    }
-
+  public static function buildNavigationTree() {
     $domainID = CRM_Core_Config::domainID();
+    $navigationTree = array();
 
-    // get the list of menus
-    $query = "
-SELECT id, label, url, permission, permission_operator, has_separator, parent_id, is_active, name
-FROM civicrm_navigation
-WHERE {$whereClause}
-AND domain_id = $domainID
-ORDER BY parent_id, weight";
+    $navigationMenu = new self();
+    $navigationMenu->domain_id = $domainID;
+    $navigationMenu->orderBy('parent_id, weight');
+    $navigationMenu->find();
 
-    $navigation = CRM_Core_DAO::executeQuery($query);
-    $config = CRM_Core_Config::singleton();
-    while ($navigation->fetch()) {
-      $label = $navigation->label;
-      if (!$navigationMenu) {
-        $label = addcslashes($label, '"');
-      }
-
-      // for each menu get their children
-      $navigationTree[$navigation->id] = array(
+    while ($navigationMenu->fetch()) {
+      $navigationTree[$navigationMenu->id] = array(
         'attributes' => array(
-          'label' => $label,
-          'name' => $navigation->name,
-          'url' => $navigation->url,
-          'permission' => $navigation->permission,
-          'operator' => $navigation->permission_operator,
-          'separator' => $navigation->has_separator,
-          'parentID' => $navigation->parent_id,
-          'navID' => $navigation->id,
-          'active' => $navigation->is_active,
+          'label' => $navigationMenu->label,
+          'name' => $navigationMenu->name,
+          'url' => $navigationMenu->url,
+          'icon' => $navigationMenu->icon,
+          'permission' => $navigationMenu->permission,
+          'operator' => $navigationMenu->permission_operator,
+          'separator' => $navigationMenu->has_separator,
+          'parentID' => $navigationMenu->parent_id,
+          'navID' => $navigationMenu->id,
+          'active' => $navigationMenu->is_active,
         ),
       );
-      self::buildNavigationTree($navigationTree[$navigation->id]['child'], $navigation->id, $navigationMenu);
     }
 
-    return $navigationTree;
+    return self::buildTree($navigationTree);
+  }
+
+  /**
+   * Convert flat array to nested.
+   *
+   * @param array $elements
+   * @param int|null $parentId
+   *
+   * @return array
+   */
+  private static function buildTree($elements, $parentId = NULL) {
+    $branch = array();
+
+    foreach ($elements as $id => $element) {
+      if ($element['attributes']['parentID'] == $parentId) {
+        $children = self::buildTree($elements, $id);
+        if ($children) {
+          $element['child'] = $children;
+        }
+        $branch[$id] = $element;
+      }
+    }
+
+    return $branch;
   }
 
   /**
    * Build menu.
    *
-   * @param bool $json
-   *   By default output is html.
-   * @param bool $navigationMenu
-   *   True when called for building top navigation menu.
-   *
    * @return string
-   *   html or json string
    */
-  public static function buildNavigation($json = FALSE, $navigationMenu = TRUE) {
-    $navigations = array();
-    self::buildNavigationTree($navigations, $parent = NULL, $navigationMenu);
-    $navigationString = NULL;
+  public static function buildNavigation() {
+    $navigations = self::buildNavigationTree();
+    $navigationString = '';
 
     // run the Navigation  through a hook so users can modify it
     CRM_Utils_Hook::navigationMenu($navigations);
     self::fixNavigationMenu($navigations);
 
-    $i18n = CRM_Core_I18n::singleton();
-
     //skip children menu item if user don't have access to parent menu item
     $skipMenuItems = array();
     foreach ($navigations as $key => $value) {
-      if ($json) {
-        if ($navigationString) {
-          $navigationString .= '},';
-        }
-        $data = $value['attributes']['label'];
-        $class = '';
-        if (!$value['attributes']['active']) {
-          $class = ', "attr": { "class" : "disabled"} ';
-        }
-        $l10nName = $i18n->crm_translate($data, array('context' => 'menu'));
-        $navigationString .= ' { "attr": { "id" : "node_' . $key . '"}, "data": { "title":"' . $l10nName . '"' . $class . '}';
-      }
-      else {
-        // Home is a special case
-        if ($value['attributes']['name'] != 'Home') {
-          $name = self::getMenuName($value, $skipMenuItems);
-          if ($name) {
-            //separator before
-            if (isset($value['attributes']['separator']) && $value['attributes']['separator'] == 2) {
-              $navigationString .= '<li class="menu-separator"></li>';
-            }
-            $removeCharacters = array('/', '!', '&', '*', ' ', '(', ')', '.');
-            $navigationString .= '<li class="menumain crm-' . str_replace($removeCharacters, '_', $value['attributes']['label']) . '">' . $name;
+      // Home is a special case
+      if ($value['attributes']['name'] != 'Home') {
+        $name = self::getMenuName($value, $skipMenuItems);
+        if ($name) {
+          //separator before
+          if (isset($value['attributes']['separator']) && $value['attributes']['separator'] == 2) {
+            $navigationString .= '<li class="menu-separator"></li>';
           }
+          $removeCharacters = array('/', '!', '&', '*', ' ', '(', ')', '.');
+          $navigationString .= '<li class="menumain crm-' . str_replace($removeCharacters, '_', $value['attributes']['label']) . '">' . $name;
         }
       }
-
-      self::recurseNavigation($value, $navigationString, $json, $skipMenuItems);
+      self::recurseNavigation($value, $navigationString, $skipMenuItems);
     }
 
-    if ($json) {
-      $navigationString = '[' . $navigationString . '}]';
-    }
-    else {
-      // clean up - Need to remove empty <ul>'s, this happens when user don't have
-      // permission to access parent
-      $navigationString = str_replace('<ul></ul></li>', '', $navigationString);
-    }
+    // clean up - Need to remove empty <ul>'s, this happens when user don't have
+    // permission to access parent
+    $navigationString = str_replace('<ul></ul></li>', '', $navigationString);
 
     return $navigationString;
   }
@@ -391,74 +342,40 @@ ORDER BY parent_id, weight";
    *
    * @param array $value
    * @param string $navigationString
-   * @param bool $json
-   * @param bool $skipMenuItems
+   * @param array $skipMenuItems
    *
    * @return string
    */
-  public static function recurseNavigation(&$value, &$navigationString, $json, $skipMenuItems) {
-    if ($json) {
-      if (!empty($value['child'])) {
-        $navigationString .= ', "children": [ ';
-      }
-      else {
-        return $navigationString;
-      }
-
-      if (!empty($value['child'])) {
-        $appendComma = TRUE;
-        $count = 1;
-        foreach ($value['child'] as $k => $val) {
-          if ($count == count($value['child'])) {
-            $appendComma = FALSE;
-          }
-          $data = $val['attributes']['label'];
-          $class = '';
-          if (!$val['attributes']['active']) {
-            $class = ', "attr": { "class" : "disabled"} ';
-          }
-          $navigationString .= ' { "attr": { "id" : "node_' . $k . '"}, "data": { "title":"' . $data . '"' . $class . '}';
-          self::recurseNavigation($val, $navigationString, $json, $skipMenuItems);
-          $navigationString .= $appendComma ? ' },' : ' }';
-          $count++;
-        }
-      }
-
-      if (!empty($value['child'])) {
-        $navigationString .= ' ]';
-      }
+  public static function recurseNavigation(&$value, &$navigationString, $skipMenuItems) {
+    if (!empty($value['child'])) {
+      $navigationString .= '<ul>';
     }
     else {
-      if (!empty($value['child'])) {
-        $navigationString .= '<ul>';
+      $navigationString .= '</li>';
+      //locate separator after
+      if (isset($value['attributes']['separator']) && $value['attributes']['separator'] == 1) {
+        $navigationString .= '<li class="menu-separator"></li>';
       }
-      else {
-        $navigationString .= '</li>';
-        //locate separator after
-        if (isset($value['attributes']['separator']) && $value['attributes']['separator'] == 1) {
-          $navigationString .= '<li class="menu-separator"></li>';
-        }
-      }
+    }
 
-      if (!empty($value['child'])) {
-        foreach ($value['child'] as $val) {
-          $name = self::getMenuName($val, $skipMenuItems);
-          if ($name) {
-            //locate separator before
-            if (isset($val['attributes']['separator']) && $val['attributes']['separator'] == 2) {
-              $navigationString .= '<li class="menu-separator"></li>';
-            }
-            $removeCharacters = array('/', '!', '&', '*', ' ', '(', ')', '.');
-            $navigationString .= '<li class="crm-' . str_replace($removeCharacters, '_', $val['attributes']['label']) . '">' . $name;
-            self::recurseNavigation($val, $navigationString, $json, $skipMenuItems);
+    if (!empty($value['child'])) {
+      foreach ($value['child'] as $val) {
+        $name = self::getMenuName($val, $skipMenuItems);
+        if ($name) {
+          //locate separator before
+          if (isset($val['attributes']['separator']) && $val['attributes']['separator'] == 2) {
+            $navigationString .= '<li class="menu-separator"></li>';
           }
+          $removeCharacters = array('/', '!', '&', '*', ' ', '(', ')', '.');
+          $navigationString .= '<li class="crm-' . str_replace($removeCharacters, '_', $val['attributes']['label']) . '">' . $name;
+          self::recurseNavigation($val, $navigationString, $skipMenuItems);
         }
       }
-      if (!empty($value['child'])) {
-        $navigationString .= '</ul></li>';
-        if (isset($value['attributes']['separator']) && $value['attributes']['separator'] == 1) {
-          $navigationString .= '<li class="menu-separator"></li>';
-        }
+    }
+    if (!empty($value['child'])) {
+      $navigationString .= '</ul></li>';
+      if (isset($value['attributes']['separator']) && $value['attributes']['separator'] == 1) {
+        $navigationString .= '<li class="menu-separator"></li>';
       }
     }
     return $navigationString;
@@ -499,9 +416,12 @@ ORDER BY parent_id, weight";
       if (!isset($nodes[$origKey]['attributes']['navID'])) {
         $newKey = ++$maxNavID;
         $nodes[$origKey]['attributes']['navID'] = $newKey;
-        $nodes[$newKey] = $nodes[$origKey];
-        unset($nodes[$origKey]);
-        $origKey = $newKey;
+        if ($origKey != $newKey) {
+          // If the keys are different, reset the array index to match.
+          $nodes[$newKey] = $nodes[$origKey];
+          unset($nodes[$origKey]);
+          $origKey = $newKey;
+        }
       }
       if (isset($nodes[$origKey]['child']) && is_array($nodes[$origKey]['child'])) {
         self::_fixNavigationMenu($nodes[$origKey]['child'], $maxNavID, $nodes[$origKey]['attributes']['navID']);
@@ -537,17 +457,6 @@ ORDER BY parent_id, weight";
       return FALSE;
     }
 
-    //we need to check core view/edit or supported acls.
-    if (in_array($menuName, array(
-      'Search...',
-      'Contacts',
-    ))) {
-      if (!CRM_Core_Permission::giveMeAllACLs()) {
-        $skipMenuItems[] = $navID;
-        return FALSE;
-      }
-    }
-
     $config = CRM_Core_Config::singleton();
 
     $makeLink = FALSE;
@@ -555,11 +464,14 @@ ORDER BY parent_id, weight";
       if (substr($url, 0, 4) !== 'http') {
         //CRM-7656 --make sure to separate out url path from url params,
         //as we'r going to validate url path across cross-site scripting.
-        $urlParam = explode('?', $url);
-        if (empty($urlParam[1])) {
-          $urlParam[1] = NULL;
+        $parsedUrl = parse_url($url);
+        if (empty($parsedUrl['query'])) {
+          $parsedUrl['query'] = NULL;
         }
-        $url = CRM_Utils_System::url($urlParam[0], $urlParam[1], FALSE, NULL, TRUE);
+        if (empty($parsedUrl['fragment'])) {
+          $parsedUrl['fragment'] = NULL;
+        }
+        $url = CRM_Utils_System::url($parsedUrl['path'], $parsedUrl['query'], FALSE, $parsedUrl['fragment'], TRUE);
       }
       elseif (strpos($url, '&amp;') === FALSE) {
         $url = htmlspecialchars($url);
@@ -613,6 +525,11 @@ ORDER BY parent_id, weight";
         $skipMenuItems[] = $navID;
         return FALSE;
       }
+    }
+
+    if (!empty($value['attributes']['icon'])) {
+      $menuIcon = sprintf('<i class="%s"></i>', $value['attributes']['icon']);
+      $name = $menuIcon . $name;
     }
 
     if ($makeLink) {
@@ -691,7 +608,8 @@ ORDER BY parent_id, weight";
   public static function resetNavigation($contactID = NULL) {
     $newKey = CRM_Utils_String::createRandom(self::CACHE_KEY_STRLEN, CRM_Utils_String::ALPHANUMERIC);
     if (!$contactID) {
-      $query = "UPDATE civicrm_setting SET value = '$newKey' WHERE name='navigation' AND contact_id IS NOT NULL";
+      $ser = serialize($newKey);
+      $query = "UPDATE civicrm_setting SET value = '$ser' WHERE name='navigation' AND contact_id IS NOT NULL";
       CRM_Core_DAO::executeQuery($query);
       CRM_Core_BAO_Cache::deleteGroup('navigation');
     }
@@ -834,26 +752,6 @@ ORDER BY parent_id, weight";
   public static function processDelete($nodeID) {
     $query = "DELETE FROM civicrm_navigation WHERE id = {$nodeID}";
     CRM_Core_DAO::executeQuery($query);
-  }
-
-  /**
-   * Get the info on navigation item.
-   *
-   * @param int $navigationID
-   *   Navigation id.
-   *
-   * @return array
-   *   associated array
-   */
-  public static function getNavigationInfo($navigationID) {
-    $query = "SELECT parent_id, weight FROM civicrm_navigation WHERE id = %1";
-    $params = array($navigationID, 'Integer');
-    $dao = CRM_Core_DAO::executeQuery($query, array(1 => $params));
-    $dao->fetch();
-    return array(
-      'parent_id' => $dao->parent_id,
-      'weight' => $dao->weight,
-    );
   }
 
   /**

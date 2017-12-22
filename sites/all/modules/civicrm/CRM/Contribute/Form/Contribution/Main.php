@@ -3,7 +3,7 @@
   +--------------------------------------------------------------------+
   | CiviCRM version 4.7                                                |
   +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2016                                |
+  | Copyright CiviCRM LLC (c) 2004-2017                                |
   +--------------------------------------------------------------------+
   | This file is a part of CiviCRM.                                    |
   |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -65,33 +65,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
     $this->_paymentProcessors = $this->get('paymentProcessors');
     $this->preProcessPaymentOptions();
 
-    if (!empty($this->_ccid)) {
-      $payment = CRM_Contribute_BAO_Contribution::getPaymentInfo($this->_ccid, 'contribution');
-      //bounce if the contribution is not pending.
-      if (empty($payment['balance'])) {
-        CRM_Core_Error::statusBounce(ts("Returning since contribution has already been handled."));
-      }
-      if (!empty($payment['total'])) {
-        $this->_pendingAmount = $payment['total'];
-        $this->assign('pendingAmount', $this->_pendingAmount);
-      }
-      $lineItems = CRM_Price_BAO_LineItem::getLineItemsByContributionID($this->_ccid);
-      foreach (array_keys($lineItems) as $id) {
-        $lineItems[$id]['id'] = $id;
-      }
-      $itemId = key($lineItems);
-      if ($itemId && !empty($lineItems[$itemId]['price_field_id'])) {
-        $this->_priceSetId = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceField', $lineItems[$itemId]['price_field_id'], 'price_set_id');
-      }
-
-      if (!empty($lineItems[$itemId]['price_field_id'])) {
-        $this->_lineItem[$this->_priceSetId] = $lineItems;
-      }
-      $isQuickConfig = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $this->_priceSetId, 'is_quick_config');
-      $this->assign('lineItem', $this->_lineItem);
-      $this->assign('is_quick_config', $isQuickConfig);
-      $this->assign('priceSetID', $this->_priceSetId);
-    }
+    $this->assignFormVariablesByContributionID();
 
     // Make the contributionPageID available to the template
     $this->assign('contributionPageID', $this->_id);
@@ -341,12 +315,15 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
 
     $this->applyFilter('__ALL__', 'trim');
     if (empty($this->_ccid)) {
-      $this->add('text', "email-{$this->_bltID}",
-        ts('Email Address'),
-        array('size' => 30, 'maxlength' => 60, 'class' => 'email'),
-        TRUE
-      );
-      $this->addRule("email-{$this->_bltID}", ts('Email is not valid.'), 'email');
+      if ($this->_emailExists == FALSE) {
+        $this->add('text', "email-{$this->_bltID}",
+          ts('Email Address'),
+          array('size' => 30, 'maxlength' => 60, 'class' => 'email'),
+          TRUE
+        );
+        $this->assign('showMainEmail', TRUE);
+        $this->addRule("email-{$this->_bltID}", ts('Email is not valid.'), 'email');
+      }
     }
     else {
       $this->addElement('hidden', "email-{$this->_bltID}", 1);
@@ -566,6 +543,13 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
 
     $form->assign('is_recur_interval', CRM_Utils_Array::value('is_recur_interval', $form->_values));
     $form->assign('is_recur_installments', CRM_Utils_Array::value('is_recur_installments', $form->_values));
+    $paymentObject = $form->getVar('_paymentObject');
+    if ($paymentObject) {
+      $form->assign('recurringHelpText', $paymentObject->getText('contributionPageRecurringHelp', array(
+        'is_recur_installments' => !empty($form->_values['is_recur_installments']),
+        'is_email_receipt' => !empty($form->_values['is_email_receipt']),
+      )));
+    }
 
     $form->add('checkbox', 'is_recur', ts('I want to contribute this amount'), NULL);
 
@@ -720,11 +704,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         // For anonymous user check using dedupe rule
         // if user has Cancelled Membership
         if (!$memContactID) {
-          $dedupeParams = CRM_Dedupe_Finder::formatParams($fields, 'Individual');
-          $dedupeParams['check_permission'] = FALSE;
-          $ids = CRM_Dedupe_Finder::dupesByParams($dedupeParams, 'Individual');
-          // if we find more than one contact, use the first one
-          $memContactID = CRM_Utils_Array::value(0, $ids);
+          $memContactID = CRM_Contact_BAO_Contact::getFirstDuplicateContact($fields, 'Individual', 'Unsupervised', array(), FALSE);
         }
         $currentMemberships = CRM_Member_BAO_Membership::getContactsCancelledMembership($memContactID,
           $is_test
@@ -861,9 +841,16 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         $fields, $lineItem
       );
 
+      $minAmt = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $fields['priceSetId'], 'min_amount');
       if ($fields['amount'] < 0) {
         $errors['_qf_default'] = ts('Contribution can not be less than zero. Please select the options accordingly');
       }
+      elseif (!empty($minAmt) && $fields['amount'] < $minAmt) {
+        $errors['_qf_default'] = ts('A minimum amount of %1 should be selected from Contribution(s).', array(
+          1 => CRM_Utils_Money::format($minAmt),
+        ));
+      }
+
       $amount = $fields['amount'];
     }
 
@@ -1215,7 +1202,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
     $this->assign('is_pay_later', $params['is_pay_later']);
     if ($params['is_pay_later']) {
       $this->assign('pay_later_text', $this->_values['pay_later_text']);
-      $this->assign('pay_later_receipt', $this->_values['pay_later_receipt']);
+      $this->assign('pay_later_receipt', CRM_Utils_Array::value('pay_later_receipt', $this->_values));
     }
 
     if ($this->_membershipBlock['is_separate_payment'] && !empty($params['separate_amount'])) {
@@ -1304,6 +1291,47 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
 
     // redirect to thank you page
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/contribute/transact', "_qf_ThankYou_display=1&qfKey=$qfKey", TRUE, NULL, FALSE));
+  }
+
+  /**
+   * Set form variables if contribution ID is found
+   */
+  public function assignFormVariablesByContributionID() {
+    if (empty($this->_ccid)) {
+      return;
+    }
+
+    $payment = CRM_Contribute_BAO_Contribution::getPaymentInfo($this->_ccid, 'contribution');
+    //bounce if the contribution is not pending.
+    if (empty($payment['balance'])) {
+      CRM_Core_Error::statusBounce(ts("Returning since contribution has already been handled."));
+    }
+    if (!empty($payment['total'])) {
+      $this->_pendingAmount = $payment['total'];
+      $this->assign('pendingAmount', $this->_pendingAmount);
+    }
+
+    if ($taxAmount = CRM_Core_DAO::getFieldValue('CRM_Contribute_DAO_Contribution', $this->_ccid, 'tax_amount')) {
+      $this->set('tax_amount', $taxAmount);
+      $this->assign('taxAmount', $taxAmount);
+    }
+
+    $lineItems = CRM_Price_BAO_LineItem::getLineItemsByContributionID($this->_ccid);
+    foreach (array_keys($lineItems) as $id) {
+      $lineItems[$id]['id'] = $id;
+    }
+    $itemId = key($lineItems);
+    if ($itemId && !empty($lineItems[$itemId]['price_field_id'])) {
+      $this->_priceSetId = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceField', $lineItems[$itemId]['price_field_id'], 'price_set_id');
+    }
+
+    if (!empty($lineItems[$itemId]['price_field_id'])) {
+      $this->_lineItem[$this->_priceSetId] = $lineItems;
+    }
+    $isQuickConfig = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $this->_priceSetId, 'is_quick_config');
+    $this->assign('lineItem', $this->_lineItem);
+    $this->assign('is_quick_config', $isQuickConfig);
+    $this->assign('priceSetID', $this->_priceSetId);
   }
 
   /**

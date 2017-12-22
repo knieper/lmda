@@ -3,7 +3,7 @@
   +--------------------------------------------------------------------+
   | CiviCRM version 4.7                                                |
   +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2016                                |
+  | Copyright CiviCRM LLC (c) 2004-2017                                |
   +--------------------------------------------------------------------+
   | This file is a part of CiviCRM.                                    |
   |                                                                    |
@@ -570,7 +570,8 @@ function _civicrm_api3_get_using_query_object($entity, $params, $additional_opti
     $getCount,
     $skipPermissions,
     $mode,
-    $entity
+    $entity,
+    TRUE
   );
 
   return $entities;
@@ -603,7 +604,8 @@ function _civicrm_api3_get_query_object($params, $mode, $entity) {
   $newParams = CRM_Contact_BAO_Query::convertFormValues($inputParams, 0, FALSE, $entity);
   $query = new CRM_Contact_BAO_Query($newParams, $returnProperties, NULL,
     FALSE, FALSE, $mode,
-    empty($params['check_permissions'])
+    empty($params['check_permissions']),
+    TRUE, TRUE, NULL, 'AND', 'NULL', TRUE
   );
   list($select, $from, $where, $having) = $query->query();
 
@@ -813,12 +815,6 @@ function _civicrm_api3_get_options_from_params(&$params, $queryObject = FALSE, $
       $returnProperties[$lowercase_entity . '_id'] = 1;
       unset($returnProperties['id']);
     }
-    switch (trim(strtolower($sort))) {
-      case 'id':
-      case 'id desc':
-      case 'id asc':
-        $sort = str_replace('id', $lowercase_entity . '_id', $sort);
-    }
   }
 
   $options = array(
@@ -831,8 +827,19 @@ function _civicrm_api3_get_options_from_params(&$params, $queryObject = FALSE, $
   $finalSort = array();
   $options['sort'] = NULL;
   if (!empty($sort)) {
-    foreach ((array) $sort as $s) {
-      if (CRM_Utils_Rule::mysqlOrderBy($s)) {
+    if (!is_array($sort)) {
+      $sort = array_map('trim', explode(',', $sort));
+    }
+    foreach ($sort as $s) {
+      if ($s == '(1)' || CRM_Utils_Rule::mysqlOrderBy($s)) {
+        if ($entity && $action == 'get') {
+          switch (trim(strtolower($s))) {
+            case 'id':
+            case 'id desc':
+            case 'id asc':
+              $s = str_replace('id', $lowercase_entity . '_id', $s);
+          }
+        }
         $finalSort[] = $s;
       }
       else {
@@ -917,8 +924,10 @@ function _civicrm_api3_build_fields_array(&$bao, $unique = TRUE) {
   if ($unique) {
     if (empty($fields['id'])) {
       $lowercase_entity = _civicrm_api_get_entity_name_from_camel(_civicrm_api_get_entity_name_from_dao($bao));
-      $fields['id'] = $fields[$lowercase_entity . '_id'];
-      unset($fields[$lowercase_entity . '_id']);
+      if (isset($fields[$lowercase_entity . '_id'])) {
+        $fields['id'] = $fields[$lowercase_entity . '_id'];
+        unset($fields[$lowercase_entity . '_id']);
+      }
     }
     return $fields;
   }
@@ -1399,6 +1408,7 @@ function _civicrm_api3_basic_delete($bao_name, &$params) {
  *
  * @param array $returnArray
  *   Array to append custom data too - generally $result[4] where 4 is the entity id.
+ * @param $checkPermission
  * @param string $entity
  *   E.g membership, event.
  * @param int $entity_id
@@ -1495,12 +1505,15 @@ function _civicrm_api3_validate($entity, $action, $params) {
 
   return array($errors);
 }
+
 /**
  * Used by the Validate API.
+ * @param $fieldName
  * @param array $fieldInfo
  * @param string $entity
  * @param array $params
  *
+ * @throws API_Exception
  * @throws Exception
  */
 function _civicrm_api3_validate_switch_cases($fieldName, $fieldInfo, $entity, $params) {
@@ -1632,10 +1645,12 @@ function _civicrm_api3_validate_foreign_keys($entity, $action, &$params, $fields
   foreach ($fields as $fieldName => $fieldInfo) {
     if (!empty($fieldInfo['FKClassName'])) {
       if (!empty($params[$fieldName])) {
-        _civicrm_api3_validate_constraint($params[$fieldName], $fieldName, $fieldInfo);
+        foreach ((array) $params[$fieldName] as $fieldValue) {
+          _civicrm_api3_validate_constraint($fieldValue, $fieldName, $fieldInfo);
+        }
       }
       elseif (!empty($fieldInfo['required'])) {
-        throw new Exception("DB Constraint Violation - possibly $fieldName should possibly be marked as mandatory for this API. If so, please raise a bug report.");
+        throw new Exception("DB Constraint Violation - $fieldName should possibly be marked as mandatory for $entity,$action API. If so, please raise a bug report.");
       }
     }
     if (!empty($fieldInfo['api.unique'])) {
@@ -1881,8 +1896,10 @@ function _civicrm_api_get_fields($entity, $unique = FALSE, &$params = array()) {
   $d = new $dao();
   $fields = $d->fields();
 
-  // Set html attributes for text fields
   foreach ($fields as $name => &$field) {
+    // Denote as core field
+    $field['is_core_field'] = TRUE;
+    // Set html attributes for text fields
     if (isset($field['html'])) {
       $field['html'] += (array) $d::makeAttribute($field);
     }
@@ -2056,7 +2073,7 @@ function _civicrm_api3_swap_out_aliases(&$apiRequest, $fields) {
  *
  * @throws API_Exception
  */
-function _civicrm_api3_validate_integer(&$params, &$fieldName, &$fieldInfo, $entity) {
+function _civicrm_api3_validate_integer(&$params, $fieldName, &$fieldInfo, $entity) {
   list($fieldValue, $op) = _civicrm_api3_field_value_check($params, $fieldName);
   if (strpos($op, 'NULL') !== FALSE || strpos($op, 'EMPTY') !== FALSE) {
     return;
@@ -2072,6 +2089,10 @@ function _civicrm_api3_validate_integer(&$params, &$fieldName, &$fieldInfo, $ent
       elseif (is_numeric($realContactId)) {
         $fieldValue = $realContactId;
       }
+      elseif (is_null($realContactId) && empty($fieldInfo['api.required']) && $fieldValue === 'user_contact_id') {
+        // If not mandatory this will be OK. If mandatory it should fail.
+        $fieldValue = NULL;
+      }
     }
     if (!empty($fieldInfo['pseudoconstant']) || !empty($fieldInfo['options'])) {
       _civicrm_api3_api_match_pseudoconstant($fieldValue, $entity, $fieldName, $fieldInfo, $op);
@@ -2079,7 +2100,7 @@ function _civicrm_api3_validate_integer(&$params, &$fieldName, &$fieldInfo, $ent
 
     // After swapping options, ensure we have an integer(s)
     foreach ((array) ($fieldValue) as $value) {
-      if ($value && !is_numeric($value) && $value !== 'null' && !is_array($value)) {
+      if ($value && !is_numeric($value) && $value !== 'null' && $value !== NULL && !is_array($value)) {
         throw new API_Exception("$fieldName is not a valid integer", 2001, array('error_field' => $fieldName, "type" => "integer"));
       }
     }
@@ -2482,4 +2503,19 @@ function _civicrm_api3_check_edit_permissions($bao_name, $params) {
       throw new \Civi\API\Exception\UnauthorizedException('Permission denied to modify contact record');
     }
   }
+}
+
+/**
+ * Check if an entity has been modified since the last known modified_date
+ * @param string $modifiedDate Last knowm modified_date
+ * @param int $id Id of record to check
+ * @param string $entity API Entity
+ * @return bool
+ */
+function _civicrm_api3_compare_timestamps($modifiedDate, $id, $entity) {
+  $currentDbInfo = civicrm_api3($entity, 'getsingle', array('id' => $id));
+  if (strtotime($currentDbInfo['modified_date']) <= strtotime($modifiedDate)) {
+    return TRUE;
+  }
+  return FALSE;
 }

@@ -270,7 +270,9 @@ input.crm-form-entityref {
     border: 1px solid #FF0000;
 }
 .crm-container input.crm-form-text,
-.crm-container input.dateplugin {
+.crm-container .crm-icon-picker-button,
+.crm-container input.dateplugin,
+.crm-container input.crm-form-password {
   border: 1px solid #999;
   vertical-align: middle;
   padding: 1px 2px;
@@ -284,7 +286,9 @@ input.crm-form-entityref {
 .crm-container input.crm-form-text[disabled],
 .crm-container input.dateplugin[disabled],
 .crm-container select.crm-form-select[disabled],
-.crm-container input.crm-form-text[readonly] {
+.crm-container input.crm-form-text[readonly],
+.crm-container input.crm-form-password[disabled],
+.crm-container input.crm-form-password[readonly] {
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(1%, #ddd), color-stop(15%, #f2f2f2));
   background-image: -webkit-linear-gradient(top, #ddd 1%, #f2f2f2 15%);
   background-image: -moz-linear-gradient(top, #ddd 1%, #f2f2f2 15%);
@@ -293,7 +297,8 @@ input.crm-form-entityref {
 
 .crm-container input.crm-form-text[disabled],
 .crm-container input.dateplugin[disabled],
-.crm-container select.crm-form-select[disabled] {
+.crm-container select.crm-form-select[disabled],
+.crm-container input.crm-form-password[disabled] {
   color: #a9a9a9;
 }
 
@@ -1497,7 +1502,7 @@ input.crm-form-entityref {
   text-decoration: none;
 }
 
-.crm-container .panel {
+.crm-container ul.panel {
   display: none;
   z-index: 9999;
   position: absolute;
@@ -2336,7 +2341,7 @@ div.crm-master-accordion-header a.helpicon {
 }
 
 .crm-status-box-outer.status-start {
-  background: #F8FF03 url("../bower_components/jquery-ui/themes/smoothness/images/animated-overlay.gif");
+  background: #F8FF03 url("../i/animated-overlay.gif");
 }
 
 .crm-status-box-outer .crm-status-box-inner {
@@ -2749,7 +2754,7 @@ tbody.scrollContent tr.alternateRow {
 .crm-container a.sorting_desc,
 .crm-container a.sorting_asc {
   color: #A7A7A7;
-  background: url("../packages/jquery/plugins/DataTables/media/images/sort_both.png") no-repeat left center;
+  background: url("../bower_components/datatables/media/images/sort_both.png") no-repeat left center;
   padding-left: 20px;
 }
 .crm-container a.sorting_desc,
@@ -2764,16 +2769,16 @@ tbody.scrollContent tr.alternateRow {
 }
 
 .crm-container table thead a.sorting_asc {
-  background: url("../packages/jquery/plugins/DataTables/media/images/sort_asc.png") no-repeat left center;
+  background: url("../bower_components/datatables/media/images/sort_asc.png") no-repeat left center;
 }
 .crm-container table thead a.sorting_desc {
-  background: url("../packages/jquery/plugins/DataTables/media/images/sort_desc.png") no-repeat left center;
+  background: url("../bower_components/datatables/media/images/sort_desc.png") no-repeat left center;
 }
 .crm-container table thead a.sorting_asc_disabled {
-  background: url("../packages/jquery/plugins/DataTables/media/images/sort_asc_disabled.png") no-repeat left center;
+  background: url("../bower_components/datatables/media/images/sort_asc_disabled.png") no-repeat left center;
 }
 .crm-container table thead a.sorting_desc_disabled {
-  background: url("../packages/jquery/plugins/DataTables/media/images/sort_desc_disabled.png") no-repeat left center;
+  background: url("../bower_components/datatables/media/images/sort_desc_disabled.png") no-repeat left center;
 }
 
 /* Otherwise for some reason we have 2 sort icons */
@@ -2797,7 +2802,9 @@ tbody.scrollContent tr.alternateRow {
 }
 
 .crm-container .disabled,
+.crm-container .disabled td,
 .crm-container .cancelled,
+.crm-container .cancelled td,
 .crm-container li.disabled a.ui-tabs-anchor,
 .crm-container li.crm-count-0 a.ui-tabs-anchor,
 .crm-container li.crm-count-0 a.ui-tabs-anchor em {
@@ -2841,6 +2848,20 @@ tbody.scrollContent tr.alternateRow {
 .crm-container form table label,
 .crm-container form table.report label {
   color: #3e3e3e;
+}
+
+.crm-container a.crm-icon-picker-button {
+  min-width: 10em;
+  text-align: inherit;
+  color: #3e3e3e;
+}
+
+.crm-container a.crm-icon-picker-button .ui-button-text {
+  color: #9f9f9f;
+}
+
+.crm-container a.crm-icon-picker-button.ui-button-text-only .ui-button-text {
+  padding: .4em .2em;
 }
 
 /* search results */
@@ -3054,14 +3075,14 @@ div.m ul#civicrm-menu,
 }
 .crm-container .select2-results li,
 .crm-container .select2-results .crm-select2-row,
-.crm-container .select2-results .crm-select2-row .crm-select2-row-description p {
+.crm-container .select2-results .crm-select2-row-description p {
   padding: 0;
   margin: 0;
 }
 .crm-container .select2-results .crm-select2-row .crm-select2-row-label {
   font-size: 1.1em;
 }
-.crm-container .select2-results .crm-select2-row .crm-select2-row-description p {
+.crm-container .select2-results .crm-select2-row-description p {
   font-size: 0.8em;
   line-height: 1.5em;
   color: #696969;
@@ -3069,9 +3090,13 @@ div.m ul#civicrm-menu,
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: normal;
 }
-.crm-container .select2-results .select2-highlighted .crm-select2-row .crm-select2-row-description p {
+.crm-container .select2-results .select2-highlighted > .select2-result-label .crm-select2-row-description p {
   color: #f0f0f0;
+}
+.select2-container .crm-select2-row-description {
+  display: none;
 }
 .crm-container .select2-results .crm-select2-icon {
   width: 20px;
@@ -3102,6 +3127,14 @@ div.m ul#civicrm-menu,
 /* Restore this property otherwise our css overrides it */
 .select2-search input {
   box-sizing: border-box;
+}
+
+span.crm-select-item-color {
+  display: inline-block;
+  width: .8em;
+  height: .7em;
+  border-radius: 2px;
+  border: 1px solid grey;
 }
 
 /* jQuery UI styles */
@@ -3810,4 +3843,11 @@ span.crm-status-icon {
 
 .crm-container .crm-grip {
   cursor: move;
+}
+
+.crm-tag-item {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid grey;
 }

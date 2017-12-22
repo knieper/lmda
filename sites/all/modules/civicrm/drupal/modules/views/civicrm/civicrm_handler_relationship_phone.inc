@@ -21,7 +21,7 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*/
+ */
 
 /**
  * Field handler to provide relationship to CiviCRM email.
@@ -31,7 +31,7 @@
 class civicrm_handler_relationship_phone extends civicrm_handler_relationship_location {
 
   static $_phoneType;
-  function construct() {
+  public function construct() {
     parent::construct();
     if (!self::$_phoneType) {
       if (!civicrm_initialize()) {
@@ -41,13 +41,13 @@ class civicrm_handler_relationship_phone extends civicrm_handler_relationship_lo
     }
   }
 
-  function option_definition() {
+  public function option_definition() {
     $options = parent::option_definition();
     $options['phone_type'] = array('default' => 0);
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $phoneOptions = array(0 => 'Any');
     foreach (self::$_phoneType as $id => $type) {
@@ -63,8 +63,7 @@ class civicrm_handler_relationship_phone extends civicrm_handler_relationship_lo
     );
   }
 
-
-  function join_phone($join = array()) {
+  public function join_phone($join = array()) {
     $extra = array();
     if (isset($join->extra)) {
       $extra = $join->extra;
@@ -83,31 +82,18 @@ class civicrm_handler_relationship_phone extends civicrm_handler_relationship_lo
     return $join;
   }
 
-  function get_join() {
+  public function get_join() {
     $join = parent::get_join();
     $join = $this->join_phone($join);
     return $join;
   }
 
-  function ensure_my_table() {
-    if (!isset($this->table_alias)) {
-      if (!method_exists($this->query, 'ensure_table')) {
-        vpr(t('Ensure my table called but query has no ensure_table method.'));
-        return;
-      }
-      $join = $this->get_join();
-      $this->table_alias = $this->query->ensure_table($this->table, $this->relationship, $join);
-    }
-    return $this->table_alias;
-  }
-
   /**
    * Called to implement a relationship in a query.
    */
-  function query() {
-    // Just ensure the one table. This is briefer than parent::query(), which
-    // attempts to create an additional join.
-    $this->alias = $this->ensure_my_table();
+  public function query() {
+    $join = $this->get_join();
+    $this->alias = $this->query->add_table($this->table, $this->relationship, $join);
     //register relationship
     $this->view->relationship[$this->options['id']]->alias = $this->alias;
     $this->query->relationships[$this->alias] = array(
@@ -116,4 +102,5 @@ class civicrm_handler_relationship_phone extends civicrm_handler_relationship_lo
       'base' => $this->table,
     );
   }
+
 }

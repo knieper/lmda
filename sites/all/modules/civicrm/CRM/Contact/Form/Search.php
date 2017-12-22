@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -525,12 +525,6 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
     $this->_actionButtonName = $this->getButtonName('next', 'action');
 
     $this->assign('actionButtonName', $this->_actionButtonName);
-
-    // reset from session, CRM-3526
-    $session = CRM_Core_Session::singleton();
-    if ($this->_force && $session->get('selectedSearchContactIds')) {
-      $session->resetScope('selectedSearchContactIds');
-    }
 
     // if we dont get this from the url, use default if one exsts
     $config = CRM_Core_Config::singleton();

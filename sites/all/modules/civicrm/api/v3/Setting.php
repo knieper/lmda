@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -159,6 +159,12 @@ function civicrm_api3_setting_getoptions($params) {
   if (!empty($pseudoconstant['callback'])) {
     $values = Civi\Core\Resolver::singleton()->call($pseudoconstant['callback'], array());
     return civicrm_api3_create_success($values, $params, 'Setting', 'getoptions');
+  }
+  elseif (!empty($pseudoconstant['optionGroupName'])) {
+    return civicrm_api3_create_success(
+      CRM_Core_OptionGroup::values($pseudoconstant['optionGroupName'], FALSE, FALSE, TRUE),
+      $params, 'Setting', 'getoptions'
+    );
   }
 
   throw new API_Exception("The field '" . $params['field'] . "' uses an unsupported option list.");

@@ -3,7 +3,7 @@
   +--------------------------------------------------------------------+
   | CiviCRM version 4.7                                                |
   +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2016                                |
+  | Copyright CiviCRM LLC (c) 2004-2017                                |
   +--------------------------------------------------------------------+
   | This file is a part of CiviCRM.                                    |
   |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
 
@@ -246,6 +246,38 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
   }
 
   /**
+   * Wrapper aroung getAvailableFinancialTypes to get all including disabled FinancialTypes
+   * @param int|string $action
+   *   the type of action, can be add, view, edit, delete
+   * @param bool $resetCache
+   *   load values from static cache
+   *
+   * @return array
+   */
+  public static function getAllAvailableFinancialTypes($action = CRM_Core_Action::VIEW, $resetCache = FALSE) {
+    // Flush pseudoconstant cache
+    CRM_Contribute_PseudoConstant::flush('financialType');
+    $thisIsAUselessVariableButSolvesPHPError = NULL;
+    $financialTypes = self::getAvailableFinancialTypes($thisIsAUselessVariableButSolvesPHPError, $action, $resetCache, TRUE);
+    return $financialTypes;
+  }
+
+  /**
+   * Wrapper aroung getAvailableFinancialTypes to get all FinancialTypes Excluding Disabled ones.
+   * @param int|string $action
+   *   the type of action, can be add, view, edit, delete
+   * @param bool $resetCache
+   *   load values from static cache
+   *
+   * @return array
+   */
+  public static function getAllEnabledAvailableFinancialTypes($action = CRM_Core_Action::VIEW, $resetCache = FALSE) {
+    $thisIsAUselessVariableButSolvesPHPError = NULL;
+    $financialTypes = self::getAvailableFinancialTypes($thisIsAUselessVariableButSolvesPHPError, $action, $resetCache);
+    return $financialTypes;
+  }
+
+  /**
    * Get available Financial Types.
    *
    * @param array $financialTypes
@@ -254,12 +286,14 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
    *   the type of action, can be add, view, edit, delete
    * @param bool $resetCache
    *   load values from static cache
+   * @param bool $includeDisabled
+   *   Whether we should load in disabled FinancialTypes or Not
    *
    * @return array
    */
-  public static function getAvailableFinancialTypes(&$financialTypes = NULL, $action = CRM_Core_Action::VIEW, $resetCache = FALSE) {
+  public static function getAvailableFinancialTypes(&$financialTypes = NULL, $action = CRM_Core_Action::VIEW, $resetCache = FALSE, $includeDisabled = FALSE) {
     if (empty($financialTypes)) {
-      $financialTypes = CRM_Contribute_PseudoConstant::financialType();
+      $financialTypes = CRM_Contribute_PseudoConstant::financialType(NULL, $includeDisabled);
     }
     if (!self::isACLFinancialTypeStatus()) {
       return $financialTypes;
@@ -333,7 +367,7 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
       return FALSE;
     }
     if (is_array($whereClauses)) {
-      self::getAvailableFinancialTypes($types);
+      $types = self::getAllEnabledAvailableFinancialTypes();
       if (empty($types)) {
         $whereClauses[] = ' ' . $alias . '.financial_type_id IN (0)';
       }
@@ -343,7 +377,7 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
     }
     else {
       if ($component == 'contribution') {
-        self::getAvailableFinancialTypes($types);
+        $types = self::getAllEnabledAvailableFinancialTypes();
         $column = "financial_type_id";
       }
       if ($component == 'membership') {
@@ -370,6 +404,7 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
    *   the mode of operation, can be add, view, edit, delete
    * @param bool $force
    *
+   * @return bool
    */
   public static function checkPermissionedLineItems($id, $op, $force = TRUE) {
     if (!self::isACLFinancialTypeStatus()) {
@@ -394,7 +429,32 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
   }
 
   /**
-   * Check if FT-ACL is turned on or off
+   * Check if the logged in user has permission to edit the given financial type.
+   *
+   * This is called when determining if they can edit things like option values
+   * in price sets. At the moment it is not possible to change an option value from
+   * a type you do not have permission to to a type that you do.
+   *
+   * @todo it is currently not possible to edit disabled types if you have ACLs on.
+   * Do ACLs still apply once disabled? That question should be resolved if tackling
+   * that gap.
+   *
+   * @param int $financialTypeID
+   *
+   * @return bool
+   */
+  public static function checkPermissionToEditFinancialType($financialTypeID) {
+    if (!self::isACLFinancialTypeStatus()) {
+      return TRUE;
+    }
+    $financialTypes = CRM_Financial_BAO_FinancialType::getAllAvailableFinancialTypes(CRM_Core_Action::UPDATE);
+    return isset($financialTypes[$financialTypeID]);
+  }
+
+  /**
+   * Check if FT-ACL is turned on or off.
+   *
+   * @todo rename this function e.g isFinancialTypeACLsEnabled.
    *
    * @return bool
    */

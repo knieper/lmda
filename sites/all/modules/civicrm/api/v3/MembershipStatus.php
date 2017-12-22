@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -109,7 +109,8 @@ function civicrm_api3_membership_status_update($params) {
     $membershipStatusBAO->save();
   }
   $membershipStatus = array();
-  _civicrm_api3_object_to_array(clone($membershipStatusBAO), $membershipStatus);
+  $cloneBAO = clone($membershipStatusBAO);
+  _civicrm_api3_object_to_array($cloneBAO, $membershipStatus);
   $membershipStatus['is_error'] = 0;
   return $membershipStatus;
 }
@@ -120,8 +121,9 @@ function civicrm_api3_membership_status_update($params) {
  * This API is used for deleting a membership status
  *
  * @param array $params
- *
  * @return array
+ * @throws API_Exception
+ * @throws CRM_Core_Exception
  */
 function civicrm_api3_membership_status_delete($params) {
 
@@ -176,4 +178,17 @@ SELECT start_date, end_date, join_date, membership_type_id
   }
   $dao->free();
   return $result;
+}
+
+/**
+ * Adjust Metadata for Calc action.
+ *
+ * The metadata is used for setting defaults, documentation & validation.
+ *
+ * @param array $params
+ *   Array of parameters determined by getfields.
+ */
+function _civicrm_api3_membership_status_calc_spec(&$params) {
+  $params['membership_id']['api.required'] = 1;
+  $params['membership_id']['title'] = 'Membership ID';
 }

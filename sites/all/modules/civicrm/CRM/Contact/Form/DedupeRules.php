@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -58,7 +58,14 @@ class CRM_Contact_Form_DedupeRules extends CRM_Admin_Form {
     }
     $this->_options = CRM_Core_SelectValues::getDedupeRuleTypes();
     $this->_rgid = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE, 0);
-    $this->_contactType = CRM_Utils_Request::retrieve('contact_type', 'String', $this, FALSE, 0);
+    $contactTypes = civicrm_api3('Contact', 'getOptions', array('field' => "contact_type"));
+    $contactType = CRM_Utils_Request::retrieve('contact_type', 'String', $this, FALSE, 0);
+    if (CRM_Utils_Array::value($contactType, $contactTypes['values'])) {
+      $this->_contactType = CRM_Utils_Array::value($contactType, $contactTypes['values']);
+    }
+    elseif (!empty($contactType)) {
+      throw new CRM_Core_Exception('Contact Type is Not valid');
+    }
     if ($this->_rgid) {
       $rgDao = new CRM_Dedupe_DAO_RuleGroup();
       $rgDao->id = $this->_rgid;
@@ -153,6 +160,13 @@ class CRM_Contact_Form_DedupeRules extends CRM_Admin_Form {
       if (!empty($fields["where_$count"]) || (isset($self->_defaults['is_reserved']) && !empty($self->_defaults["where_$count"]))) {
         $fieldSelected = TRUE;
         break;
+      }
+    }
+    if (empty($fields['threshold'])) {
+      // CRM-20607 - Don't validate the threshold of hard-coded rules
+      if (!(CRM_Utils_Array::value('is_reserved', $fields) &&
+        CRM_Utils_File::isIncludable("CRM/Dedupe/BAO/QueryBuilder/{$self->_defaultValues['name']}.php"))) {
+        $errors['threshold'] = ts('Threshold weight cannot be empty or zero.');
       }
     }
 

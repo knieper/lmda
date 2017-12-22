@@ -155,6 +155,9 @@
             groups: {include: [], exclude: [], base: []},
             mailings: {include: [], exclude: []}
           },
+          template_type: "traditional",
+          // Workaround CRM-19756 w/template_options.nonce
+          template_options: {nonce: 1},
           name: "",
           campaign_id: null,
           replyto_email: "",
@@ -274,6 +277,7 @@
           });
           delete params.recipients; // the content was merged in
           return qApi('Mailing', 'create', params).then(function(result) {
+            mailing.modified_date = result.values[result.id].modified_date;
             // changes rolled back, so we don't care about updating mailing
             return result.values[result.id]['api.Mailing.preview'].values;
           });
@@ -301,6 +305,7 @@
         delete params.recipients; // the content was merged in
         return qApi('Mailing', 'create', params).then(function (recipResult) {
           // changes rolled back, so we don't care about updating mailing
+          mailing.modified_date = recipResult.values[recipResult.id].modified_date;
           return recipResult.values[recipResult.id]['api.MailingRecipients.get'].values;
         });
       },
@@ -320,6 +325,7 @@
         delete params.recipients; // the content was merged in
         return qApi('Mailing', 'create', params).then(function (recipResult) {
           // changes rolled back, so we don't care about updating mailing
+          mailing.modified_date = recipResult.values[recipResult.id].modified_date;
           return recipResult.values[recipResult.id]['api.MailingRecipients.getcount'];
         });
       },
@@ -351,6 +357,7 @@
             mailing.id = result.id;
           }  // no rollback, so update mailing.id
           // Perhaps we should reload mailing based on result?
+          mailing.modified_date = result.values[result.id].modified_date;
           return mailing;
         });
       },
@@ -402,6 +409,7 @@
           if (result.id && !mailing.id) {
             mailing.id = result.id;
           }  // no rollback, so update mailing.id
+          mailing.modified_date = result.values[result.id].modified_date;
           return result.values[result.id]['api.Mailing.send_test'].values;
         });
       }

@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -125,6 +125,14 @@ class CRM_Core_Payment_BaseIPN {
 
     $objects['contact'] = &$contact;
     $objects['contribution'] = &$contribution;
+
+    // CRM-19478: handle oddity when p=null is set in place of contribution page ID,
+    if (!empty($ids['contributionPage']) && !is_numeric($ids['contributionPage'])) {
+      // We don't need to worry if about removing contribution page id as it will be set later in
+      //  CRM_Contribute_BAO_Contribution::loadRelatedObjects(..) using $objects['contribution']->contribution_page_id
+      unset($ids['contributionPage']);
+    }
+
     if (!$this->loadObjects($input, $ids, $objects, $required, $paymentProcessorID)) {
       return FALSE;
     }
@@ -392,6 +400,8 @@ class CRM_Core_Payment_BaseIPN {
   }
 
   /**
+   * @deprecated
+   *
    * Jumbled up function.
    *
    * The purpose of this function is to transition a pending transaction to Completed including updating any
@@ -411,7 +421,7 @@ class CRM_Core_Payment_BaseIPN {
    * This function has been problematic for some time but there are now several tests via the api_v3_Contribution test
    * and the Paypal & Authorize.net IPN tests so any refactoring should be done in conjunction with those.
    *
-   * This function needs to have the 'body' moved to the CRM_Contribution_BAO_Contribute class and to undergo
+   * This function needs to have the 'body' moved to the CRM_Contribute_BAO_Contribute class and to undergo
    * refactoring to separate the complete transaction and repeat transaction functionality into separate functions with
    * a shared function that updates related components.
    *
@@ -445,12 +455,9 @@ class CRM_Core_Payment_BaseIPN {
    * @param bool $recur
    */
   public function completeTransaction(&$input, &$ids, &$objects, &$transaction, $recur = FALSE) {
-    $isRecurring = $this->_isRecurring;
-    $isFirstOrLastRecurringPayment = $this->_isFirstOrLastRecurringPayment;
     $contribution = &$objects['contribution'];
 
-    CRM_Contribute_BAO_Contribution::completeOrder($input, $ids, $objects, $transaction, $recur, $contribution,
-      $isRecurring, $isFirstOrLastRecurringPayment);
+    CRM_Contribute_BAO_Contribution::completeOrder($input, $ids, $objects, $transaction, $recur, $contribution);
   }
 
   /**
@@ -471,9 +478,9 @@ class CRM_Core_Payment_BaseIPN {
   }
 
   /**
-   * Send receipt from contribution.
-   *
    * @deprecated
+   *
+   * @todo confirm this function is not being used by any payment processor outside core & remove.
    *
    * Note that the compose message part has been moved to contribution
    * In general LoadObjects is called first to get the objects but the composeMessageArray function now calls it
@@ -494,7 +501,7 @@ class CRM_Core_Payment_BaseIPN {
    * @return array
    */
   public function sendMail(&$input, &$ids, &$objects, &$values, $recur = FALSE, $returnMessageText = FALSE) {
-    return CRM_Contribute_BAO_Contribution::sendMail($input, $ids, $objects['contribution']->id, $values, $recur,
+    return CRM_Contribute_BAO_Contribution::sendMail($input, $ids, $objects['contribution']->id, $values,
       $returnMessageText);
   }
 

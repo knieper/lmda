@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -73,14 +73,14 @@ class CRM_Activity_Page_Tab extends CRM_Core_Page {
     $activityTypeId = CRM_Utils_Request::retrieve('atype', 'Positive', $this);
 
     // Email and Create Letter activities use a different form class
-    $emailTypeValue = CRM_Core_OptionGroup::getValue('activity_type',
-      'Email',
-      'name'
+    $emailTypeValue = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity',
+      'activity_type_id',
+      'Email'
     );
 
-    $letterTypeValue = CRM_Core_OptionGroup::getValue('activity_type',
-      'Print PDF Letter',
-      'name'
+    $letterTypeValue = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity',
+      'activity_type_id',
+      'Print PDF Letter'
     );
 
     switch ($activityTypeId) {
@@ -189,14 +189,14 @@ class CRM_Activity_Page_Tab extends CRM_Core_Page {
       $activityTypeId = CRM_Utils_Request::retrieve('atype', 'Positive', $this);
 
       // Email and Create Letter activities use a different form class
-      $emailTypeValue = CRM_Core_OptionGroup::getValue('activity_type',
-        'Email',
-        'name'
+      $emailTypeValue = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity',
+        'activity_type_id',
+        'Email'
       );
 
-      $letterTypeValue = CRM_Core_OptionGroup::getValue('activity_type',
-        'Print PDF Letter',
-        'name'
+      $letterTypeValue = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity',
+        'activity_type_id',
+        'Print PDF Letter'
       );
 
       if (in_array($activityTypeId, array(

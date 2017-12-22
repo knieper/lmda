@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -242,7 +242,7 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
       if (CRM_Contact_Form_Search::isSearchContext($this->_context)) {
         $this->_context = 'search';
       }
-      elseif (!in_array($this->_context, array('dashlet', 'dashletFullscreen'))
+      elseif (!in_array($this->_context, array('dashlet', 'case', 'dashletFullscreen'))
         && $this->_currentlyViewedContactId
       ) {
         $this->_context = 'activity';
@@ -377,7 +377,7 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
 
     if ($this->_action & CRM_Core_Action::VIEW) {
       // Get the tree of custom fields.
-      $this->_groupTree = CRM_Core_BAO_CustomGroup::getTree('Activity', $this,
+      $this->_groupTree = CRM_Core_BAO_CustomGroup::getTree('Activity', NULL,
         $this->_activityId, 0, $this->_activityTypeId
       );
     }
@@ -544,7 +544,7 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
       $defaults['assignee_contact_id'] = CRM_Utils_Array::value('assignee_contact', $defaults);
 
       // set default tags if exists
-      $defaults['tag'] = CRM_Core_BAO_EntityTag::getTag($this->_activityId, 'civicrm_activity');
+      $defaults['tag'] = implode(',', CRM_Core_BAO_EntityTag::getTag($this->_activityId, 'civicrm_activity'));
     }
     else {
       // if it's a new activity, we need to set default values for associated contact fields
@@ -567,7 +567,7 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
     }
 
     // CRM-15472 - 50 is around the practical limit of how many items a select2 entityRef can handle
-    if (!empty($defaults['target_contact_id'])) {
+    if ($this->_action == 2 && !empty($defaults['target_contact_id'])) {
       $count = count(is_array($defaults['target_contact_id']) ? $defaults['target_contact_id'] : explode(',', $defaults['target_contact_id']));
       if ($count > 50) {
         $this->freeze(array('target_contact_id'));
@@ -725,13 +725,10 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
     $this->assign('customDataSubType', $this->_activityTypeId);
     $this->assign('entityID', $this->_activityId);
 
-    CRM_Core_BAO_Tag::getTags('civicrm_activity', $tags, NULL,
-      '&nbsp;&nbsp;', TRUE);
+    $tags = CRM_Core_BAO_Tag::getColorTags('civicrm_activity');
 
     if (!empty($tags)) {
-      $this->add('select', 'tag', ts('Tags'), $tags, FALSE,
-        array('id' => 'tags', 'multiple' => 'multiple', 'class' => 'crm-select2 huge')
-      );
+      $this->add('select2', 'tag', ts('Tags'), $tags, FALSE, array('class' => 'huge', 'placeholder' => ts('- select -'), 'multiple' => TRUE));
     }
 
     // we need to hide activity tagset for special activities
@@ -989,7 +986,7 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
    */
   protected function processActivity(&$params) {
     $activityAssigned = array();
-    $activityContacts = CRM_Core_OptionGroup::values('activity_contacts', FALSE, FALSE, FALSE, NULL, 'name');
+    $activityContacts = CRM_Activity_BAO_ActivityContact::buildOptions('record_type_id', 'validate');
     $assigneeID = CRM_Utils_Array::key('Activity Assignees', $activityContacts);
     // format assignee params
     if (!CRM_Utils_Array::crmIsEmptyArray($params['assignee_contact_id'])) {
@@ -1011,6 +1008,9 @@ class CRM_Activity_Form_Activity extends CRM_Contact_Form_Task {
     // add tags if exists
     $tagParams = array();
     if (!empty($params['tag'])) {
+      if (!is_array($params['tag'])) {
+        $params['tag'] = explode(',', $params['tag']);
+      }
       foreach ($params['tag'] as $tag) {
         $tagParams[$tag] = 1;
       }

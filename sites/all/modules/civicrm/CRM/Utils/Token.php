@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -1184,11 +1184,7 @@ class CRM_Utils_Token {
     $className = NULL,
     $jobID = NULL
   ) {
-    if (empty($contactIDs)) {
-      // putting a fatal here so we can track if/when this happens
-      CRM_Core_Error::fatal();
-    }
-    // @todo this functions needs unit tests.
+
     $params = array();
     foreach ($contactIDs as $key => $contactID) {
       $params[] = array(
@@ -1239,32 +1235,21 @@ class CRM_Utils_Token {
       }
     }
 
-    //get the total number of contacts to fetch from database.
-    $numberofContacts = count($contactIDs);
-    $query = new CRM_Contact_BAO_Query($params, $returnProperties);
-
-    $details = $query->apiQuery($params, $returnProperties, NULL, NULL, 0, $numberofContacts);
+    $details = CRM_Contact_BAO_Query::apiQuery($params, $returnProperties, NULL, NULL, 0, count($contactIDs), TRUE, FALSE, TRUE, CRM_Contact_BAO_Query::MODE_CONTACTS, NULL, TRUE);
 
     $contactDetails = &$details[0];
 
     foreach ($contactIDs as $key => $contactID) {
       if (array_key_exists($contactID, $contactDetails)) {
-        if (CRM_Utils_Array::value('preferred_communication_method', $returnProperties) == 1
-          && array_key_exists('preferred_communication_method', $contactDetails[$contactID])
+        if (!empty($contactDetails[$contactID]['preferred_communication_method'])
         ) {
-          $pcm = CRM_Core_PseudoConstant::get('CRM_Contact_DAO_Contact', 'preferred_communication_method');
-
-          // communication Preference
-          $contactPcm = explode(CRM_Core_DAO::VALUE_SEPARATOR,
-            $contactDetails[$contactID]['preferred_communication_method']
-          );
-          $result = array();
-          foreach ($contactPcm as $key => $val) {
+          $communicationPreferences = array();
+          foreach ($contactDetails[$contactID]['preferred_communication_method'] as $key => $val) {
             if ($val) {
-              $result[$val] = $pcm[$val];
+              $communicationPreferences[$val] = CRM_Core_PseudoConstant::getLabel('CRM_Contact_DAO_Contact', 'preferred_communication_method', $val);
             }
           }
-          $contactDetails[$contactID]['preferred_communication_method'] = implode(', ', $result);
+          $contactDetails[$contactID]['preferred_communication_method'] = implode(', ', $communicationPreferences);
         }
 
         foreach ($custom as $cfID) {
@@ -1314,7 +1299,7 @@ class CRM_Utils_Token {
    * @return array
    *   contactDetails with hooks swapped out
    */
-  public function getAnonymousTokenDetails($contactIDs = array(
+  public static function getAnonymousTokenDetails($contactIDs = array(
       0,
     ),
                                            $returnProperties = NULL,
@@ -1336,73 +1321,6 @@ class CRM_Utils_Token {
   }
 
   /**
-   * Gives required details of contribuion in an indexed array format so we
-   * can iterate in a nice loop and do token evaluation
-   *
-   * @param array $contributionIDs
-   * @param array $returnProperties
-   *   Of required properties.
-   * @param array $extraParams
-   *   Extra params.
-   * @param array $tokens
-   *   The list of tokens we've extracted from the content.
-   * @param string $className
-   *
-   * @return array
-   */
-  public static function getContributionTokenDetails(
-    $contributionIDs,
-    $returnProperties = NULL,
-    $extraParams = NULL,
-    $tokens = array(),
-    $className = NULL
-  ) {
-    // @todo this function basically replicates calling
-    // civicrm_api3('contribution', 'get', array('id' => array('IN' => array())
-    if (empty($contributionIDs)) {
-      // putting a fatal here so we can track if/when this happens
-      CRM_Core_Error::fatal();
-    }
-
-    $details = array();
-
-    // no apiQuery helper yet, so do a loop and find contribution by id
-    foreach ($contributionIDs as $contributionID) {
-
-      $dao = new CRM_Contribute_DAO_Contribution();
-      $dao->id = $contributionID;
-
-      if ($dao->find(TRUE)) {
-
-        $details[$dao->id] = array();
-        CRM_Core_DAO::storeValues($dao, $details[$dao->id]);
-
-        // do the necessary transformation
-        if (!empty($details[$dao->id]['payment_instrument_id'])) {
-          $piId = $details[$dao->id]['payment_instrument_id'];
-          $pis = CRM_Contribute_PseudoConstant::paymentInstrument();
-          $details[$dao->id]['payment_instrument'] = $pis[$piId];
-        }
-        if (!empty($details[$dao->id]['campaign_id'])) {
-          $campaignId = $details[$dao->id]['campaign_id'];
-          $campaigns = CRM_Campaign_BAO_Campaign::getCampaigns($campaignId);
-          $details[$dao->id]['campaign'] = $campaigns[$campaignId];
-        }
-
-        if (!empty($details[$dao->id]['financial_type_id'])) {
-          $financialtypeId = $details[$dao->id]['financial_type_id'];
-          $ftis = CRM_Contribute_PseudoConstant::financialType();
-          $details[$dao->id]['financial_type'] = $ftis[$financialtypeId];
-        }
-
-        // @todo call a hook to get token contribution details
-      }
-    }
-
-    return $details;
-  }
-
-  /**
    * Get Membership Token Details.
    * @param array $membershipIDs
    *   Array of membership IDS.
@@ -1417,6 +1335,15 @@ class CRM_Utils_Token {
 
   /**
    * Replace existing greeting tokens in message/subject.
+   *
+   * This function operates by reference, modifying the first parameter. Other
+   * methods for token replacement in this class return the modified string.
+   * This leads to inconsistency in how these methods must be applied.
+   *
+   * @TODO Remove that inconsistency in usage.
+   *
+   * ::replaceContactTokens() may need to be called after this method, to
+   * replace tokens supplied from this method.
    *
    * @param string $tokenString
    * @param array $contactDetails
@@ -1439,6 +1366,7 @@ class CRM_Utils_Token {
         $tokenString = CRM_Utils_Token::replaceContactTokens($tokenString, $contactDetails, TRUE, $greetingTokens, TRUE, $escapeSmarty);
       }
 
+      self::removeNullContactTokens($tokenString, $contactDetails, $greetingTokens);
       // check if there are any unevaluated tokens
       $greetingTokens = self::getTokens($tokenString);
 
@@ -1493,6 +1421,49 @@ class CRM_Utils_Token {
         list($contact) = $greetingDetails;
         // Replace tokens defined in Hooks.
         $tokenString = CRM_Utils_Token::replaceHookTokens($tokenString, $contact[$contactId], $categories);
+      }
+    }
+  }
+
+  /**
+   * At this point, $contactDetails has loaded the contact from the DAO. Any
+   * (non-custom) missing fields are null.  By removing them, we can avoid
+   * expensive calls to CRM_Contact_BAO_Query.
+   *
+   * @param string $tokenString
+   * @param array $contactDetails
+   */
+  private static function removeNullContactTokens(&$tokenString, $contactDetails, &$greetingTokens) {
+    $greetingTokensOriginal = $greetingTokens;
+    $contactFieldList = CRM_Contact_DAO_Contact::fields();
+    // Sometimes contactDetails are in a multidemensional array, sometimes a
+    // single-dimension array.
+    if (array_key_exists(0, $contactDetails) && is_array($contactDetails[0])) {
+      $contactDetails = current($contactDetails[0]);
+    }
+    $nullFields = array_keys(array_diff_key($contactFieldList, $contactDetails));
+
+    // Handle legacy tokens
+    foreach (self::legacyContactTokens() as $oldToken => $newToken) {
+      if (CRM_Utils_Array::key($newToken, $nullFields)) {
+        $nullFields[] = $oldToken;
+      }
+    }
+
+    // Remove null contact fields from $greetingTokens
+    $greetingTokens['contact'] = array_diff($greetingTokens['contact'], $nullFields);
+
+    // Also remove them from $tokenString
+    $removedTokens = array_diff($greetingTokensOriginal['contact'], $greetingTokens['contact']);
+    // Handle legacy tokens again, sigh
+    if (!empty($removedTokens)) {
+      foreach ($removedTokens as $token) {
+        if (CRM_Utils_Array::value($token, self::legacyContactTokens()) !== NULL) {
+          $removedTokens[] = CRM_Utils_Array::value($token, self::legacyContactTokens());
+        }
+      }
+      foreach ($removedTokens as $token) {
+        $tokenString = str_replace("{contact.$token}", '', $tokenString);
       }
     }
   }
@@ -1588,7 +1559,8 @@ class CRM_Utils_Token {
     $key = 'contribution';
     if (self::$_tokens[$key] == NULL) {
       self::$_tokens[$key] = array_keys(array_merge(CRM_Contribute_BAO_Contribution::exportableFields('All'),
-        array('campaign', 'financial_type')
+        array('campaign', 'financial_type'),
+        self::getCustomFieldTokens('Contribution')
       ));
     }
   }
@@ -1866,6 +1838,25 @@ class CRM_Utils_Token {
       'gender' => 'gender_id',
       'communication_style' => 'communication_style_id',
     );
+  }
+
+  /**
+   * Get all custom field tokens of $entity
+   *
+   * @param string $entity
+   * @param bool $usedForTokenWidget
+   *
+   * @return array $customTokens
+   *   return custom field tokens in array('custom_N' => 'label') format
+   */
+  public static function getCustomFieldTokens($entity, $usedForTokenWidget = FALSE) {
+    $customTokens = array();
+    $tokenName = $usedForTokenWidget ? "{contribution.custom_%d}" : "custom_%d";
+    foreach (CRM_Core_BAO_CustomField::getFields($entity) as $id => $info) {
+      $customTokens[sprintf($tokenName, $id)] = $info['label'];
+    }
+
+    return $customTokens;
   }
 
   /**

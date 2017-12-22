@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -73,10 +73,12 @@ class CRM_Report_Form_Contribute_PCP extends CRM_Report_Form {
       ),
       'civicrm_contribution_page' => array(
         'dao' => 'CRM_Contribute_DAO_ContributionPage',
+        'alias' => 'cp',
         'fields' => array(
           'page_title' => array(
-            'title' => ts('Contribution Page Title'),
+            'title' => ts('Page Title'),
             'name' => 'title',
+            'dbAlias' => 'coalesce(cp_civireport.title, e_civireport.title)',
             'default' => TRUE,
           ),
         ),
@@ -89,12 +91,27 @@ class CRM_Report_Form_Contribute_PCP extends CRM_Report_Form {
         ),
         'grouping' => 'pcp-fields',
       ),
+      'civicrm_event' => array(
+        'alias' => 'e',
+        'filters' => array(
+          'event_title' => array(
+            'title' => ts('Event Title'),
+            'name' => 'title',
+            'type' => CRM_Utils_Type::T_STRING,
+          ),
+        ),
+        'grouping' => 'pcp-fields',
+      ),
       'civicrm_pcp' => array(
         'dao' => 'CRM_PCP_DAO_PCP',
         'fields' => array(
           'title' => array(
             'title' => ts('Personal Campaign Title'),
             'default' => TRUE,
+          ),
+          'page_type' => array(
+            'title' => ts('Page Type'),
+            'default' => FALSE,
           ),
           'goal_amount' => array(
             'title' => ts('Goal Amount'),
@@ -166,6 +183,24 @@ class CRM_Report_Form_Contribute_PCP extends CRM_Report_Form {
         ),
         'grouping' => 'pcp-fields',
       ),
+      'civicrm_financial_trxn' => array(
+        'dao' => 'CRM_Financial_DAO_FinancialTrxn',
+        'fields' => array(
+          'card_type_id' => array(
+            'title' => ts('Credit Card Type'),
+            'dbAlias' => 'GROUP_CONCAT(financial_trxn_civireport.card_type_id SEPARATOR ",")',
+          ),
+        ),
+        'filters' => array(
+          'card_type_id' => array(
+            'title' => ts('Credit Card Type'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Financial_DAO_FinancialTrxn::buildOptions('card_type_id'),
+            'default' => NULL,
+            'type' => CRM_Utils_Type::T_STRING,
+          ),
+        ),
+      ),
     );
 
     parent::__construct();
@@ -189,7 +224,16 @@ LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
 
 LEFT JOIN civicrm_contribution_page {$this->_aliases['civicrm_contribution_page']}
           ON {$this->_aliases['civicrm_pcp']}.page_id =
-             {$this->_aliases['civicrm_contribution_page']}.id";
+             {$this->_aliases['civicrm_contribution_page']}.id
+               AND {$this->_aliases['civicrm_pcp']}.page_type = 'contribute'
+
+LEFT JOIN civicrm_event {$this->_aliases['civicrm_event']}
+          ON {$this->_aliases['civicrm_pcp']}.page_id =
+             {$this->_aliases['civicrm_event']}.id
+               AND {$this->_aliases['civicrm_pcp']}.page_type = 'event'";
+
+    // for credit card type
+    $this->addFinancialTrxnFromClause();
   }
 
   public function groupBy() {
@@ -352,6 +396,16 @@ LEFT JOIN civicrm_contribution_page {$this->_aliases['civicrm_contribution_page'
         );
         $rows[$rowNum]['civicrm_contact_sort_name_link'] = $url;
         $rows[$rowNum]['civicrm_contact_sort_name_hover'] = ts("View Contact Summary for this Contact.");
+        $entryFound = TRUE;
+      }
+
+      if (!empty($row['civicrm_financial_trxn_card_type_id'])) {
+        $rows[$rowNum]['civicrm_financial_trxn_card_type_id'] = $this->getLabels($row['civicrm_financial_trxn_card_type_id'], 'CRM_Financial_DAO_FinancialTrxn', 'card_type_id');
+        $entryFound = TRUE;
+      }
+
+      if (!empty($row['civicrm_pcp_page_type'])) {
+        $rows[$rowNum]['civicrm_pcp_page_type'] = ucfirst($rows[$rowNum]['civicrm_pcp_page_type']);
         $entryFound = TRUE;
       }
 

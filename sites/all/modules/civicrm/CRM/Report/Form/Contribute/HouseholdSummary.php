@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -138,6 +138,9 @@ class CRM_Report_Form_Contribute_HouseholdSummary extends CRM_Report_Form {
             'required' => TRUE,
             'no_display' => TRUE,
           ),
+          'financial_type_id' => array(
+            'title' => ts('Financial Type'),
+          ),
           'trxn_id' => NULL,
           'receive_date' => array('default' => TRUE),
           'receipt_date' => NULL,
@@ -158,8 +161,31 @@ class CRM_Report_Form_Contribute_HouseholdSummary extends CRM_Report_Form {
             'options' => CRM_Contribute_PseudoConstant::contributionStatus(),
             'default' => array(1),
           ),
+          'financial_type_id' => array(
+            'title' => ts('Financial Type'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Contribute_PseudoConstant::financialType(),
+          ),
         ),
         'grouping' => 'contri-fields',
+      ),
+      'civicrm_financial_trxn' => array(
+        'dao' => 'CRM_Financial_DAO_FinancialTrxn',
+        'fields' => array(
+          'card_type_id' => array(
+            'title' => ts('Credit Card Type'),
+            'dbAlias' => 'GROUP_CONCAT(financial_trxn_civireport.card_type_id SEPARATOR ",")',
+          ),
+        ),
+        'filters' => array(
+          'card_type_id' => array(
+            'title' => ts('Credit Card Type'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Financial_DAO_FinancialTrxn::buildOptions('card_type_id'),
+            'default' => NULL,
+            'type' => CRM_Utils_Type::T_STRING,
+          ),
+        ),
       ),
       'civicrm_address' => array(
         'dao' => 'CRM_Core_DAO_Address',
@@ -267,6 +293,9 @@ class CRM_Report_Form_Contribute_HouseholdSummary extends CRM_Report_Form {
                       {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_email']}.contact_id AND
                       {$this->_aliases['civicrm_email']}.is_primary = 1\n ";
     }
+
+    // for credit card type
+    $this->addFinancialTrxnFromClause();
   }
 
   public function where() {
@@ -505,6 +534,12 @@ class CRM_Report_Form_Contribute_HouseholdSummary extends CRM_Report_Form {
         }
       }
 
+      if (array_key_exists('civicrm_contribution_financial_type_id', $row)) {
+        if ($value = $row['civicrm_contribution_financial_type_id']) {
+          $rows[$rowNum]['civicrm_contribution_financial_type_id'] = CRM_Contribute_PseudoConstant::financialType($value);
+        }
+      }
+
       // handle state province
       if (array_key_exists('civicrm_address_state_province_id', $row)) {
         if ($value = $row['civicrm_address_state_province_id']) {
@@ -538,6 +573,11 @@ class CRM_Report_Form_Contribute_HouseholdSummary extends CRM_Report_Form {
 
       if (!empty($row['civicrm_contribution_total_amount'])) {
         $row['civicrm_contribution_total_amount'] = CRM_Utils_Money::format($row['civicrm_contribution_total_amount'], $row['civicrm_contribution_currency']);
+      }
+
+      if (!empty($row['civicrm_financial_trxn_card_type_id'])) {
+        $rows[$rowNum]['civicrm_financial_trxn_card_type_id'] = $this->getLabels($row['civicrm_financial_trxn_card_type_id'], 'CRM_Financial_DAO_FinancialTrxn', 'card_type_id');
+        $entryFound = TRUE;
       }
 
       // Contribution amount links to view contribution

@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -140,6 +140,16 @@
     <tr class="crm-preferences-display-form-block-description">
       <td>&nbsp;</td>
       <td class="description">{ts}When enabled, the assignee notification sent out above will also include an ical meeting invite.{/ts}
+      </td>
+    </tr>
+
+    <tr class="crm-preferences-display-form-block-preserve_activity_tab_filter">
+      <td class="label"></td>
+      <td>{$form.preserve_activity_tab_filter.html} {$form.preserve_activity_tab_filter.label}</td>
+    </tr>
+    <tr class="crm-preferences-display-form-block-description">
+      <td>&nbsp;</td>
+      <td class="description">{ts}When enabled, any filter settings a user selects on the contact's Activity tab will be remembered as they visit other contacts.{/ts}
       </td>
     </tr>
 

@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -35,7 +35,7 @@ use Civi\API\Provider\ProviderInterface;
 
 /**
  * @package Civi
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class Kernel {
 
@@ -62,6 +62,14 @@ class Kernel {
 
   /**
    * @deprecated
+   * @param string $entity
+   *   Type of entities to deal with.
+   * @param string $action
+   *   Create, get, delete or some special action name.
+   * @param array $params
+   *   Array to be passed to API function.
+   * @param mixed $extra
+   *   Unused/deprecated.
    * @return array|int
    * @see runSafe
    */
@@ -145,7 +153,7 @@ class Kernel {
    *
    * The request must be in canonical format. Exceptions will be propagated out.
    *
-   * @param $apiRequest
+   * @param array $apiRequest
    * @return array
    * @throws \API_Exception
    * @throws \Civi\API\Exception\NotImplementedException
@@ -192,7 +200,7 @@ class Kernel {
   }
 
   /**
-   * @param $apiRequest
+   * @param array $apiRequest
    * @throws \API_Exception
    */
   protected function validate($apiRequest) {
@@ -205,7 +213,8 @@ class Kernel {
    *   The full description of the API request.
    * @throws Exception\NotImplementedException
    * @return array
-   *   Array(0 => ProviderInterface, 1 => array).
+   *   A tuple with the provider-object and a revised apiRequest.
+   *   Array(0 => ProviderInterface, 1 => array $apiRequest).
    */
   public function resolve($apiRequest) {
     /** @var ResolveEvent $resolveEvent */
@@ -241,7 +250,8 @@ class Kernel {
    *   The API provider responsible for executing the request.
    * @param array $apiRequest
    *   The full description of the API request.
-   * @return mixed
+   * @return array
+   *   The revised API request.
    */
   public function prepare($apiProvider, $apiRequest) {
     /** @var PrepareEvent $event */
@@ -259,6 +269,7 @@ class Kernel {
    * @param array $result
    *   The response to return to the client.
    * @return mixed
+   *   The revised $result.
    */
   public function respond($apiProvider, $apiRequest, $result) {
     /** @var RespondEvent $event */
@@ -399,7 +410,7 @@ class Kernel {
       }
     }
 
-    $data = civicrm_api3_create_error($msg, $data);
+    $data = \civicrm_api3_create_error($msg, $data);
 
     if (isset($apiRequest['params']) && is_array($apiRequest['params']) && !empty($apiRequest['params']['api.has_parent'])) {
       $errorCode = empty($data['error_code']) ? 'chained_api_failed' : $data['error_code'];

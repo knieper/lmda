@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -352,6 +352,10 @@ class SettingsBag {
     }
     $dao->find(TRUE);
 
+    // Call 'on_change' listeners. It would be nice to only fire when there's
+    // a genuine change in the data. However, PHP developers have mixed
+    // expectations about whether 0, '0', '', NULL, and FALSE represent the same
+    // value, so there's no universal way to determine if a change is genuine.
     if (isset($metadata['on_change'])) {
       foreach ($metadata['on_change'] as $callback) {
         call_user_func(

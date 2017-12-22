@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -57,7 +57,7 @@ class CRM_Case_Form_Activity_LinkCases {
     // get the related cases for given case.
     $relatedCases = $form->get('relatedCases');
     if (!isset($relatedCases)) {
-      $relatedCases = CRM_Case_BAO_Case::getRelatedCases($caseId, $form->_currentlyViewedContactId);
+      $relatedCases = CRM_Case_BAO_Case::getRelatedCases($caseId);
       $form->set('relatedCases', empty($relatedCases) ? FALSE : $relatedCases);
     }
   }
@@ -70,7 +70,11 @@ class CRM_Case_Form_Activity_LinkCases {
    * @return array
    */
   public static function setDefaultValues(&$form) {
-    return $defaults = array();
+    $defaults = array();
+    if (!empty($_GET['link_to_case_id']) && CRM_Utils_Rule::positiveInteger($_GET['link_to_case_id'])) {
+      $defaults['link_to_case_id'] = $_GET['link_to_case_id'];
+    }
+    return $defaults;
   }
 
   /**

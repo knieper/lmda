@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -399,4 +399,31 @@ function _civicrm_api3_system_get_whitelist($whitelistFile) {
 function civicrm_api3_system_updatelogtables() {
   $schema = new CRM_Logging_Schema();
   $schema->updateLogTableSchema();
+  return civicrm_api3_create_success(1);
+}
+
+/**
+ * Update indexes.
+ *
+ * This adds any indexes that exist in the schema but not the database.
+ */
+function civicrm_api3_system_updateindexes() {
+  CRM_Core_BAO_SchemaHandler::createMissingIndices(CRM_Core_BAO_SchemaHandler::getMissingIndices(TRUE));
+  return civicrm_api3_create_success(1);
+}
+
+/**
+ * Creates missing log tables.
+ *
+ * CRM-20838 - This adds any missing log tables into the database.
+ */
+function civicrm_api3_system_createmissinglogtables() {
+  $schema = new CRM_Logging_Schema();
+  $missingLogTables = $schema->getMissingLogTables();
+  if (!empty($missingLogTables)) {
+    foreach ($missingLogTables as $tableName) {
+      $schema->fixSchemaDifferencesFor($tableName, NULL, FALSE);
+    }
+  }
+  return civicrm_api3_create_success(1);
 }

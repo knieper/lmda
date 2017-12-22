@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -43,13 +43,6 @@ class CRM_Contribute_PseudoConstant extends CRM_Core_PseudoConstant {
    * @var array
    */
   private static $financialType;
-
-  /**
-   * Financial types
-   * @var array
-   */
-  private static $financialTypeAccount;
-
 
   /**
    * Financial types
@@ -102,19 +95,24 @@ class CRM_Contribute_PseudoConstant extends CRM_Core_PseudoConstant {
   private static $batch;
 
   /**
-   * DEPRECATED. Please use the buildOptions() method in the appropriate BAO object.
+   * @deprecated. Please use the buildOptions() method in the appropriate BAO object.
+   *
    *
    * Get all the financial types
    *
    *
    * @param int $id
+   * @param bool $includeDisabled
    *
    * @return array
    *   array reference of all financial types if any
    */
-  public static function &financialType($id = NULL) {
+  public static function &financialType($id = NULL, $includeDisabled = FALSE) {
     if (!self::$financialType) {
-      $condition = " is_active = 1 ";
+      $condition = "";
+      if (!$includeDisabled) {
+        $condition = " is_active = 1 ";
+      }
       CRM_Core_PseudoConstant::populate(
         self::$financialType,
         'CRM_Financial_DAO_FinancialType',
@@ -133,7 +131,7 @@ class CRM_Contribute_PseudoConstant extends CRM_Core_PseudoConstant {
   }
 
   /**
-   * DEPRECATED. Please use the buildOptions() method in the appropriate BAO object.
+   * @deprecated. Please use the buildOptions() method in the appropriate BAO object.
    *
    * Get all the financial Accounts
    *
@@ -186,7 +184,7 @@ class CRM_Contribute_PseudoConstant extends CRM_Core_PseudoConstant {
   }
 
   /**
-   * DEPRECATED. Please use the buildOptions() method in the appropriate BAO object.
+   * @deprecated. Please use the buildOptions() method in the appropriate BAO object.
    *
    * Get all the contribution pages
    *
@@ -221,7 +219,7 @@ class CRM_Contribute_PseudoConstant extends CRM_Core_PseudoConstant {
   }
 
   /**
-   * DEPRECATED. Please use the buildOptions() method in the appropriate BAO object.
+   * @deprecated. Please use the buildOptions() method in the appropriate BAO object.
    *
    * Get all the payment instruments
    *
@@ -379,36 +377,29 @@ class CRM_Contribute_PseudoConstant extends CRM_Core_PseudoConstant {
   }
 
   /**
-   * Get all financial accounts for a Financial type.
-   *
-   * The static array  $financialTypeAccount is returned
+   * Get financial account for a Financial type.
    *
    *
-   * @param int $financialTypeId
-   * @param int $relationTypeId
-   * @return array
-   *   array reference of all financial accounts for a Financial type
+   * @param int $entityId
+   * @param string $accountRelationType
+   * @param string $entityTable
+   * @param string $returnField
+   * @return int
    */
-  public static function financialAccountType($financialTypeId, $relationTypeId = NULL) {
-    if (!CRM_Utils_Array::value($financialTypeId, self::$financialTypeAccount)) {
-      $condition = " entity_id = $financialTypeId ";
-      CRM_Core_PseudoConstant::populate(
-        self::$financialTypeAccount[$financialTypeId],
-        'CRM_Financial_DAO_EntityFinancialAccount',
-        $all = TRUE,
-        $retrieve = 'financial_account_id',
-        $filter = NULL,
-        $condition,
-        NULL,
-        'account_relationship'
-      );
+  public static function getRelationalFinancialAccount($entityId, $accountRelationType, $entityTable = 'civicrm_financial_type', $returnField = 'financial_account_id') {
+    $params = array(
+      'return' => array($returnField),
+      'entity_table' => $entityTable,
+      'entity_id' => $entityId,
+    );
+    if ($accountRelationType) {
+      $params['account_relationship.name'] = $accountRelationType;
     }
-
-    if ($relationTypeId) {
-      return CRM_Utils_Array::value($relationTypeId, self::$financialTypeAccount[$financialTypeId]);
+    $result = civicrm_api3('EntityFinancialAccount', 'get', $params);
+    if (!$result['count']) {
+      return NULL;
     }
-
-    return self::$financialTypeAccount[$financialTypeId];
+    return $result['values'][$result['id']][$returnField];
   }
 
   /**

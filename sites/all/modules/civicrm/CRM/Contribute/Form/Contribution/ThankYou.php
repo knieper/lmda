@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -88,6 +88,7 @@ class CRM_Contribute_Form_Contribution_ThankYou extends CRM_Contribute_Form_Cont
    * Build the form object.
    */
   public function buildQuickForm() {
+    // FIXME: Some of this code is identical to Confirm.php and should be broken out into a shared function
     $this->assignToTemplate();
     $this->_ccid = $this->get('ccid');
     $productID = $this->get('productID');
@@ -98,8 +99,33 @@ class CRM_Contribute_Form_Contribution_ThankYou extends CRM_Contribute_Form_Cont
     if ($productID) {
       CRM_Contribute_BAO_Premium::buildPremiumBlock($this, $this->_id, FALSE, $productID, $option);
     }
+
+    $params = $this->_params;
+    $invoiceSettings = Civi::settings()->get('contribution_invoice_settings');
+    $invoicing = CRM_Utils_Array::value('invoicing', $invoiceSettings);
+    // Make a copy of line items array to use for display only
+    $tplLineItems = $this->_lineItem;
+    if ($invoicing) {
+      $getTaxDetails = FALSE;
+      $taxTerm = CRM_Utils_Array::value('tax_term', $invoiceSettings);
+      foreach ($this->_lineItem as $key => $value) {
+        foreach ($value as $k => $v) {
+          if (isset($v['tax_rate'])) {
+            if ($v['tax_rate'] != '') {
+              $getTaxDetails = TRUE;
+              // Cast to float to display without trailing zero decimals
+              $tplLineItems[$key][$k]['tax_rate'] = (float) $v['tax_rate'];
+            }
+          }
+        }
+      }
+      $this->assign('getTaxDetails', $getTaxDetails);
+      $this->assign('taxTerm', $taxTerm);
+      $this->assign('totalTaxAmount', $params['tax_amount']);
+    }
+
     if ($this->_priceSetId && !CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $this->_priceSetId, 'is_quick_config')) {
-      $this->assign('lineItem', $this->_lineItem);
+      $this->assign('lineItem', $tplLineItems);
     }
     else {
       if (is_array($membershipTypeID)) {
@@ -111,27 +137,7 @@ class CRM_Contribute_Form_Contribution_ThankYou extends CRM_Contribute_Form_Cont
     $this->assign('priceSetID', $this->_priceSetId);
     $this->assign('useForMember', $this->get('useForMember'));
 
-    $params = $this->_params;
-    $invoiceSettings = Civi::settings()->get('contribution_invoice_settings');
-    $invoicing = CRM_Utils_Array::value('invoicing', $invoiceSettings);
-    if ($invoicing) {
-      $getTaxDetails = FALSE;
-      $taxTerm = CRM_Utils_Array::value('tax_term', $invoiceSettings);
-      foreach ($this->_lineItem as $key => $value) {
-        foreach ($value as $v) {
-          if (isset($v['tax_rate'])) {
-            if ($v['tax_rate'] != '') {
-              $getTaxDetails = TRUE;
-            }
-          }
-        }
-      }
-      $this->assign('getTaxDetails', $getTaxDetails);
-      $this->assign('taxTerm', $taxTerm);
-      $this->assign('totalTaxAmount', $params['tax_amount']);
-    }
     if (!empty($this->_values['honoree_profile_id']) && !empty($params['soft_credit_type_id'])) {
-      $honorName = NULL;
       $softCreditTypes = CRM_Core_OptionGroup::values("soft_credit_type", FALSE);
 
       $this->assign('soft_credit_type', $softCreditTypes[$params['soft_credit_type_id']]);
@@ -283,6 +289,28 @@ class CRM_Contribute_Form_Contribution_ThankYou extends CRM_Contribute_Form_Cont
       }
       $this->assign('friendURL', $url);
     }
+
+    $isPendingOutcome = TRUE;
+    try {
+      // A payment notification update could have come in at any time. Check at the last minute.
+      $contributionStatusID = civicrm_api3('Contribution', 'getvalue', array(
+        'id' => CRM_Utils_Array::value('contributionID', $params),
+        'return' => 'contribution_status_id',
+        'invoice_id' => CRM_Utils_Array::value('invoiceID', $params),
+      ));
+      if (CRM_Core_PseudoConstant::getName('CRM_Contribute_BAO_Contribution', 'contribution_status_id', $contributionStatusID) === 'Pending'
+        && !empty($params['payment_processor_id'])
+      ) {
+        $isPendingOutcome = TRUE;
+      }
+      else {
+        $isPendingOutcome = FALSE;
+      }
+    }
+    catch (CiviCRM_API3_Exception $e) {
+
+    }
+    $this->assign('isPendingOutcome', $isPendingOutcome);
 
     $this->freeze();
 

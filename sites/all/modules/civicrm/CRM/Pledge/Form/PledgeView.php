@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -63,7 +63,7 @@ class CRM_Pledge_Form_PledgeView extends CRM_Core_Form {
     }
 
     // handle custom data.
-    $groupTree = CRM_Core_BAO_CustomGroup::getTree('Pledge', $this, $params['id']);
+    $groupTree = CRM_Core_BAO_CustomGroup::getTree('Pledge', NULL, $params['id']);
     CRM_Core_BAO_CustomGroup::buildCustomDataView($this, $groupTree, FALSE, NULL, NULL, NULL, $params['id']);
 
     if (!empty($values['contribution_page_id'])) {

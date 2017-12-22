@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -30,7 +30,7 @@
  * PEAR_ErrorStack and use that framework
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 require_once 'PEAR/ErrorStack.php';
@@ -310,6 +310,11 @@ class CRM_Core_Error extends PEAR_ErrorStack {
   /**
    * Display an error page with an error message describing what happened.
    *
+   * @deprecated
+   *  This is a really annoying function. We ❤ exceptions. Be exceptional!
+   *
+   * @see CRM-20181
+   *
    * @param string $message
    *   The error message.
    * @param string $code
@@ -338,7 +343,7 @@ class CRM_Core_Error extends PEAR_ErrorStack {
     }
 
     if (!$message) {
-      $message = ts('We experienced an unexpected error. Please post a detailed description and the backtrace on the CiviCRM forums: %1', array(1 => 'http://forum.civicrm.org/'));
+      $message = ts('We experienced an unexpected error. You may have found a bug. For more information on how to provide a bug report, please read: %1', array(1 => 'https://civicrm.org/bug-reporting'));
     }
 
     if (php_sapi_name() == "cli") {
@@ -418,7 +423,7 @@ class CRM_Core_Error extends PEAR_ErrorStack {
       'exception' => $exception,
     );
     if (!$vars['message']) {
-      $vars['message'] = ts('We experienced an unexpected error. Please post a detailed description and the backtrace on the CiviCRM forums: %1', array(1 => 'http://forum.civicrm.org/'));
+      $vars['message'] = ts('We experienced an unexpected error. You may have found a bug. For more information on how to provide a bug report, please read: %1', array(1 => 'https://civicrm.org/bug-reporting'));
     }
 
     // Case A: CLI
@@ -523,29 +528,23 @@ class CRM_Core_Error extends PEAR_ErrorStack {
    * in the formatting of the output.
    *
    * @param string $variable_name
-   * @param mixed $variable
-   * @param bool $print
-   *   Should we use print_r ? (else we use var_dump).
-   * @param bool $log
-   *   Should we log or return the output.
-   * @param string $comp
    *   Variable name.
+   * @param mixed $variable
+   *   Variable value.
+   * @param bool $print
+   *   Use print_r (if true) or var_dump (if false).
+   * @param bool $log
+   *   Log or return the output?
+   * @param string $prefix
+   *   Prefix for output logfile.
    *
    * @return string
-   *   the generated output
-   *
-   *
+   *   The generated output
    *
    * @see CRM_Core_Error::debug()
    * @see CRM_Core_Error::debug_log_message()
    */
-  public static function debug_var(
-    $variable_name,
-    $variable,
-    $print = TRUE,
-    $log = TRUE,
-    $comp = ''
-  ) {
+  public static function debug_var($variable_name, $variable, $print = TRUE, $log = TRUE, $prefix = '') {
     // check if variable is set
     if (!isset($variable)) {
       $out = "\$$variable_name is not set";
@@ -568,7 +567,7 @@ class CRM_Core_Error extends PEAR_ErrorStack {
         reset($variable);
       }
     }
-    return self::debug_log_message($out, FALSE, $comp);
+    return self::debug_log_message($out, FALSE, $prefix);
   }
 
   /**
@@ -581,17 +580,17 @@ class CRM_Core_Error extends PEAR_ErrorStack {
    * @param bool $out
    *   Should we log or return the output.
    *
-   * @param string $comp
-   *   Message to be output.
+   * @param string $prefix
+   *   Message prefix.
    * @param string $priority
    *
    * @return string
    *   Format of the backtrace
    */
-  public static function debug_log_message($message, $out = FALSE, $comp = '', $priority = NULL) {
+  public static function debug_log_message($message, $out = FALSE, $prefix = '', $priority = NULL) {
     $config = CRM_Core_Config::singleton();
 
-    $file_log = self::createDebugLogger($comp);
+    $file_log = self::createDebugLogger($prefix);
     $file_log->log("$message\n", $priority);
 
     $str = '<p/><code>' . htmlspecialchars($message) . '</code>';
@@ -600,7 +599,15 @@ class CRM_Core_Error extends PEAR_ErrorStack {
     }
     $file_log->close();
 
-    if (!empty($config->userFrameworkLogging)) {
+    if (!isset(\Civi::$statics[__CLASS__]['userFrameworkLogging'])) {
+      // Set it to FALSE first & then try to set it. This is to prevent a loop as calling
+      // $config->userFrameworkLogging can trigger DB queries & under log mode this
+      // then gets called again.
+      \Civi::$statics[__CLASS__]['userFrameworkLogging'] = FALSE;
+      \Civi::$statics[__CLASS__]['userFrameworkLogging'] = $config->userFrameworkLogging;
+    }
+
+    if (!empty(\Civi::$statics[__CLASS__]['userFrameworkLogging'])) {
       // should call $config->userSystem->logger($message) here - but I got a situation where userSystem was not an object - not sure why
       if ($config->userSystem->is_drupal and function_exists('watchdog')) {
         watchdog('civicrm', '%message', array('%message' => $message), WATCHDOG_DEBUG);
@@ -650,7 +657,12 @@ class CRM_Core_Error extends PEAR_ErrorStack {
 
   /**
    * Generate a hash for the logfile.
+   *
    * CRM-13640.
+   *
+   * @param CRM_Core_Config $config
+   *
+   * @return string
    */
   public static function generateLogFileHash($config) {
     // Use multiple (but stable) inputs for hash information.
@@ -668,7 +680,8 @@ class CRM_Core_Error extends PEAR_ErrorStack {
   /**
    * Generate the name of the logfile to use and store it as a static.
    *
-   * This function includes poor man's log file management and a check as to whether the file exists.
+   * This function includes simplistic log rotation and a check as to whether
+   * the file exists.
    *
    * @param string $prefix
    */
@@ -681,9 +694,9 @@ class CRM_Core_Error extends PEAR_ErrorStack {
       $hash = self::generateLogFileHash($config);
       $fileName = $config->configAndLogDir . 'CiviCRM.' . $prefixString . $hash . '.log';
 
-      // Roll log file monthly or if greater than 256M
-      // note that PHP file functions have a limit of 2G and hence
-      // the alternative was introduce
+      // Roll log file monthly or if greater than 256M.
+      // Size-based rotation introduced in response to filesize limits on
+      // certain OS/PHP combos.
       if (file_exists($fileName)) {
         $fileTime = date("Ym", filemtime($fileName));
         $fileSize = filesize($fileName);

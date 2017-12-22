@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -118,7 +118,8 @@
               <legend>{ts}Renewal Payment and Receipt{/ts}</legend>
       {/if}
       {include file="CRM/Member/Form/MembershipCommon.tpl"}
-      {if $emailExists and $outBound_option != 2}
+    </table>
+    {if $emailExists and $outBound_option != 2}
       <table class="form-layout">
         <tr class="crm-{$formClass}-form-block-send_receipt">
           <td class="label">{$form.send_receipt.label}</td>
@@ -178,14 +179,6 @@
   {/if}
 
   {if !$membershipMode}
-    {include file="CRM/common/showHideByFieldValue.tpl"
-    trigger_field_id    ="payment_instrument_id"
-    trigger_value       = '4'
-    target_element_id   ="checkNumber"
-    target_element_type ="table-row"
-    field_type          ="select"
-    invert              = 0
-    }
     {include file="CRM/common/showHideByFieldValue.tpl"
     trigger_field_id    ="send_receipt"
     trigger_value       =""

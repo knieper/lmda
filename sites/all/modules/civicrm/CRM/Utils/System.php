@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -41,7 +41,7 @@
  * @method static mixed permissionDenied() Show access denied screen.
  * @method static mixed logout() Log out the current user.
  * @method static mixed updateCategories() Clear CMS caches related to the user registration/profile forms.
- * @method static appendBreadCrumb(string $breadCrumbs) Append an additional breadcrumb tag to the existing breadcrumbs.
+ * @method static appendBreadCrumb(array $breadCrumbs) Append an additional breadcrumb tag to the existing breadcrumbs.
  * @method static resetBreadCrumb() Reset an additional breadcrumb tag to the existing breadcrumb.
  * @method static addHTMLHead(string $bc) Append a string to the head of the HTML file.
  * @method static string postURL(int $action) Determine the post URL for a form.
@@ -298,6 +298,18 @@ class CRM_Utils_System {
     }
 
     return $url;
+  }
+
+  /**
+   * Path of the current page e.g. 'civicrm/contact/view'
+   *
+   * @return string|null
+   */
+  public static function getUrlPath() {
+    if (isset($_GET[CRM_Core_Config::singleton()->userFrameworkURLVar])) {
+      return $_GET[CRM_Core_Config::singleton()->userFrameworkURLVar];
+    }
+    return NULL;
   }
 
   /**
@@ -1379,7 +1391,7 @@ class CRM_Utils_System {
    * @return mixed
    */
   public static function formatDocUrl($url) {
-    return preg_replace('#^user/((\w\w/)?stable/)?#', 'user/en/stable/', $url);
+    return preg_replace('#^user/#', 'user/en/stable/', $url);
   }
 
   /**
@@ -1416,7 +1428,7 @@ class CRM_Utils_System {
     CRM_Contact_BAO_Contact::$_importableFields = CRM_Contact_BAO_Contact::$_exportableFields
       = CRM_Contribute_BAO_Contribution::$_importableFields
         = CRM_Contribute_BAO_Contribution::$_exportableFields
-          = CRM_Pledge_BAO_Pledge::$_exportableFields = CRM_Contribute_BAO_Query::$_contributionFields
+          = CRM_Pledge_BAO_Pledge::$_exportableFields
             = CRM_Core_BAO_CustomField::$_importFields
               = CRM_Core_BAO_Cache::$_cache = CRM_Core_DAO::$_dbColumnValueCache = NULL;
 

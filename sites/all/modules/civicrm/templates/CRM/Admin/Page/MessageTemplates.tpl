@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -112,7 +112,12 @@
           {/if}
           </div>
         <div>
-          <p></p>
+          {if $action ne 1 and $action ne 2 and $type eq 'userTemplates'}
+            <div class="action-link">
+              {crmButton p='civicrm/admin/messageTemplates/add' q="action=add&reset=1" id="newMessageTemplates"  icon="plus-circle"}{ts}Add Message Template{/ts}{/crmButton}
+            </div>
+            <div class="spacer"></div>
+          {/if}
             {if !empty( $template_row) }
               <table class="display">
                 <thead>

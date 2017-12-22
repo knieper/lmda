@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -314,6 +314,13 @@ function civicrm_api3_job_process_pledge($params) {
 function civicrm_api3_job_process_mailing($params) {
   $mailsProcessedOrig = CRM_Mailing_BAO_MailingJob::$mailsProcessed;
 
+  try {
+    CRM_Core_BAO_Setting::isAPIJobAllowedToRun($params);
+  }
+  catch (Exception $e) {
+    return civicrm_api3_create_error($e->getMessage());
+  }
+
   if (!CRM_Mailing_BAO_Mailing::processQueue()) {
     return civicrm_api3_create_error('Process Queue failed');
   }
@@ -358,15 +365,23 @@ function civicrm_api3_job_fetch_bounces($params) {
   if (!$lock->isAcquired()) {
     return civicrm_api3_create_error('Could not acquire lock, another EmailProcessor process is running');
   }
-  if (!CRM_Utils_Mail_EmailProcessor::processBounces()) {
-    $lock->release();
-    return civicrm_api3_create_error('Process Bounces failed');
-  }
+  CRM_Utils_Mail_EmailProcessor::processBounces($params['is_create_activities']);
   $lock->release();
 
-  // FIXME: processBounces doesn't return true/false on success/failure
-  $values = array();
-  return civicrm_api3_create_success($values, $params, 'Job', 'fetch_bounces');
+  return civicrm_api3_create_success(1, $params, 'Job', 'fetch_bounces');
+}
+
+/**
+ * Metadata for bounce function.
+ *
+ * @param array $params
+ */
+function _civicrm_api3_job_fetch_bounces_spec(&$params) {
+  $params['is_create_activities'] = array(
+    'api.default' => 0,
+    'type' => CRM_Utils_Type::T_BOOLEAN,
+    'title' => ts('Create activities for replies?'),
+  );
 }
 
 /**
@@ -390,7 +405,7 @@ function civicrm_api3_job_fetch_activities($params) {
   }
   catch (Exception $e) {
     $lock->release();
-    return civicrm_api3_create_error('Process Activities failed');
+    return civicrm_api3_create_error($e->getMessage());
   }
 }
 
@@ -486,12 +501,11 @@ function civicrm_api3_job_process_batch_merge($params) {
       'options' => array('limit' => 1),
     ));
   }
+  $rgid = CRM_Utils_Array::value('rgid', $params);
   $gid = CRM_Utils_Array::value('gid', $params);
-
   $mode = CRM_Utils_Array::value('mode', $params, 'safe');
-  $autoFlip = CRM_Utils_Array::value('auto_flip', $params, TRUE);
 
-  $result = CRM_Dedupe_Merger::batchMerge($rule_group_id, $gid, $mode, $autoFlip, 1, 2, CRM_Utils_Array::value('criteria', $params, array()), CRM_Utils_Array::value('check_permissions', $params));
+  $result = CRM_Dedupe_Merger::batchMerge($rule_group_id, $gid, $mode, 1, 2, CRM_Utils_Array::value('criteria', $params, array()), CRM_Utils_Array::value('check_permissions', $params));
 
   return civicrm_api3_create_success($result, $params);
 }

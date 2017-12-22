@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -180,6 +180,13 @@ class CRM_Contact_BAO_SavedSearch extends CRM_Contact_DAO_SavedSearch {
           }
         }
         unset($result['privacy']);
+      }
+    }
+
+    if ($customSearchClass = CRM_Utils_Array::value('customSearchClass', $result)) {
+      // check if there is a special function - formatSavedSearchFields defined in the custom search form
+      if (method_exists($customSearchClass, 'formatSavedSearchFields')) {
+        $customSearchClass::formatSavedSearchFields($result);
       }
     }
 

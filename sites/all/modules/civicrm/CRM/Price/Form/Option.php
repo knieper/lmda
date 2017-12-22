@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -115,8 +115,7 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
   public function buildQuickForm() {
     if ($this->_action == CRM_Core_Action::UPDATE) {
       $finTypeId = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceFieldValue', $this->_oid, 'financial_type_id');
-      CRM_Financial_BAO_FinancialType::getAvailableFinancialTypes($financialTypes, CRM_Core_Action::UPDATE);
-      if (!array_key_exists($finTypeId, $financialTypes)) {
+      if (!CRM_Financial_BAO_FinancialType::checkPermissionToEditFinancialType($finTypeId)) {
         CRM_Core_Error::fatal(ts("You do not have permission to access this page"));
       }
     }
@@ -230,6 +229,9 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
       // is active ?
       $this->add('checkbox', 'is_active', ts('Active?'));
 
+      // is public?
+      $this->add('select', 'visibility_id', ts('Visibility'), CRM_Core_PseudoConstant::visibility());
+
       //is default
       $this->add('checkbox', 'is_default', ts('Default'));
 
@@ -289,13 +291,27 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
     ) {
       $errors['count'] = ts('Participant count can not be greater than max participants.');
     }
-    // CRM-16189
-    try {
-      CRM_Financial_BAO_FinancialAccount::validateFinancialType($fields['financial_type_id'], $form->_fid, 'PriceField');
+
+    $priceField = CRM_Price_BAO_PriceField::findById($fields['fieldId']);
+    $visibilityOptions = CRM_Price_BAO_PriceFieldValue::buildOptions('visibility_id', NULL, array('labelColumn' => 'name'));
+
+    $publicCount = 0;
+    $options = CRM_Price_BAO_PriceField::getOptions($priceField->id);
+    foreach ($options as $currentOption) {
+      if ($fields['optionId'] == $currentOption['id'] && $visibilityOptions[$fields['visibility_id']] == 'public') {
+        $publicCount++;
+      }
+      elseif ($fields['optionId'] != $currentOption['id'] && $visibilityOptions[$currentOption['visibility_id']] == 'public') {
+        $publicCount++;
+      }
     }
-    catch (CRM_Core_Exception $e) {
-      $errors['financial_type_id'] = $e->getMessage();
+    if ($visibilityOptions[$priceField->visibility_id] == 'public' && $publicCount == 0) {
+      $errors['visibility_id'] = ts('All other options for this \'Public\' field have \'Admin\' visibility. There should at least be one \'Public\' option, or make the field \'Admin\' only.');
     }
+    elseif ($visibilityOptions[$priceField->visibility_id] == 'admin' && $publicCount > 0) {
+      $errors['visibility_id'] = ts('You must choose \'Admin\' visibility for this price option, as it belongs to a field with \'Admin\' visibility.');
+    }
+
     return empty($errors) ? TRUE : $errors;
   }
 
@@ -327,6 +343,7 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
       $params['price_field_id'] = $this->_fid;
       $params['is_default'] = CRM_Utils_Array::value('is_default', $params, FALSE);
       $params['is_active'] = CRM_Utils_Array::value('is_active', $params, FALSE);
+      $params['visibility_id'] = CRM_Utils_Array::value('visibility_id', $params, FALSE);
       $ids = array();
       if ($this->_oid) {
         $ids['id'] = $this->_oid;

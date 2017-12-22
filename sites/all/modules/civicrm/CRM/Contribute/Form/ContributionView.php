@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -103,7 +103,7 @@ class CRM_Contribute_Form_ContributionView extends CRM_Core_Form {
       }
     }
 
-    $groupTree = CRM_Core_BAO_CustomGroup::getTree('Contribution', $this, $id, 0, CRM_Utils_Array::value('financial_type_id', $values));
+    $groupTree = CRM_Core_BAO_CustomGroup::getTree('Contribution', NULL, $id, 0, CRM_Utils_Array::value('financial_type_id', $values));
     CRM_Core_BAO_CustomGroup::buildCustomDataView($this, $groupTree, FALSE, NULL, NULL, NULL, $id);
 
     $premiumId = NULL;
@@ -155,8 +155,23 @@ class CRM_Contribute_Form_ContributionView extends CRM_Core_Form {
     if ($id) {
       $lineItems = array(CRM_Price_BAO_LineItem::getLineItemsByContributionID(($id)));
       $firstLineItem = reset($lineItems[0]);
-      $priceSet = civicrm_api3('PriceSet', 'getsingle', array('id' => $firstLineItem['price_set_id'], 'return' => 'is_quick_config, id'));
-      $displayLineItems = !$priceSet['is_quick_config'];
+      if (empty($firstLineItem['price_set_id'])) {
+        // CRM-20297 All we care is that it's not QuickConfig, so no price set
+        // is no problem.
+        $displayLineItems = TRUE;
+      }
+      else {
+        try {
+          $priceSet = civicrm_api3('PriceSet', 'getsingle', array(
+            'id' => $firstLineItem['price_set_id'],
+            'return' => 'is_quick_config, id',
+          ));
+          $displayLineItems = !$priceSet['is_quick_config'];
+        }
+        catch (CiviCRM_API3_Exception $e) {
+          throw new CRM_Core_Exception('Cannot find price set by ID');
+        }
+      }
     }
     $this->assign('lineItem', $lineItems);
     $this->assign('displayLineItems', $displayLineItems);
@@ -198,7 +213,7 @@ class CRM_Contribute_Form_ContributionView extends CRM_Core_Form {
       "action=view&reset=1&id={$values['id']}&cid={$values['contact_id']}&context=home"
     );
 
-    $title = $displayName . ' - (' . CRM_Utils_Money::format($values['total_amount']) . ' ' . ' - ' . $values['financial_type'] . ')';
+    $title = $displayName . ' - (' . CRM_Utils_Money::format($values['total_amount'], $values['currency']) . ' ' . ' - ' . $values['financial_type'] . ')';
 
     $recentOther = array();
     if (CRM_Core_Permission::checkActionPermission('CiviContribute', CRM_Core_Action::UPDATE)) {
@@ -219,6 +234,21 @@ class CRM_Contribute_Form_ContributionView extends CRM_Core_Form {
       NULL,
       $recentOther
     );
+    $contributionStatus = $status[$values['contribution_status_id']];
+    if (in_array($contributionStatus, array('Partially paid', 'Pending refund'))
+        || ($contributionStatus == 'Pending' && $values['is_pay_later'])
+        ) {
+      if ($contributionStatus == 'Pending refund') {
+        $this->assign('paymentButtonName', ts('Record Refund'));
+      }
+      else {
+        $this->assign('paymentButtonName', ts('Record Payment'));
+      }
+      $this->assign('addRecordPayment', TRUE);
+      $this->assign('contactId', $values['contact_id']);
+      $this->assign('componentId', $id);
+      $this->assign('component', 'contribution');
+    }
   }
 
   /**
@@ -227,14 +257,13 @@ class CRM_Contribute_Form_ContributionView extends CRM_Core_Form {
   public function buildQuickForm() {
 
     $this->addButtons(array(
-        array(
-          'type' => 'cancel',
-          'name' => ts('Done'),
-          'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-          'isDefault' => TRUE,
-        ),
-      )
-    );
+      array(
+        'type' => 'cancel',
+        'name' => ts('Done'),
+        'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+        'isDefault' => TRUE,
+      ),
+    ));
   }
 
 }

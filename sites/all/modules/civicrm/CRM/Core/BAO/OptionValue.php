@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Core_BAO_OptionValue extends CRM_Core_DAO_OptionValue {
 
@@ -219,6 +219,15 @@ class CRM_Core_BAO_OptionValue extends CRM_Core_DAO_OptionValue {
     $groupName = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup',
       $groupId, 'name', 'id'
     );
+    if (empty($ids['optionValue']) && empty($params['id']) && !empty($params['value'])) {
+      $domainSpecifc = in_array($groupName, CRM_Core_OptionGroup::$_domainIDGroups) ? TRUE : FALSE;
+      $dao = new CRM_Core_DAO_OptionValue();
+      $dao->value = $params['value'];
+      $dao->option_group_id = $groupId;
+      if ($dao->find(TRUE)) {
+        throw new CRM_Core_Exception('Value already exists in the database');
+      }
+    }
     if (in_array($groupName, CRM_Core_OptionGroup::$_domainIDGroups)) {
       $optionValue->domain_id = CRM_Utils_Array::value('domain_id', $params, CRM_Core_Config::domainID());
     }
@@ -535,6 +544,7 @@ class CRM_Core_BAO_OptionValue extends CRM_Core_DAO_OptionValue {
     $existingValues = civicrm_api3('OptionValue', 'get', array(
       'option_group_id' => $params['option_group_id'],
       'name' => $params['name'],
+      'return' => 'id',
     ));
     if (!$existingValues['count']) {
       civicrm_api3('OptionValue', 'create', $params);

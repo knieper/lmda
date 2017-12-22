@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -49,7 +49,7 @@
 <div id="civicrm-news-feed">
   <ul>
     {foreach from=$feeds item="channel"}
-      <li class="ui-corner-all crm-tab-button" title="{$channel.description}">
+      <li class="ui-corner-all crm-tab-button" title="{$channel.description|escape}">
         <a href="#civicrm-news-feed-{$channel.name}">{$channel.title}</a>
       </li>
     {/foreach}
@@ -65,7 +65,7 @@
         </div>
         <div class="crm-accordion-body">
           <div>{$article.description}</div>
-          <p class="crm-news-feed-item-link"><a target="_blank" href="{$article.link}" title="{$article.title}"><i class="crm-i fa-external-link"></i> {ts}read more{/ts}…</a></p>
+          <p class="crm-news-feed-item-link"><a target="_blank" href="{$article.link}" title="{$article.title|escape}"><i class="crm-i fa-external-link"></i> {ts}read more{/ts}…</a></p>
         </div>
       </div>
     {/foreach}
@@ -104,12 +104,17 @@
                 $(this).one('crmAccordion:open', function () {
                   $('.crm-news-feed-item-title', this).css('font-weight', '');
                   $('em', $tab).text(--count);
+                  if (!count) {
+                    $('em', $tab).remove();
+                  }
                   opened[key].push(itemKey);
                   localStorage.newsFeed = JSON.stringify(opened);
                 });
               }
             });
-            $tab.html($tab.text() + ' <em>' + count + '</em>');
+            if (count) {
+              $tab.html($tab.text() + ' <em>' + count + '</em>');
+            }
             // Remove items from localstorage that are no longer in the current feed
             $.each(opened[key], function(i, itemKey) {
               if (!$('a[href="' + itemKey + '"]', $content).length) {

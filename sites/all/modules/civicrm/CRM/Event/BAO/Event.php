@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Event_BAO_Event extends CRM_Event_DAO_Event {
 
@@ -93,11 +93,6 @@ class CRM_Event_BAO_Event extends CRM_Event_DAO_Event {
     }
     else {
       CRM_Utils_Hook::pre('create', 'Event', NULL, $params);
-    }
-
-    // CRM-16189
-    if (!empty($params['financial_type_id'])) {
-      CRM_Financial_BAO_FinancialAccount::validateFinancialType($params['financial_type_id']);
     }
 
     $event = new CRM_Event_DAO_Event();
@@ -191,15 +186,26 @@ class CRM_Event_BAO_Event extends CRM_Event_DAO_Event {
     $extends = array('event');
     $groupTree = CRM_Core_BAO_CustomGroup::getGroupDetail(NULL, NULL, $extends);
     foreach ($groupTree as $values) {
-      $query = "DELETE FROM " . $values['table_name'] . " WHERE entity_id = " . $id;
-
-      $params = array(
-        1 => array($values['table_name'], 'string'),
-        2 => array($id, 'integer'),
-      );
-
-      CRM_Core_DAO::executeQuery($query);
+      $query = "DELETE FROM %1 WHERE entity_id = %2";
+      CRM_Core_DAO::executeQuery($query, array(
+        1 => array($values['table_name'], 'String', CRM_Core_DAO::QUERY_FORMAT_NO_QUOTES),
+        2 => array($id, 'Integer'),
+      ));
     }
+
+    // Clean up references to profiles used by the event (CRM-20935)
+    $ufJoinParams = array(
+      'module' => 'CiviEvent',
+      'entity_table' => 'civicrm_event',
+      'entity_id' => $id,
+    );
+    CRM_Core_BAO_UFJoin::deleteAll($ufJoinParams);
+    $ufJoinParams = array(
+      'module' => 'CiviEvent_Additional',
+      'entity_table' => 'civicrm_event',
+      'entity_id' => $id,
+    );
+    CRM_Core_BAO_UFJoin::deleteAll($ufJoinParams);
 
     // price set cleanup, CRM-5527
     CRM_Price_BAO_PriceSet::removeFrom('civicrm_event', $id);
@@ -386,7 +392,7 @@ WHERE      civicrm_event.is_active = 1 AND
     // Get the event summary display preferences
     $show_max_events = Civi::settings()->get('show_events');
     // show all events if show_events is set to a negative value
-    if ($show_max_events >= 0) {
+    if (isset($show_max_events) && $show_max_events >= 0) {
       $event_summary_limit = "LIMIT      0, $show_max_events";
     }
     else {
@@ -799,6 +805,7 @@ SELECT
   civicrm_address.street_address as street_address,
   civicrm_address.supplemental_address_1 as supplemental_address_1,
   civicrm_address.supplemental_address_2 as supplemental_address_2,
+  civicrm_address.supplemental_address_3 as supplemental_address_3,
   civicrm_address.city as city,
   civicrm_address.postal_code as postal_code,
   civicrm_address.postal_code_suffix as postal_code_suffix,
@@ -877,6 +884,7 @@ WHERE civicrm_event.is_active = 1
           'street_address' => $dao->street_address,
           'supplemental_address_1' => $dao->supplemental_address_1,
           'supplemental_address_2' => $dao->supplemental_address_2,
+          'supplemental_address_3' => $dao->supplemental_address_3,
           'city' => $dao->city,
           'state_province' => $dao->state,
           'postal_code' => $dao->postal_code,
@@ -1038,7 +1046,7 @@ WHERE civicrm_event.is_active = 1
           if (in_array($field, $htmlType)) {
             $fileValues = CRM_Core_BAO_File::path($value, $oldEventID);
             $customParams["custom_{$field}_-1"] = array(
-              'name' => $fileValues[0],
+              'name' => CRM_Utils_File::duplicate($fileValues[0]),
               'type' => $fileValues[1],
             );
           }
@@ -1667,7 +1675,9 @@ WHERE  id = $cfID
               $htmlType = $dao->html_type;
 
               if ($htmlType == 'File') {
-                $values[$index] = $params[$index];
+                $path = CRM_Utils_Array::value('name', $params[$name]);
+                $fileType = CRM_Utils_Array::value('type', $params[$name]);
+                $values[$index] = CRM_Utils_File::getFileURL($path, $fileType);
               }
               else {
                 if ($dao->data_type == 'Int' ||
@@ -1870,32 +1880,46 @@ WHERE  id = $cfID
     return $customProfile;
   }
 
-  /* Function to retrieve all events those having location block set.
-   *
-   * @return array
-   *   array of all events.
-   */
   /**
+   * Retrieve all event addresses.
+   *
    * @return array
    */
   public static function getLocationEvents() {
     $events = array();
+    $ret = array(
+      'loc_block_id',
+      'loc_block_id.address_id.name',
+      'loc_block_id.address_id.street_address',
+      'loc_block_id.address_id.supplemental_address_1',
+      'loc_block_id.address_id.supplemental_address_2',
+      'loc_block_id.address_id.supplemental_address_3',
+      'loc_block_id.address_id.city',
+      'loc_block_id.address_id.state_province_id.name',
+    );
 
-    $query = "
-SELECT CONCAT_WS(' :: ' , ca.name, ca.street_address, ca.city, sp.name, ca.supplemental_address_1, ca.supplemental_address_2) title, ce.loc_block_id
-FROM   civicrm_event ce
-INNER JOIN civicrm_loc_block lb ON ce.loc_block_id = lb.id
-INNER JOIN civicrm_address ca   ON lb.address_id = ca.id
-LEFT  JOIN civicrm_state_province sp ON ca.state_province_id = sp.id
-ORDER BY sp.name, ca.city, ca.street_address ASC
-";
+    $result = civicrm_api3('Event', 'get', array(
+      'check_permissions' => TRUE,
+      'return' => $ret,
+      'loc_block_id.address_id' => array('IS NOT NULL' => 1),
+      'options' => array(
+        'limit' => 0,
+      ),
+    ));
 
-    $dao = CRM_Core_DAO::executeQuery($query);
-    while ($dao->fetch()) {
-      $events[$dao->loc_block_id] = $dao->title;
+    foreach ($result['values'] as $event) {
+      $address = '';
+      foreach ($ret as $field) {
+        if ($field != 'loc_block_id' && !empty($event[$field])) {
+          $address .= ($address ? ' :: ' : '') . $event[$field];
+        }
+      }
+      if ($address) {
+        $events[$event['loc_block_id']] = $address;
+      }
     }
 
-    return $events;
+    return CRM_Utils_Array::asort($events);
   }
 
   /**
@@ -2042,13 +2066,24 @@ WHERE  ce.loc_block_id = $locBlockId";
     static $permissions = NULL;
 
     if (empty($permissions)) {
-      $allEvents = CRM_Event_PseudoConstant::event(NULL, TRUE);
-      $createdEvents = array();
+      $result = civicrm_api3('Event', 'get', array(
+        'check_permissions' => 1,
+        'return' => 'title',
+        'options' => array(
+          'limit' => 0,
+        ),
+      ));
+      $allEvents = CRM_Utils_Array::collect('title', $result['values']);
 
-      $session = CRM_Core_Session::singleton();
-      if ($userID = $session->get('userID')) {
-        $createdEvents = array_keys(CRM_Event_PseudoConstant::event(NULL, TRUE, "created_id={$userID}"));
-      }
+      $result = civicrm_api3('Event', 'get', array(
+        'check_permissions' => 1,
+        'return' => 'title',
+        'created_id' => 'user_contact_id',
+        'options' => array(
+          'limit' => 0,
+        ),
+      ));
+      $createdEvents = CRM_Utils_Array::collect('title', $result['values']);
 
       // Note: for a multisite setup, a user with edit all events, can edit all events
       // including those from other sites

@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -99,8 +99,8 @@ CRM.$(function($) {
         {sClass:'crm-batch-checkbox', bSortable:false},
         {sClass:'crm-batch-name'},
         {sClass:'crm-batch-payment_instrument'},
-        {sClass:'crm-batch-item_count right'},
-        {sClass:'crm-batch-total right'},
+        {sClass:'crm-batch-item_count right', bSortable:false},
+        {sClass:'crm-batch-total right', bSortable:false},
         {sClass:'crm-batch-status'},
         {sClass:'crm-batch-created_by'},
         {sClass:'crm-batch-links', bSortable:false},
@@ -149,8 +149,7 @@ CRM.$(function($) {
         return nRow;
       },
       "fnDrawCallback": function(oSettings) {
-        // FIXME: trigger crmLoad and crmEditable would happen automatically
-        $('.crm-editable', '#crm-batch-selector-{/literal}{$batchStatus}{literal}').crmEditable();
+        $(this).trigger('crmLoad');
         $("#toggleSelect").prop('checked', false);
         if (checkedRows.length) {
           $(checkedRows.join(',')).prop('checked', true).change();

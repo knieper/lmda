@@ -21,7 +21,7 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*/
+ */
 
 /**
  * Field handler to provide relationship to CiviCRM email.
@@ -30,32 +30,19 @@
  */
 class civicrm_handler_relationship_mail extends civicrm_handler_relationship_location {
 
-  function ensure_my_table() {
-    if (!isset($this->table_alias)) {
-      if (!method_exists($this->query, 'ensure_table')) {
-        vpr(t('Ensure my table called but query has no ensure_table method.'));
-        return;
-      }
-      $join = $this->get_join();
-      $this->table_alias = $this->query->ensure_table($this->table, $this->relationship, $join);
-    }
-    return $this->table_alias;
-  }
-
   /**
    * Called to implement a relationship in a query.
    */
-  function query() {
-    // Just ensure the one table. This is briefer than parent::query(), which
-    // attempts to create an additional join.
-    $this->alias = $this->ensure_my_table();
+  public function query() {
+    $join = $this->get_join();
+    $this->alias = $this->query->add_table($this->table, $this->relationship, $join);
     //register relationship
     $this->view->relationship[$this->options['id']]->alias = $this->alias;
     $this->query->relationships[$this->alias] = array(
-        'link' => $this->relationship,
-        'table' => $this->table,
-        'base' => $this->table,
+      'link' => $this->relationship,
+      'table' => $this->table,
+      'base' => $this->table,
     );
   }
-}
 
+}

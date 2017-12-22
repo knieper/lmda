@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Mailing_BAO_Query {
 
@@ -42,7 +42,7 @@ class CRM_Mailing_BAO_Query {
       self::$_mailingFields = array();
       $_mailingFields['mailing_id'] = array(
         'name' => 'mailing_id',
-        'title' => 'Mailing ID',
+        'title' => ts('Mailing ID'),
         'where' => 'civicrm_mailing.id',
       );
     }
@@ -189,6 +189,10 @@ class CRM_Mailing_BAO_Query {
       case 'recipient_email':
         $from = " $side JOIN civicrm_email recipient_email ON recipient_email.id = civicrm_mailing_recipients.email_id";
         break;
+
+      case 'civicrm_campaign':
+        $from = " $side JOIN civicrm_campaign ON civicrm_campaign.id = civicrm_mailing.campaign_id";
+        break;
     }
 
     return $from;
@@ -260,6 +264,8 @@ class CRM_Mailing_BAO_Query {
           $value = "%$value%";
           $op = 'LIKE';
         }
+
+        // LOWER in query below roughly translates to 'hurt my database without deriving any benefit' See CRM-19811.
         $query->_where[$grouping][] = "LOWER(civicrm_mailing.name) $op '$value'";
         $query->_qill[$grouping][] = "Mailing Namename $op \"$value\"";
         $query->_tables['civicrm_mailing'] = $query->_whereTables['civicrm_mailing'] = 1;

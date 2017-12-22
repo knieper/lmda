@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 require_once 'HTML/QuickForm/Rule/Email.php';
@@ -100,10 +100,15 @@ class CRM_Utils_Rule {
       return FALSE;
     }
 
-    // Ensure the string contains only valid characters:
-    // For column names: alphanumeric and underscores
-    // For aliases: backticks, alphanumeric hyphens and underscores.
-    if (!preg_match('/^((`[\w-]{1,64}`|[\w-]{1,64})\.)?(`[\w-]{1,64}`|[\w-]{1,64})$/i', $str)) {
+    // Ensure $str conforms to expected format. Not a complete expression of
+    // what MySQL permits; this should permit the formats CiviCRM generates.
+    //
+    // * Table name prefix is optional.
+    // * Table & column names & aliases:
+    //   * Composed of alphanumeric chars, underscore and hyphens.
+    //   * Maximum length of 64 chars.
+    //   * Optionally surrounded by backticks, in which case spaces also OK.
+    if (!preg_match('/^((`[\w- ]{1,64}`|[\w-]{1,64})\.)?(`[\w- ]{1,64}`|[\w-]{1,64})$/i', $str)) {
       return FALSE;
     }
 
@@ -133,6 +138,21 @@ class CRM_Utils_Rule {
    * @return bool
    */
   public static function mysqlOrderBy($str) {
+    $matches = array();
+    // Using the field function in order by is valid.
+    // Look for a string like field(contribution_status_id,3,4,6).
+    // or field(civicrm_contribution.contribution_status_id,3,4,6)
+    if (preg_match('/field\([a-z_.]+,[0-9,]+\)/', $str, $matches)) {
+      // We have checked these. Remove them as they will fail the next lot.
+      // Our check currently only permits numbers & no back ticks. If we get a
+      // need for strings or backticks we can add.
+      $str = str_replace($matches, '', $str);
+    }
+    $str = trim($str);
+    if (!empty($matches) && empty($str)) {
+      // nothing left to check after the field check.
+      return TRUE;
+    }
     // Making a regex for a comma separated list is quite hard and not readable
     // at all, so we split and loop over.
     $parts = explode(',', $str);
@@ -482,9 +502,15 @@ class CRM_Utils_Rule {
   }
 
   /**
-   * @param $value
+   * Strip thousand separator from a money string.
    *
-   * @return mixed
+   * Note that this should be done at the form layer. Once we are processing
+   * money at the BAO or processor layer we should be working with something that
+   * is already in a normalised format.
+   *
+   * @param string $value
+   *
+   * @return string
    */
   public static function cleanMoney($value) {
     // first remove all white space
@@ -554,7 +580,10 @@ class CRM_Utils_Rule {
       return TRUE;
     }
 
-    return preg_match('/(^-?\d+\.\d?\d?$)|(^-?\.\d\d?$)/', $value) ? TRUE : FALSE;
+    // Allow values such as -0, 1.024555, -.1
+    // We need to support multiple decimal places here, not just the number allowed by locale
+    //  otherwise tax calculations break when you want the inclusive amount to be a round number (eg. £10 inc. VAT requires 8.333333333 here).
+    return preg_match('/(^-?\d+\.?\d*$)|(^-?\.\d+$)/', $value) ? TRUE : FALSE;
   }
 
   /**
@@ -886,6 +915,17 @@ class CRM_Utils_Rule {
     if ($lowDate > $highDate) {
       $errors[$fieldName . '_range_error'] = ts('%1: Please check that your date range is in correct chronological order.', array(1 => $title));
     }
+  }
+
+  /**
+   * @param string $key Extension Key to check
+   * @return bool
+   */
+  public static function checkExtesnionKeyIsValid($key = NULL) {
+    if (!empty($key) && !preg_match('/^[0-9a-zA-Z._-]+$/', $key)) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
 }

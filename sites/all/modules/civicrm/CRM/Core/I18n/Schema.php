@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Core_I18n_Schema {
 
@@ -188,18 +188,20 @@ class CRM_Core_I18n_Schema {
       }
     }
 
+    $dao = new CRM_Core_DAO();
     // deal with columns
     foreach ($columns[$table] as $column => $type) {
-      $queries[] = "ALTER TABLE {$table} ADD {$column} {$type}";
-      $queries[] = "UPDATE {$table} SET {$column} = {$column}_{$retain}";
+      $queries[] = "ALTER TABLE {$table} CHANGE `{$column}_{$retain}` `{$column}` {$type}";
       foreach ($locales as $loc) {
-        $dropQueries[] = "ALTER TABLE {$table} DROP {$column}_{$loc}";
+        if (strcmp($loc, $retain) !== 0) {
+          $dropQueries[] = "ALTER TABLE {$table} DROP {$column}_{$loc}";
+        }
       }
     }
 
     // drop views
     foreach ($locales as $loc) {
-      $queries[] = "DROP VIEW {$table}_{$loc}";
+      $queries[] = "DROP VIEW IF EXISTS {$table}_{$loc}";
     }
 
     // add original indices
@@ -295,8 +297,10 @@ class CRM_Core_I18n_Schema {
    *   locales to be rebuilt.
    * @param string $version
    *   version of schema structure to use.
+   * @param bool $isUpgradeMode
+   *   Are we upgrading our database
    */
-  public static function rebuildMultilingualSchema($locales, $version = NULL) {
+  public static function rebuildMultilingualSchema($locales, $version = NULL, $isUpgradeMode = FALSE) {
     if ($version) {
       $latest = self::getLatestSchema($version);
       require_once "CRM/Core/I18n/SchemaStructure_{$latest}.php";
@@ -337,7 +341,7 @@ class CRM_Core_I18n_Schema {
     // rebuild views
     foreach ($locales as $locale) {
       foreach ($tables as $table) {
-        $queries[] = self::createViewQuery($locale, $table, $dao, $class);
+        $queries[] = self::createViewQuery($locale, $table, $dao, $class, $isUpgradeMode);
       }
     }
 
@@ -368,7 +372,7 @@ class CRM_Core_I18n_Schema {
       // CRM-19093
       // should match the civicrm table name such as: civicrm_event
       // but must not match the table name if it's a substring of another table: civicrm_events_in_cart
-      $query = preg_replace("/([^'\"])({$table})([^a-z_'\"])/", "\\1\\2{$dbLocale}\\3", $query);
+      $query = preg_replace("/([^'\"])({$table})(\z|[^a-z_'\"])/", "\\1\\2{$dbLocale}\\3", $query);
     }
     // uncomment the below to rewrite the civicrm_value_* queries
     // $query = preg_replace("/(civicrm_value_[a-z0-9_]+_\d+)([^_])/", "\\1{$dbLocale}\\2", $query);
@@ -481,13 +485,15 @@ class CRM_Core_I18n_Schema {
    *   A DAO object to run DESCRIBE queries.
    * @param string $class
    *   schema structure class to use.
-   *
+   * @param bool $isUpgradeMode
+   *   Are we in upgrade mode therefore only build based off table not class
    * @return array
    *   array of CREATE INDEX queries
    */
-  private static function createViewQuery($locale, $table, &$dao, $class = 'CRM_Core_I18n_SchemaStructure') {
+  private static function createViewQuery($locale, $table, &$dao, $class = 'CRM_Core_I18n_SchemaStructure', $isUpgradeMode = FALSE) {
     $columns =& $class::columns();
     $cols = array();
+    $tableCols = array();
     $dao->query("DESCRIBE {$table}", FALSE);
     while ($dao->fetch()) {
       // view non-internationalized columns directly
@@ -496,10 +502,16 @@ class CRM_Core_I18n_Schema {
       ) {
         $cols[] = $dao->Field;
       }
+      $tableCols[] = $dao->Field;
     }
     // view intrernationalized columns through an alias
     foreach ($columns[$table] as $column => $_) {
-      $cols[] = "{$column}_{$locale} {$column}";
+      if (!$isUpgradeMode) {
+        $cols[] = "{$column}_{$locale} {$column}";
+      }
+      elseif (in_array("{$column}_{$locale}", $tableCols)) {
+        $cols[] = "{$column}_{$locale} {$column}";
+      }
     }
     return "CREATE OR REPLACE VIEW {$table}_{$locale} AS SELECT " . implode(', ', $cols) . " FROM {$table}";
   }

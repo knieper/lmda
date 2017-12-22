@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -215,7 +215,6 @@ class CRM_Utils_System_Drupal8 extends CRM_Utils_System_DrupalBase {
 
     switch ($region) {
       case 'html-header':
-      case 'page-footer':
         break;
 
       default:
@@ -240,7 +239,6 @@ class CRM_Utils_System_Drupal8 extends CRM_Utils_System_DrupalBase {
   public function addScript($code, $region) {
     switch ($region) {
       case 'html-header':
-      case 'page-footer':
         break;
 
       default:
@@ -451,6 +449,9 @@ class CRM_Utils_System_Drupal8 extends CRM_Utils_System_DrupalBase {
 
     // Create a mock $request object
     $autoloader = require_once $root . '/vendor/autoload.php';
+    if ($autoloader === TRUE) {
+      $autoloader = ComposerAutoloaderInitDrupal8::getLoader();
+    }
     // @Todo: do we need to handle case where $_SERVER has no HTTP_HOST key, ie. when run via cli?
     $request = new \Symfony\Component\HttpFoundation\Request(array(), array(), array(), array(), array(), $_SERVER);
 
@@ -483,6 +484,11 @@ class CRM_Utils_System_Drupal8 extends CRM_Utils_System_DrupalBase {
    * @return NULL|string
    */
   public function cmsRootPath($path = NULL) {
+    global $civicrm_paths;
+    if (!empty($civicrm_paths['cms.root']['path'])) {
+      return $civicrm_paths['cms.root']['path'];
+    }
+
     if (defined('DRUPAL_ROOT')) {
       return DRUPAL_ROOT;
     }
@@ -516,6 +522,26 @@ class CRM_Utils_System_Drupal8 extends CRM_Utils_System_DrupalBase {
    */
   public function isUserLoggedIn() {
     return \Drupal::currentUser()->isAuthenticated();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function isUserRegistrationPermitted() {
+    if (\Drupal::config('user.settings')->get('register') == 'admin_only') {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function isPasswordUserGenerated() {
+    if (\Drupal::config('user.settings')->get('verify_mail') == TRUE) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
   /**
@@ -615,6 +641,22 @@ class CRM_Utils_System_Drupal8 extends CRM_Utils_System_DrupalBase {
       'contactMatching' => $contactMatching,
       'contactCreated' => $contactCreated,
     );
+  }
+
+  /**
+   * Drupal 8 has a different function to get current path, hence
+   * overriding the postURL function
+   *
+   * @param string $action
+   *
+   * @return string
+   */
+  public function postURL($action) {
+    if (!empty($action)) {
+      return $action;
+    }
+    $current_path = \Drupal::service('path.current')->getPath();
+    return $this->url($current_path);
   }
 
 }

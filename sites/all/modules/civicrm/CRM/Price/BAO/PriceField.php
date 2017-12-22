@@ -3,7 +3,7 @@
   +--------------------------------------------------------------------+
   | CiviCRM version 4.7                                                |
   +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2016                                |
+  | Copyright CiviCRM LLC (c) 2004-2017                                |
   +--------------------------------------------------------------------+
   | This file is a part of CiviCRM.                                    |
   |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -40,6 +40,13 @@
 class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
 
   protected $_options;
+
+  /**
+   * List of visibility option ID's, of the form name => ID
+   *
+   * @var array
+   */
+  private static $visibilityOptionsKeys;
 
   /**
    * Takes an associative array and creates a price field object.
@@ -75,6 +82,7 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
    *   (reference) an assoc array of name/value pairs.
    *
    * @return CRM_Price_DAO_PriceField
+   * @throws \CRM_Core_Exception
    */
   public static function create(&$params) {
     if (empty($params['id']) && empty($params['name'])) {
@@ -89,18 +97,26 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
       return $priceField;
     }
 
+    if (!empty($params['id']) && empty($priceField->html_type)) {
+      $priceField->html_type = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceField', $params['id'], 'html_type');
+    }
     $optionsIds = array();
     $maxIndex = CRM_Price_Form_Field::NUM_OPTION;
-
     if ($priceField->html_type == 'Text') {
       $maxIndex = 1;
-
-      $fieldValue = new CRM_Price_DAO_PriceFieldValue();
-      $fieldValue->price_field_id = $priceField->id;
-
-      // update previous field values( if any )
-      if ($fieldValue->find(TRUE)) {
-        $optionsIds['id'] = $fieldValue->id;
+      $fieldOptions = civicrm_api3('price_field_value', 'get', array(
+        'price_field_id' => $priceField->id,
+        'sequential' => 1,
+      ));
+      foreach ($fieldOptions['values'] as $option) {
+        $optionsIds['id'] = $option['id'];
+        // CRM-19741 If we are dealing with price fields that are Text only set the field value label to match
+        if (!empty($params['id']) && $priceField->label != $option['label']) {
+          $fieldValue = new CRM_Price_DAO_PriceFieldValue();
+          $fieldValue->label = $priceField->label;
+          $fieldValue->id = $option['id'];
+          $fieldValue->save();
+        }
       }
     }
     $defaultArray = array();
@@ -139,10 +155,12 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
           'is_default' => CRM_Utils_Array::value($params['option_weight'][$index], $defaultArray) ? $defaultArray[$params['option_weight'][$index]] : 0,
           'membership_num_terms' => NULL,
           'non_deductible_amount' => CRM_Utils_Array::value('non_deductible_amount', $params),
+          'visibility_id' => CRM_Utils_Array::value($index, CRM_Utils_Array::value('option_visibility_id', $params), self::getVisibilityOptionID('public')),
         );
 
         if ($options['membership_type_id']) {
           $options['membership_num_terms'] = CRM_Utils_Array::value($index, CRM_Utils_Array::value('membership_num_terms', $params), 1);
+          $options['is_default'] = CRM_Utils_Array::value($params['membership_type_id'][$index], $defaultArray) ? $defaultArray[$params['membership_type_id'][$index]] : 0;
         }
 
         if (CRM_Utils_Array::value($index, CRM_Utils_Array::value('option_financial_type_id', $params))) {
@@ -151,7 +169,6 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
         elseif (!empty($params['financial_type_id'])) {
           $options['financial_type_id'] = $params['financial_type_id'];
         }
-
         if ($opIds = CRM_Utils_Array::value('option_id', $params)) {
           if ($opId = CRM_Utils_Array::value($index, $opIds)) {
             $optionsIds['id'] = $opId;
@@ -160,7 +177,25 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
             $optionsIds['id'] = NULL;
           }
         }
-        CRM_Price_BAO_PriceFieldValue::create($options, $optionsIds);
+        try {
+          CRM_Price_BAO_PriceFieldValue::create($options, $optionsIds);
+        }
+        catch (Exception $e) {
+          $transaction->rollback();
+          throw new CRM_Core_Exception($e->getMessage());
+        }
+      }
+      elseif (!empty($optionsIds) && !empty($optionsIds['id'])) {
+        $optionsLoad = civicrm_api3('price_field_value', 'get', array('id' => $optionsIds['id']));
+        $options = $optionsLoad['values'][$optionsIds['id']];
+        $options['is_active'] = CRM_Utils_Array::value('is_active', $params, 1);
+        try {
+          CRM_Price_BAO_PriceFieldValue::create($options, $optionsIds);
+        }
+        catch (Exception $e) {
+          $transaction->rollback();
+          throw new CRM_Core_Exception($e->getMessage());
+        }
       }
     }
 
@@ -405,11 +440,18 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
           $count = CRM_Utils_Array::value('count', $opt, '');
           $max_value = CRM_Utils_Array::value('max_value', $opt, '');
           $priceVal = implode($seperator, array($opt[$valueFieldName] + $taxAmount, $count, $max_value));
+          if (isset($opt['visibility_id'])) {
+            $visibility_id = $opt['visibility_id'];
+          }
+          else {
+            $visibility_id = self::getVisibilityOptionID('public');
+          }
           $extra = array(
             'price' => json_encode(array($elementName, $priceVal)),
             'data-amount' => $opt[$valueFieldName],
             'data-currency' => $currencyName,
             'data-price-field-values' => json_encode($customOption),
+            'visibility' => $visibility_id,
           );
           if (!empty($qf->_quickConfig) && $field->name == 'contribution_amount') {
             $extra += array('onclick' => 'clearAmountOther();');
@@ -510,7 +552,12 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
             $qf->add('text', 'txt-' . $elementName, $label, array('size' => '4'));
           }
         }
-
+        if (isset($opt['visibility_id'])) {
+          $visibility_id = $opt['visibility_id'];
+        }
+        else {
+          $visibility_id = self::getVisibilityOptionID('public');
+        }
         $element = &$qf->add('select', $elementName, $label,
           array(
             '' => ts('- select -'),
@@ -557,6 +604,7 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
               'price' => json_encode(array($opt['id'], $priceVal)),
               'data-amount' => $opt[$valueFieldName],
               'data-currency' => $currencyName,
+              'visibility' => $opt['visibility_id'],
             )
           );
           if ($is_pay_later) {
@@ -590,11 +638,13 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
    *   Include inactive options.
    * @param bool $reset
    *   Discard stored values.
+   * @param bool $isDefaultContributionPriceSet
+   *   Discard tax amount calculation for price set = default_contribution_amount.
    *
    * @return array
    *   array of options
    */
-  public static function getOptions($fieldId, $inactiveNeeded = FALSE, $reset = FALSE) {
+  public static function getOptions($fieldId, $inactiveNeeded = FALSE, $reset = FALSE, $isDefaultContributionPriceSet = FALSE) {
     static $options = array();
     if ($reset) {
       $options = array();
@@ -613,7 +663,7 @@ class CRM_Price_BAO_PriceField extends CRM_Price_DAO_PriceField {
       // ToDo - Code for Hook Invoke
 
       foreach ($options[$fieldId] as $priceFieldId => $priceFieldValues) {
-        if (isset($priceFieldValues['financial_type_id']) && array_key_exists($priceFieldValues['financial_type_id'], $taxRates)) {
+        if (isset($priceFieldValues['financial_type_id']) && array_key_exists($priceFieldValues['financial_type_id'], $taxRates) && !$isDefaultContributionPriceSet) {
           $options[$fieldId][$priceFieldId]['tax_rate'] = $taxRates[$priceFieldValues['financial_type_id']];
           $taxAmount = CRM_Contribute_BAO_Contribution_Utils::calculateTaxAmount($priceFieldValues['amount'], $options[$fieldId][$priceFieldId]['tax_rate']);
           $options[$fieldId][$priceFieldId]['tax_amount'] = $taxAmount['tax_amount'];
@@ -830,6 +880,33 @@ WHERE  id IN (" . implode(',', array_keys($priceFields)) . ')';
     }
 
     return $label;
+  }
+
+  /**
+   * Given the name of a visibility option, returns its ID.
+   *
+   * @param string $visibilityName
+   *
+   * @return int
+   */
+  public static function getVisibilityOptionID($visibilityName) {
+
+    if (!isset(self::$visibilityOptionsKeys)) {
+      self::$visibilityOptionsKeys = CRM_Price_BAO_PriceField::buildOptions(
+        'visibility_id',
+        NULL,
+        array(
+          'labelColumn' => 'name',
+          'flip' => TRUE,
+        )
+      );
+    }
+
+    if (isset(self::$visibilityOptionsKeys[$visibilityName])) {
+      return self::$visibilityOptionsKeys[$visibilityName];
+    }
+
+    return 0;
   }
 
 }

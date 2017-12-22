@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_ACL_Page_EntityRole extends CRM_Core_Page_Basic {
 
@@ -95,17 +95,7 @@ class CRM_ACL_Page_EntityRole extends CRM_Core_Page_Basic {
    * Finally it calls the parent's run method.
    */
   public function run() {
-    // get the requested action
-    $action = CRM_Utils_Request::retrieve('action', 'String',
-      // default to 'browse'
-      $this, FALSE, 'browse'
-    );
-
-    // assign vars to templates
-    $this->assign('action', $action);
-    $id = CRM_Utils_Request::retrieve('id', 'Positive',
-      $this, FALSE, 0
-    );
+    $id = $this->getIdAndAction();
 
     // set breadcrumb to append to admin/access
     $breadCrumb = array(
@@ -120,21 +110,22 @@ class CRM_ACL_Page_EntityRole extends CRM_Core_Page_Basic {
     CRM_Utils_System::setTitle(ts('Assign Users to Roles'));
 
     // what action to take ?
-    if ($action & (CRM_Core_Action::UPDATE | CRM_Core_Action::ADD | CRM_Core_Action::DELETE)) {
-      $this->edit($action, $id);
+    if ($this->_action & (CRM_Core_Action::UPDATE | CRM_Core_Action::ADD | CRM_Core_Action::DELETE)) {
+      $this->edit($this->_action, $id);
     }
 
     // reset cache if enabled/disabled
-    if ($action & (CRM_Core_Action::DISABLE | CRM_Core_Action::ENABLE)) {
+    if ($this->_action & (CRM_Core_Action::DISABLE | CRM_Core_Action::ENABLE)) {
       CRM_ACL_BAO_Cache::resetCache();
     }
 
     // finally browse the acl's
-    if ($action & CRM_Core_Action::BROWSE) {
+    if ($this->_action & CRM_Core_Action::BROWSE) {
+      $this->browse();
     }
 
-    // parent run
-    return parent::run();
+    // This replaces parent run, but do parent's parent run
+    return CRM_Core_Page::run();
   }
 
   /**

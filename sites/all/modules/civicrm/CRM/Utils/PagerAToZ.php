@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -27,7 +27,7 @@
 
 /**
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -151,7 +151,9 @@ class CRM_Utils_PagerAToZ {
       $qfKey = CRM_Utils_Array::value('qfKey', $query->_formValues);
     }
     if (empty($qfKey)) {
-      $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this, FALSE, NULL, $_REQUEST);
+      // CRM-20943 Can only pass variables by reference and also cannot use $this so using $empty setting to NULL which is default.
+      $emptyVariable = NULL;
+      $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $emptyVariable, FALSE, NULL, $_REQUEST);
     }
 
     $aToZBar = array();

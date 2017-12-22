@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -89,7 +89,7 @@
               <td class="nowrap crm-price-option-order">{$row.weight}</td>
               {if $getTaxDetails}
                 <td>{if $row.tax_rate != '' }
-                      {$taxTerm} ({$row.tax_rate|string_format:"%.2f"}%)
+                      {$taxTerm} ({$row.tax_rate}%)
                     {/if}
                 </td>
                 <td>{$row.tax_amount|crmMoney}</td>

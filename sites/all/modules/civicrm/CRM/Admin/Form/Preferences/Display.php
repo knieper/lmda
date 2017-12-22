@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -70,34 +70,39 @@ class CRM_Admin_Form_Preferences_Display extends CRM_Admin_Form_Preferences {
           'title' => ts('Include ICal Invite to Activity Assignees'),
           'weight' => 6,
         ),
+        'preserve_activity_tab_filter' => array(
+          'html_type' => 'checkbox',
+          'title' => ts('Preserve activity filters as a user preference'),
+          'weight' => 7,
+        ),
         'contact_ajax_check_similar' => array(
           'html_type' => 'checkbox',
           'title' => ts('Check for Similar Contacts'),
-          'weight' => 7,
+          'weight' => 8,
         ),
         'user_dashboard_options' => array(
           'html_type' => 'checkboxes',
           'title' => ts('Contact Dashboard'),
-          'weight' => 8,
+          'weight' => 9,
         ),
         'display_name_format' => array(
           'html_type' => 'textarea',
           'title' => ts('Individual Display Name Format'),
-          'weight' => 9,
+          'weight' => 10,
         ),
         'sort_name_format' => array(
           'html_type' => 'textarea',
           'title' => ts('Individual Sort Name Format'),
-          'weight' => 10,
+          'weight' => 11,
         ),
         'editor_id' => array(
           'html_type' => NULL,
-          'weight' => 11,
+          'weight' => 12,
         ),
         'ajaxPopupsEnabled' => array(
           'html_type' => 'checkbox',
           'title' => ts('Enable Popup Forms'),
-          'weight' => 12,
+          'weight' => 13,
         ),
       ),
     );

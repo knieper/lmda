@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -31,7 +31,7 @@
  * and similar across all objects (thus providing both reuse and standards)
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -236,7 +236,7 @@ class CRM_Core_Action {
 
         if (isset($link['qs']) && !CRM_Utils_System::isNull($link['qs'])) {
           $urlPath = CRM_Utils_System::url(self::replace($link['url'], $values),
-            self::replace($link['qs'], $values), TRUE, NULL, TRUE, $frontend
+            self::replace($link['qs'], $values), FALSE, NULL, TRUE, $frontend
           );
         }
         else {

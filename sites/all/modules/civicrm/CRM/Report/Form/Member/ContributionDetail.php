@@ -3,7 +3,7 @@
   +--------------------------------------------------------------------+
   | CiviCRM version 4.7                                                |
   +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2016                                |
+  | Copyright CiviCRM LLC (c) 2004-2017                                |
   +--------------------------------------------------------------------+
   | This file is a part of CiviCRM.                                    |
   |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Report_Form_Member_ContributionDetail extends CRM_Report_Form {
   protected $_addressField = FALSE;
@@ -40,6 +40,7 @@ class CRM_Report_Form_Member_ContributionDetail extends CRM_Report_Form {
   protected $_customGroupExtends = array(
     'Contribution',
     'Membership',
+    'Contact',
   );
 
   /**
@@ -81,6 +82,10 @@ class CRM_Report_Form_Member_ContributionDetail extends CRM_Report_Form {
           ),
           'last_name' => array(
             'title' => ts('Last Name'),
+            'no_repeat' => TRUE,
+          ),
+          'nick_name' => array(
+            'title' => ts('Nickname'),
             'no_repeat' => TRUE,
           ),
           'contact_type' => array(
@@ -551,7 +556,7 @@ class CRM_Report_Form_Member_ContributionDetail extends CRM_Report_Form {
 
     $sql = 'CREATE TEMPORARY TABLE civireport_membership_contribution_detail
             (contribution_id int, INDEX USING HASH(contribution_id), contact_id int, INDEX USING HASH(contact_id),
-            membership_id int, INDEX USING HASH(membership_id), payment_id int, INDEX USING HASH(payment_id)) ENGINE=MEMORY';
+            membership_id int, INDEX USING HASH(membership_id), payment_id int, INDEX USING HASH(payment_id)) ENGINE=MEMORY' . $this->_databaseAttributes;
     CRM_Core_DAO::executeQuery($sql);
 
     $fillTemp = "
@@ -580,6 +585,7 @@ class CRM_Report_Form_Member_ContributionDetail extends CRM_Report_Form {
     $this->tempTable();
     $this->from();
     $this->customDataFrom();
+    $this->buildPermissionClause();
     $this->where();
     $this->groupBy();
     $this->orderBy();

@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,19 +28,14 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
- * $Id$
- *
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_UF_Form_AdvanceSetting extends CRM_UF_Form_Group {
 
   /**
-   * Build the form object for Advance Settings.
-   *
+   * Build the form object for Advanced Settings.
    *
    * @param CRM_Core_Form $form
-   *
-   * @return void
    */
   public static function buildAdvanceSetting(&$form) {
     // should mapping be enabled for this group
@@ -56,6 +51,8 @@ class CRM_UF_Form_AdvanceSetting extends CRM_UF_Form_Group {
     // we do not have any url checks to allow relative urls
     $form->addElement('text', 'post_URL', ts('Redirect URL'), CRM_Core_DAO::getAttribute('CRM_Core_DAO_UFGroup', 'post_URL'));
     $form->addElement('text', 'cancel_URL', ts('Cancel Redirect URL'), CRM_Core_DAO::getAttribute('CRM_Core_DAO_UFGroup', 'cancel_URL'));
+    $form->addElement('text', 'cancel_button_text', ts('Cancel Button Text'), CRM_Core_DAO::getAttribute('CRM_Core_DAO_UFGroup', 'cancel_button_text'));
+    $form->addElement('text', 'submit_button_text', ts('Submit Button Text'), CRM_Core_DAO::getAttribute('CRM_Core_DAO_UFGroup', 'submit_button_text'));
 
     // add select for groups
     $group = array('' => ts('- select -')) + $form->_group;

@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
 
@@ -87,11 +87,27 @@ class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
         ),
         'mailing_name' => array(
           'name' => 'name',
-          'title' => ts('Mailing'),
+          'title' => ts('Mailing Name'),
           'operatorType' => CRM_Report_Form::OP_MULTISELECT,
           'type' => CRM_Utils_Type::T_STRING,
           'options' => self::mailing_select(),
           'operator' => 'like',
+        ),
+        'mailing_subject' => array(
+          'name' => 'subject',
+          'title' => ts('Mailing Subject'),
+          'type' => CRM_Utils_Type::T_STRING,
+          'operator' => 'like',
+        ),
+      ),
+      'order_bys' => array(
+        'mailing_name' => array(
+          'name' => 'name',
+          'title' => ts('Mailing Name'),
+        ),
+        'mailing_subject' => array(
+          'name' => 'subject',
+          'title' => ts('Mailing Subject'),
         ),
       ),
     );
@@ -130,6 +146,19 @@ class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
           'type' => CRM_Utils_Type::T_DATE,
         ),
       ),
+      'order_bys' => array(
+        'start_date' => array(
+          'title' => ts('Start Date'),
+          'dbAlias' => 'MIN(mailing_job_civireport.start_date)',
+        ),
+        'end_date' => array(
+          'title' => ts('End Date'),
+          'default_weight' => '1',
+          'default_order' => 'DESC',
+          'dbAlias' => 'MAX(mailing_job_civireport.end_date)',
+        ),
+      ),
+      'grouping' => 'mailing-fields',
     );
 
     $this->_columns['civicrm_mailing_event_queue'] = array(
@@ -323,6 +352,24 @@ class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
       'civicrm_mailing_event_unsubscribe',
     );
 
+    // Define a list of columns that should be counted with the DISTINCT
+    // keyword. For example, civicrm_mailing_event_opened.unique_open_count
+    // should display the number of unique records, whereas something like
+    // civicrm_mailing_event_opened.open_count should display the total number.
+    // Each string here is in the form $tableName.$fieldName, where $tableName
+    // is the key in $this->_columns, and $fieldName is the key in that array's
+    // ['fields'] array.
+    // Reference: CRM-20660
+    $distinctCountColumns = array(
+      'civicrm_mailing_event_queue.queue_count',
+      'civicrm_mailing_event_delivered.delivered_count',
+      'civicrm_mailing_event_bounce.bounce_count',
+      'civicrm_mailing_event_opened.unique_open_count',
+      'civicrm_mailing_event_trackable_url_open.click_count',
+      'civicrm_mailing_event_unsubscribe.unsubscribe_count',
+      'civicrm_mailing_event_unsubscribe.optout_count',
+    );
+
     $select = array();
     $this->_columnHeaders = array();
     foreach ($this->_columns as $tableName => $table) {
@@ -346,7 +393,13 @@ class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
             }
             else {
               if (in_array($tableName, $count_tables)) {
-                $select[] = "count(DISTINCT {$field['dbAlias']}) as {$tableName}_{$fieldName}";
+                // Use the DISTINCT keyword appropriately, based on the contents
+                // of $distinct_count_columns.
+                $distinct = '';
+                if (in_array("{$tableName}.{$fieldName}", $distinctCountColumns)) {
+                  $distinct = 'DISTINCT';
+                }
+                $select[] = "count($distinct {$field['dbAlias']}) as {$tableName}_{$fieldName}";
               }
               else {
                 $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
@@ -449,10 +502,6 @@ class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
     else {
       $this->_where = "WHERE " . implode(' AND ', $clauses);
     }
-
-    // if ( $this->_aclWhere ) {
-    // $this->_where .= " AND {$this->_aclWhere} ";
-    // }
   }
 
   public function groupBy() {
@@ -463,7 +512,8 @@ class CRM_Report_Form_Mailing_Summary extends CRM_Report_Form {
   }
 
   public function orderBy() {
-    $this->_orderBy = " ORDER BY {$this->_aliases['civicrm_mailing_job']}.end_date DESC ";
+    parent::orderBy();
+    CRM_Contact_BAO_Query::getGroupByFromOrderBy($this->_groupBy, $this->_orderByArray);
   }
 
   public function postProcess() {

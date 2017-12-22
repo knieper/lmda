@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 class CRM_Utils_Check_Component_Env extends CRM_Utils_Check_Component {
 
@@ -37,45 +37,59 @@ class CRM_Utils_Check_Component_Env extends CRM_Utils_Check_Component {
    */
   public function checkPhpVersion() {
     $messages = array();
+    $phpVersion = phpversion();
 
-    if (version_compare(phpversion(), CRM_Upgrade_Incremental_General::MIN_RECOMMENDED_PHP_VER) >= 0) {
+    if (version_compare($phpVersion, CRM_Upgrade_Incremental_General::RECOMMENDED_PHP_VER) >= 0) {
       $messages[] = new CRM_Utils_Check_Message(
         __FUNCTION__,
-        ts('This system uses PHP version %1 which meets or exceeds the minimum recommendation of %2.',
+        ts('This system uses PHP version %1 which meets or exceeds the recommendation of %2.',
           array(
-            1 => phpversion(),
-            2 => CRM_Upgrade_Incremental_General::MIN_RECOMMENDED_PHP_VER,
+            1 => $phpVersion,
+            2 => CRM_Upgrade_Incremental_General::RECOMMENDED_PHP_VER,
           )),
         ts('PHP Up-to-Date'),
         \Psr\Log\LogLevel::INFO,
         'fa-server'
       );
     }
-    elseif (version_compare(phpversion(), CRM_Upgrade_Incremental_General::MIN_DEFECT_PHP_VER) >= 0) {
+    elseif (version_compare($phpVersion, CRM_Upgrade_Incremental_General::MIN_RECOMMENDED_PHP_VER) >= 0) {
       $messages[] = new CRM_Utils_Check_Message(
         __FUNCTION__,
-        ts('This system uses PHP version %1. While this meets the minimum requirements for CiviCRM to function, upgrading to PHP version %2 or newer is recommended for maximum compatibility.',
+        ts('This system uses PHP version %1. This meets the minimum recommendations and you do not need to upgrade immediately, but the preferred version is %2.',
           array(
-            1 => phpversion(),
-            2 => CRM_Upgrade_Incremental_General::MIN_RECOMMENDED_PHP_VER,
-            3 => CRM_Upgrade_Incremental_General::MIN_DEFECT_PHP_VER,
+            1 => $phpVersion,
+            2 => CRM_Upgrade_Incremental_General::RECOMMENDED_PHP_VER,
           )),
         ts('PHP Out-of-Date'),
         \Psr\Log\LogLevel::NOTICE,
         'fa-server'
       );
     }
-    else {
+    elseif (version_compare($phpVersion, CRM_Upgrade_Incremental_General::MIN_INSTALL_PHP_VER) >= 0) {
       $messages[] = new CRM_Utils_Check_Message(
         __FUNCTION__,
-        ts('This system uses PHP version %1. CiviCRM can be installed on this version, but some specific features are known to fail or degrade. Version %3 is the bare minimum to avoid known issues, and version %2 is recommended.',
+        ts('This system uses PHP version %1. This meets the minimum requirements for CiviCRM to function but is not recommended. At least PHP version %2 is recommended; the preferrred version is %3.',
           array(
-            1 => phpversion(),
+            1 => $phpVersion,
             2 => CRM_Upgrade_Incremental_General::MIN_RECOMMENDED_PHP_VER,
-            3 => CRM_Upgrade_Incremental_General::MIN_DEFECT_PHP_VER,
+            3 => CRM_Upgrade_Incremental_General::RECOMMENDED_PHP_VER,
           )),
         ts('PHP Out-of-Date'),
         \Psr\Log\LogLevel::WARNING,
+        'fa-server'
+      );
+    }
+    else {
+      $messages[] = new CRM_Utils_Check_Message(
+        __FUNCTION__,
+        ts('This system uses PHP version %1. To ensure the continued operation of CiviCRM, upgrade your server now. At least PHP version %2 is recommended; the preferrred version is %3.',
+          array(
+            1 => $phpVersion,
+            2 => CRM_Upgrade_Incremental_General::MIN_RECOMMENDED_PHP_VER,
+            3 => CRM_Upgrade_Incremental_General::RECOMMENDED_PHP_VER,
+          )),
+        ts('PHP Out-of-Date'),
+        \Psr\Log\LogLevel::ERROR,
         'fa-server'
       );
     }
@@ -139,11 +153,9 @@ class CRM_Utils_Check_Component_Env extends CRM_Utils_Check_Component {
    * @return array
    */
   public function checkDebug() {
-    $messages = array();
-
     $config = CRM_Core_Config::singleton();
     if ($config->debug) {
-      $messages[] = new CRM_Utils_Check_Message(
+      $message = new CRM_Utils_Check_Message(
         __FUNCTION__,
         ts('Warning: Debug is enabled in <a href="%1">system settings</a>. This should not be enabled on production servers.',
           array(1 => CRM_Utils_System::url('civicrm/admin/setting/debug', 'reset=1'))),
@@ -151,9 +163,16 @@ class CRM_Utils_Check_Component_Env extends CRM_Utils_Check_Component {
         \Psr\Log\LogLevel::WARNING,
         'fa-bug'
       );
+      $message->addAction(
+        ts('Disable Debug Mode'),
+        ts('Disable debug mode now?'),
+        'api3',
+        array('Setting', 'create', array('debug_enabled' => 0))
+      );
+      return array($message);
     }
 
-    return $messages;
+    return array();
   }
 
   /**
@@ -716,23 +735,28 @@ class CRM_Utils_Check_Component_Env extends CRM_Utils_Check_Component {
 
 
   /**
-   * Checks if extensions are set up properly
+   * Checks if there are pending extension upgrades.
+   *
    * @return array
    */
   public function checkExtensionUpgrades() {
-    $messages = array();
-
     if (CRM_Extension_Upgrades::hasPending()) {
-      $messages[] = new CRM_Utils_Check_Message(
+      $message = new CRM_Utils_Check_Message(
         __FUNCTION__,
-        ts('Extension upgrades are pending.  Please visit <a href="%1">the upgrade page</a> to run them.',
-          array(1 => CRM_Utils_System::url('civicrm/admin/extensions/upgrade', 'reset=1'))),
-        ts('Run Extension Upgrades'),
+        ts('Extension upgrades should be run as soon as possible.'),
+        ts('Extension Upgrades Pending'),
         \Psr\Log\LogLevel::ERROR,
         'fa-plug'
       );
+      $message->addAction(
+        ts('Run Upgrades'),
+        ts('Run extension upgrades now?'),
+        'href',
+        array('path' => 'civicrm/admin/extensions/upgrade', 'query' => array('reset' => 1, 'destination' => CRM_Utils_System::url('civicrm/a/#/status')))
+      );
+      return array($message);
     }
-    return $messages;
+    return array();
   }
 
   /**
@@ -838,6 +862,53 @@ class CRM_Utils_Check_Component_Env extends CRM_Utils_Check_Component {
         ts('The PHP Multibyte String extension is needed for CiviCRM to correctly handle user input among other functionality. Ask your system administrator to install it.'),
         ts('Missing mbstring Extension'),
         \Psr\Log\LogLevel::WARNING,
+        'fa-server'
+      );
+    }
+    return $messages;
+  }
+
+  /**
+   * Check if environment is Production.
+   * @return array
+   */
+  public function checkEnvironment() {
+    $messages = array();
+
+    $environment = CRM_Core_Config::environment();
+    if ($environment != 'Production') {
+      $messages[] = new CRM_Utils_Check_Message(
+        __FUNCTION__,
+        ts('The environment of this CiviCRM instance is set to \'%1\'. Certain functionality like scheduled jobs has been disabled.', array(1 => $environment)),
+        ts('Non-Production Environment'),
+        \Psr\Log\LogLevel::ALERT,
+        'fa-bug'
+      );
+    }
+    return $messages;
+  }
+
+  /**
+   * Check that the resource URL points to the correct location.
+   * @return array
+   */
+  public function checkResourceUrl() {
+    $messages = array();
+    // Skip when run during unit tests, you can't check without a CMS.
+    if (CRM_Core_Config::singleton()->userFramework == 'UnitTests') {
+      return $messages;
+    }
+    // Does arrow.png exist where we expect it?
+    $arrowUrl = CRM_Core_Config::singleton()->userFrameworkResourceURL . 'packages/jquery/css/images/arrow.png';
+    $headers = get_headers($arrowUrl);
+    $fileExists = stripos($headers[0], "200 OK") ? 1 : 0;
+    if (!$fileExists) {
+      $messages[] = new CRM_Utils_Check_Message(
+        __FUNCTION__,
+        ts('The Resource URL is not set correctly. Please set the <a href="%1">CiviCRM Resource URL</a>.',
+          array(1 => CRM_Utils_System::url('civicrm/admin/setting/url', 'reset=1'))),
+        ts('Incorrect Resource URL'),
+        \Psr\Log\LogLevel::ERROR,
         'fa-server'
       );
     }

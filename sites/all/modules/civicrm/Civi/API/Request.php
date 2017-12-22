@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -73,7 +73,7 @@ class Request {
         return $apiRequest;
 
       case 4:
-        $callable = array("Civi\\Api4\\$entity", $action);
+        $callable = array("Civi\\Api4\\Entity\\$entity", $action);
         if (!is_callable($callable)) {
           throw new Exception\NotImplementedException("API ($entity, $action) does not exist (join the API team and implement it!)");
         }

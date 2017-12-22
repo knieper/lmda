@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -58,10 +58,16 @@ class CRM_Core_Config_MagicMerge {
 
   private $cache = array();
 
+  /**
+   * CRM_Core_Config_MagicMerge constructor.
+   */
   public function __construct() {
     $this->map = self::getPropertyMap();
   }
 
+  /**
+   * Set the map to the property map.
+   */
   public function __wakeup() {
     $this->map = self::getPropertyMap();
   }
@@ -118,6 +124,7 @@ class CRM_Core_Config_MagicMerge {
       'backtrace' => array('setting'),
       'contact_default_language' => array('setting'),
       'countryLimit' => array('setting'),
+      'customTranslateFunction' => array('setting'),
       'dateInputFormat' => array('setting'),
       'dateformatDatetime' => array('setting'),
       'dateformatFull' => array('setting'),
@@ -204,6 +211,14 @@ class CRM_Core_Config_MagicMerge {
     );
   }
 
+  /**
+   * Get value.
+   *
+   * @param string $k
+   *
+   * @return mixed
+   * @throws \CRM_Core_Exception
+   */
   public function __get($k) {
     if (!isset($this->map[$k])) {
       throw new \CRM_Core_Exception("Cannot read unrecognized property CRM_Core_Config::\${$k}.");
@@ -281,13 +296,24 @@ class CRM_Core_Config_MagicMerge {
     }
   }
 
+  /**
+   * Set value.
+   *
+   * @param string $k
+   * @param mixed $v
+   *
+   * @throws \CRM_Core_Exception
+   */
   public function __set($k, $v) {
     if (!isset($this->map[$k])) {
       throw new \CRM_Core_Exception("Cannot set unrecognized property CRM_Core_Config::\${$k}");
     }
     unset($this->cache[$k]);
     $type = $this->map[$k][0];
-    $name = isset($this->map[$k][1]) ? $this->map[$k][1] : $k;
+
+    // If foreign name is set, use that name (except with callback types because
+    // their second parameter is the object, not the foreign name).
+    $name = isset($this->map[$k][1]) && $type != 'callback' ? $this->map[$k][1] : $k;
 
     switch ($type) {
       case 'setting':
@@ -311,10 +337,24 @@ class CRM_Core_Config_MagicMerge {
     }
   }
 
+  /**
+   * Is value set.
+   *
+   * @param string $k
+   *
+   * @return bool
+   */
   public function __isset($k) {
     return isset($this->map[$k]);
   }
 
+  /**
+   * Unset value.
+   *
+   * @param string $k
+   *
+   * @throws \CRM_Core_Exception
+   */
   public function __unset($k) {
     if (!isset($this->map[$k])) {
       throw new \CRM_Core_Exception("Cannot unset unrecognized property CRM_Core_Config::\${$k}");
@@ -358,6 +398,9 @@ class CRM_Core_Config_MagicMerge {
     return $this->settings;
   }
 
+  /**
+   * Initialise local settings.
+   */
   private function initLocals() {
     if ($this->locals === NULL) {
       $this->locals = array(

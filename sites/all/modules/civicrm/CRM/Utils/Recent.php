@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -27,7 +27,7 @@
 
 /**
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  */
 
 /**
@@ -162,7 +162,7 @@ class CRM_Utils_Recent {
     self::initialize();
     $tempRecent = self::$_recent;
 
-    self::$_recent = '';
+    self::$_recent = array();
 
     // make sure item is not already present in list
     for ($i = 0; $i < count($tempRecent); $i++) {
@@ -189,7 +189,7 @@ class CRM_Utils_Recent {
 
     $tempRecent = self::$_recent;
 
-    self::$_recent = '';
+    self::$_recent = array();
 
     // rebuild recent.
     for ($i = 0; $i < count($tempRecent); $i++) {
