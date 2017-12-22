@@ -307,9 +307,11 @@ function _civicrm_entity_price_set_field_setup_event_registration_form_fapi(&$fo
     }
   }
   else {
-    $form_state['contacts'][0] = new CivicrmEntity(array('is_new' => 1), 'civicrm_contact');
-    if ($user->uid && empty($form_state['main_registrant_already_registered'])) {
-      $form_state['contacts'][0]->uid = $user->uid;
+    if(empty($form_state['contacts'][0]->id)) {
+      $form_state['contacts'][0] = new CivicrmEntity(array('is_new' => 1), 'civicrm_contact');
+      if ($user->uid && empty($form_state['main_registrant_already_registered'])) {
+        $form_state['contacts'][0]->uid = $user->uid;
+      }
     }
   }
 
@@ -362,6 +364,7 @@ function _civicrm_entity_price_set_field_setup_event_registration_form_fapi(&$fo
       $form['registration_form']['contacts'][$count]['heading'] = array(
         '#type' => 'markup',
         '#markup' => '<h2>' . 'Participant ' . ($count + 1) . '</h2>',
+        '#weight' => -10,
       );
     }
     if (!empty($form_state['price_set_data'][$count])) {
@@ -376,6 +379,7 @@ function _civicrm_entity_price_set_field_setup_event_registration_form_fapi(&$fo
           'civicrm-entity-price-set-field-participant-form',
         ),
       ),
+      '#weight' => -4,
     );
 
     if ($count == 0) {
@@ -482,6 +486,7 @@ function _civicrm_entity_price_set_field_setup_event_registration_form_fapi(&$fo
           'wrapper' => 'civicrm-price-set-field-event-registration',
           'callback' => 'civicrm_entity_price_set_field_event_registration_form_ajax_callback',
         ),
+        '#weight' => -3,
       );
     }
 
@@ -770,7 +775,7 @@ function _civicrm_entity_price_set_field_process_event_registration(&$form_state
       if ($profile_entity_type != 'contact') {
         continue;
       }
-      if ($submitted_count == 0 && !empty($form_state['first_profile_submitted'])) {
+      if ($submitted_count == 0 && !empty($form_state['first_profile_submitted']) && $count == 0) {
         continue;
       }
       // here we want to submit only the contact profiles first
@@ -1049,7 +1054,7 @@ function civicrm_entity_price_set_field_event_registration_form_register_as_anot
 
     $form_state['contacts'][0] = new CivicrmEntity(array('is_new' => 1), 'civicrm_contact');
     global $user;
-    if ($user->uid) {
+    if ($user->uid && empty($form_state['main_registrant_already_registered'])) {
       $form_state['contacts'][0]->uid = $user->uid;
     }
   }
