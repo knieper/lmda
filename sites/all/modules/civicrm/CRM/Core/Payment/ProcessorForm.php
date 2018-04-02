@@ -74,7 +74,8 @@ class CRM_Core_Payment_ProcessorForm {
 
     $currency = CRM_Utils_Array::value('currency', $form->_values);
     // For event forms, currency is in a different spot
-    if (empty($currency)) {
+    //if (empty($currency)) { //SRK 4-1-18 problem with submitting events
+    if (empty($currency) && !empty($form->_values['event'])){
       $currency = CRM_Utils_Array::value('currency', $form->_values['event']);
     }
     $form->assign('currency', $currency);
