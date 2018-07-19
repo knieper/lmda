@@ -1,9 +1,9 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.7                                                |
+ | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2017                                |
+ | Copyright CiviCRM LLC (c) 2004-2018                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2017
+ * @copyright CiviCRM LLC (c) 2004-2018
  */
 
 /**
@@ -579,7 +579,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
 
     // The concept of contributeMode is deprecated.
     // The payment processor object can provide info about the fields it shows.
-      if ($isMonetary && is_a($this->_payment_Processor['object'], 'CRM_Core_Payment')) {
+    if ($isMonetary && is_a($this->_paymentProcessor['object'], 'CRM_Core_Payment')) {
       /** @var  $paymentProcessorObject \CRM_Core_Payment */
       $paymentProcessorObject = $this->_paymentProcessor['object'];
 
@@ -1086,7 +1086,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
    * @param bool $isContributionMainPage
    *   Is this the main page? If so add form input fields.
    *   (or better yet don't have this functionality in a function shared with forms that don't share it).
-   * @param int $selectedMembershipTypeID
+   * @param int|array $selectedMembershipTypeID
    *   Selected membership id.
    * @param bool $thankPage
    *   Thank you page.
@@ -1242,7 +1242,9 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
 
       // Assign autorenew option (0:hide,1:optional,2:required) so we can use it in confirmation etc.
       $autoRenewOption = CRM_Price_BAO_PriceSet::checkAutoRenewForPriceSet($this->_priceSetId);
-      if (isset($membershipTypeValues[$selectedMembershipTypeID]['auto_renew'])) {
+      //$selectedMembershipTypeID is retrieved as an array for membership priceset if multiple
+      //options for different organisation is selected on the contribution page.
+      if (is_numeric($selectedMembershipTypeID) && isset($membershipTypeValues[$selectedMembershipTypeID]['auto_renew'])) {
         $this->assign('autoRenewOption', $membershipTypeValues[$selectedMembershipTypeID]['auto_renew']);
       }
       else {

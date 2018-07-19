@@ -79,6 +79,19 @@ function civicrm_reroute_email_civicrm_altermailparams(&$params) {
   $msg .= t("Web site: @site", array('@site' => $base_url)) . "\n";
   $msg .= t("Rerouted to: @civicrm_reroute_email_address", array('@civicrm_reroute_email_address' => $civicrm_reroute_email_address)) . "\n";
   $msg .= t("Originally to: @actual_recipient", array('@actual_recipient' => $actual_recipient)) . "\n";
+
+  // Suppress Cc emails and add the emails to the top message
+  if ($params['cc']) {
+    $msg .= t("Original CC: @cc_recipient", array('@cc_recipient' => $params['cc'])) . "\n";
+    unset($params['cc']);
+  }
+
+  // Suppress Bcc emails and add the emails to the top message
+  if ($params['bcc']) {
+    $msg .= t("Original BCC: @bcc_recipient", array('@bcc_recipient' => $params['bcc'])) . "\n";
+    unset($params['bcc']);
+  }
+
   $msg .= "==================================================\n\n";
 
   // Prepare the text formatted email.
