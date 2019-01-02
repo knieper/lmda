@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * @file
  * All of the location handling code needed for Backup and Migrate.
@@ -81,21 +82,21 @@ function backup_migrate_get_location($id) {
  * A base class for creating locations.
  */
 class backup_migrate_location extends backup_migrate_item {
-  public $db_table = "backup_migrate_destinations";
-  public $type_name = "location";
-  public $default_values = array('settings' => array());
-  public $singular = 'location';
-  public $plural = 'locations';
-  public $title_plural = 'Locations';
-  public $title_singular = 'Location';
+  var $db_table = "backup_migrate_destinations";
+  var $type_name = "location";
+  var $default_values = array('settings' => array());
+  var $singular = 'location';
+  var $plural = 'locations';
+  var $title_plural = 'Locations';
+  var $title_singular = 'Location';
 
-  public $subtype = "";
-  public $supported_ops = array();
+  var $subtype = "";
+  var $supported_ops = array();
 
   /**
    * This function is not supposed to be called. It is just here to help the po extractor out.
    */
-  public function strings() {
+  function strings() {
     // Help the pot extractor find these strings.
     t('location');
     t('locations');
@@ -103,49 +104,49 @@ class backup_migrate_location extends backup_migrate_item {
     t('Locations');
   }
 
-  public function ops() {
+  function ops() {
     return $this->supported_ops;
   }
 
   /**
    * Does this location support the given operation.
    */
-  public function op($op) {
-    $ops = (array) $this->ops();
+  function op($op) {
+    $ops = (array)$this->ops();
     return in_array($op, $ops);
   }
 
   /**
    * Remove the given op from the support list.
    */
-  public function remove_op($op) {
+  function remove_op($op) {
     $key = array_search($op, $this->supported_ops);
     if ($key !== FALSE) {
       unset($this->supported_ops[$key]);
     }
   }
 
-  public function get_name() {
+  function get_name() {
     return @$this->name;
   }
 
-  public function set_name($name) {
+  function set_name($name) {
     return $this->name = $name;
   }
 
-  public function set_location($location) {
+  function set_location($location) {
     $this->location = $location;
   }
 
-  public function get_location() {
+  function get_location() {
     return @$this->location;
   }
 
-  public function get_display_location() {
+  function get_display_location() {
     return $this->get_location();
   }
 
-  public function settings($key = NULL) {
+  function settings($key = NULL) {
     $out = $this->settings;
     if ($key) {
       $out = isset($out[$key]) ? $out[$key] : NULL;
@@ -156,7 +157,7 @@ class backup_migrate_location extends backup_migrate_item {
   /**
    * Get the type name of this location for display to the user.
    */
-  public function get_subtype_name() {
+  function get_subtype_name() {
     if ($type = $this->get('subtype')) {
       $types = $this->location_types();
       return isset($types[$type]['type_name']) ? $types[$type]['type_name'] : $type;
@@ -166,7 +167,7 @@ class backup_migrate_location extends backup_migrate_item {
   /**
    * Get the edit form for the item.
    */
-  public function edit_form() {
+  function edit_form() {
     if (!empty($this->supported_ops)) {
       $form = parent::edit_form();
       $form['subtype'] = array(
@@ -181,13 +182,13 @@ class backup_migrate_location extends backup_migrate_item {
       foreach ($types as $key => $type) {
         if (@$type['can_create']) {
           $type_url_str = str_replace('_', '-', $key);
-          $out = '<dt>' . l($type['type_name'], BACKUP_MIGRATE_MENU_PATH . "/settings/$this->type_name/add/$type_url_str", array('attributes' => array('title' => t('Add a new @s location.', array('@s' => $type['type_name']))))) . '</dt>';
-          $out .= '<dd>' . filter_xss_admin($type['description']) . '</dd>';
+          $out = '<dt>'. l($type['type_name'], BACKUP_MIGRATE_MENU_PATH . "/settings/$this->type_name/add/$type_url_str", array('attributes' => array('title' => t('Add a new @s location.', array('@s' => $type['type_name']))))) .'</dt>';
+          $out .= '<dd>'. filter_xss_admin($type['description']) .'</dd>';
           $items[] = $out;
         }
       }
       if (count($items)) {
-        $output = t('Choose the type of location you would like to create:') . '<dl>' . implode('', $items) . '</dl>';
+        $output = t('Choose the type of location you would like to create:') .'<dl>'. implode('', $items) .'</dl>';
       }
       else {
         $output = t('No types available.');
@@ -203,21 +204,21 @@ class backup_migrate_location extends backup_migrate_item {
   /**
    * Get the available location types.
    */
-  public function location_types() {
+  function location_types() {
     return backup_migrate_get_location_subtypes();
   }
 
   /**
    * Get the message to send to the user when confirming the deletion of the item.
    */
-  public function delete_confirm_message() {
+  function delete_confirm_message() {
     return t('Are you sure you want to delete the %name?', array('%name' => $this->get_name()));
   }
 
   /**
    * Get the columns needed to list the type.
-   */
-  public function get_list_column_info() {
+   */  
+  function get_list_column_info() {
     $out = parent::get_list_column_info();
     $out = array(
       'name'                  => array('title' => t('Name')),
@@ -229,8 +230,8 @@ class backup_migrate_location extends backup_migrate_item {
 
   /**
    * Get a row of data to be used in a list of items of this type.
-   */
-  public function get_list_row() {
+   */  
+  function get_list_row() {
     $out = parent::get_list_row();
 
     // Suppress locations with no actions as there's no value in showing them (and they may confuse new users).
@@ -243,13 +244,13 @@ class backup_migrate_location extends backup_migrate_item {
   /**
    * Get the action links for a location.
    */
-  public function get_action_links() {
+  function get_action_links() {
     $out = parent::get_action_links();
     $item_id = $this->get_id();
 
     // Don't display the download/delete/restore ops if they are not available for this location.
     if ($this->op('list files') && user_access("access backup files")) {
-      $out = array('list files' => l(t("list files"), BACKUP_MIGRATE_MENU_PATH . "/$this->type_name/list/files/" . $item_id)) + $out;
+      $out = array('list files' => l(t("list files"), BACKUP_MIGRATE_MENU_PATH . "/$this->type_name/list/files/". $item_id)) + $out;
     }
     if (!$this->op('configure') || !user_access('administer backup and migrate')) {
       unset($out['edit']);
@@ -260,94 +261,94 @@ class backup_migrate_location extends backup_migrate_item {
   /**
    * Determine if we can read the given file.
    */
-  public function can_read_file($file_id) {
+  function can_read_file($file_id) {
     return $this->op('restore');
   }
 
   /**
    * Get the form for the settings for this location type.
    */
-  public function settings_default() {
+  function settings_default() {
     return array();
   }
 
   /**
    * Get the form for the settings for this location.
    */
-  public function settings_form($form) {
+  function settings_form($form) {
     return $form;
   }
 
   /**
    * Validate the form for the settings for this location.
    */
-  public function settings_form_validate($form_values) {
+  function settings_form_validate($form_values) {
   }
 
   /**
    * Submit the settings form. Any values returned will be saved.
    */
-  public function settings_form_submit($form_values) {
+  function settings_form_submit($form_values) {
     return $form_values;
   }
 
   /**
    * Get the form for the settings for this filter.
    */
-  public function backup_settings_default() {
+  function backup_settings_default() {
     return array();
   }
 
   /**
    * Get the form for the settings for this filter.
    */
-  public function backup_settings_form($settings) {
+  function backup_settings_form($settings) {
     return array();
   }
 
   /**
    * Get the form for the settings for this filter.
    */
-  public function backup_settings_form_validate($form, &$form_state) {
+  function backup_settings_form_validate($form, &$form_state) {
   }
 
   /**
    * Submit the settings form. Any values returned will be saved.
    */
-  public function backup_settings_form_submit($form, &$form_state) {
+  function backup_settings_form_submit($form, &$form_state) {
   }
 
   /**
    * Get the form for the settings for this filter.
    */
-  public function restore_settings_default() {
+  function restore_settings_default() {
     return array();
   }
 
   /**
    * Get the form for the settings for this filter.
    */
-  public function restore_settings_form($settings) {
+  function restore_settings_form($settings) {
     return array();
   }
 
   /**
    * Get the form for the settings for this filter.
    */
-  public function restore_settings_form_validate($form_values) {
+  function restore_settings_form_validate($form_values) {
   }
 
   /**
    * Submit the settings form. Any values returned will be saved.
    */
-  public function restore_settings_form_submit($form_values) {
+  function restore_settings_form_submit($form_values) {
     return $form_values;
   }
 
   /**
    * Create a new location of the correct type.
    */
-  public function create($params = array()) {
+  function create($params = array()) {
     $out = NULL;
     $types = backup_migrate_get_location_subtypes();
     // Get the type passed in in the params, or if none, check the url for a valid type name.
@@ -357,7 +358,7 @@ class backup_migrate_location extends backup_migrate_item {
     if ($location_type && ($type = @$types[$location_type])) {
       // Include the necessary file if specified by the type.
       if (!empty($type['file'])) {
-        require_once './' . $type['file'];
+        require_once './'. $type['file'];
       }
       $out = new $type['class']($params + array('subtype' => $location_type));
     }
@@ -368,37 +369,37 @@ class backup_migrate_location extends backup_migrate_item {
     return $out;
   }
 
-  /**
+   /**
    * Get a url from the parts.
    */
-  public function url($hide_password = TRUE) {
+  function url($hide_password = TRUE) {
     return $this->glue_url($this->dest_url, $hide_password);
   }
 
   /**
    * Glue a URLs component parts back into a URL.
    */
-  public function glue_url($parts, $hide_password = TRUE) {
+  function glue_url($parts, $hide_password = TRUE) {
     // Obscure the password if we need to.
     $parts['pass'] = $hide_password ? "" : $parts['pass'];
 
     // Assemble the URL.
     $out = "";
-    $out .= $parts['scheme'] . '://';
+    $out .= $parts['scheme'] .'://';
     $out .= $parts['user'] ? urlencode($parts['user']) : '';
-    $out .= ($parts['user'] && $parts['pass']) ? ":" . urlencode($parts['pass']) : '';
+    $out .= ($parts['user'] && $parts['pass']) ? ":". urlencode($parts['pass']) : '';
     $out .= ($parts['user'] || $parts['pass']) ? "@" : "";
     $out .= $parts['host'];
-    $out .= !empty($parts['port']) ? ':' . $parts['port'] : '';
-    $out .= "/" . $parts['path'];
+    $out .= !empty($parts['port']) ? ':'. $parts['port'] : '';
+    $out .= "/". $parts['path'];
     return $out;
   }
 
   /**
    * Break a URL into it's component parts.
    */
-  public function set_url($url) {
-    $parts          = (array) parse_url($url);
+  function set_url($url) {
+    $parts          = (array)parse_url($url);
     $parts['user'] = urldecode(@$parts['user']);
     $parts['pass'] = urldecode(@$parts['pass']);
     $parts['path'] = urldecode(@$parts['path']);
@@ -409,7 +410,7 @@ class backup_migrate_location extends backup_migrate_item {
   /**
    * Retrieve a list of filetypes supported by this source/destination.
    */
-  public function file_types() {
+  function file_types() {
     return array();
   }
 
@@ -422,29 +423,67 @@ class backup_migrate_location_remote extends backup_migrate_location {
   /**
    * The location is a URI so parse it and store the parts.
    */
-  public function get_location() {
+  function get_location() {
     return $this->url(FALSE);
   }
 
   /**
    * The location to display is the url without the password.
    */
-  public function get_display_location() {
+  function get_display_location() {
     return $this->url(TRUE);
   }
 
   /**
    * Return the location with the password.
    */
-  public function set_location($location) {
+  function set_location($location) {
     $this->location = $location;
     $this->set_url($location);
   }
 
   /**
-   * Location configuration callback.
+   * Get a url from the parts.
    */
-  public function edit_form() {
+  function url($hide_password = TRUE) {
+    return $this->glue_url($this->dest_url, $hide_password);
+  }
+
+  /**
+   * Glue a URLs component parts back into a URL.
+   */
+  function glue_url($parts, $hide_password = TRUE) {
+    // Obscure the password if we need to.
+    $parts['pass'] = $hide_password ? "" : $parts['pass'];
+
+    // Assemble the URL.
+    $out = "";
+    $out .= $parts['scheme'] .'://';
+    $out .= $parts['user'] ? urlencode($parts['user']) : '';
+    $out .= ($parts['user'] && $parts['pass']) ? ":". urlencode($parts['pass']) : '';
+    $out .= ($parts['user'] || $parts['pass']) ? "@" : "";
+    $out .= $parts['host'];
+    $out .= !empty($parts['port']) ? ':'. $parts['port'] : '';
+    $out .= "/". $parts['path'];
+    return $out;
+  }
+
+  /**
+   * Break a URL into it's component parts.
+   */
+  function set_url($url) {
+    $parts          = (array)parse_url($url);
+    $parts['user'] = urldecode(@$parts['user']);
+    $parts['pass'] = urldecode(@$parts['pass']);
+    $parts['path'] = urldecode(@$parts['path']);
+    $parts['path']  = ltrim(@$parts['path'], "/");
+    $this->dest_url = $parts;
+  }
+
+  /**
+   * location configuration callback.
+   */
+  function edit_form() {
     $form = parent::edit_form();
     $form['scheme'] = array(
       "#type" => "select",
@@ -495,10 +534,10 @@ class backup_migrate_location_remote extends backup_migrate_location {
   /**
    * Submit the configuration form. Glue the url together and add the old password back if a new one was not specified.
    */
-  public function edit_form_submit($form, &$form_state) {
+  function edit_form_submit($form, &$form_state) {
     $form_state['values']['pass'] = $form_state['values']['pass'] ? $form_state['values']['pass'] : $form_state['values']['old_password'];
     $form_state['values']['location'] = $this->glue_url($form_state['values'], FALSE);
     parent::edit_form_submit($form, $form_state);
   }
-
 }
+

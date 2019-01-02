@@ -1,9 +1,4 @@
 <?php
-
-/**
- * @file
- */
-
 backup_migrate_include('sources.filesource');
 
 /**
@@ -16,31 +11,27 @@ backup_migrate_include('sources.filesource');
  *
  * @ingroup backup_migrate_destinations
  */
-class backup_migrate_files_destination_archivesource extends backup_migrate_destination_filesource {
-  public $supported_ops = array('source');
 
-  public function type_name() {
+class backup_migrate_files_destination_archivesource extends backup_migrate_destination_filesource {
+  var $supported_ops = array('source');
+
+  function type_name() {
     return t("Site Archive Source");
   }
 
   /**
-   * Declares the current files directory as a backup source..
+   * Declare the current files directory as a backup source..
    */
-  public function sources() {
-    $out = array();
-    $out['archive'] = backup_migrate_create_destination('archive', array(
-      'machine_name' => 'archive',
-      'location' => '.',
-      'name' => t('Entire Site (code, files & DB)'),
-      'show_in_list' => FALSE,
-    ));
+  function sources() {
+    $out  = array();
+    $out['archive'] = backup_migrate_create_destination('archive', array('machine_name' => 'archive', 'location' => '.', 'name' => t('Entire Site (code, files & DB)'), 'show_in_list' => FALSE));
     return $out;
   }
 
   /**
-   * Returns a list of backup filetypes.
+   * Return a list of backup filetypes.
    */
-  public function file_types() {
+  function file_types() {
     return array(
       "sitearchive" => array(
         "extension" => "sitearchive.tar",
@@ -52,9 +43,9 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Gets the form for the settings for this destination.
+   * Get the form for the settings for this destination.
    */
-  public function backup_settings_default() {
+  function backup_settings_default() {
     $out = parent::backup_settings_default();
     $excludes = explode("\n", $out['exclude_filepaths']);
     foreach ($excludes as $i => $exclude) {
@@ -72,7 +63,7 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   /**
    * Backup from this source.
    */
-  public function _backup_to_file_php($file, $settings) {
+  function _backup_to_file_php($file, $settings) {
     if ($this->check_libs()) {
       $base_dir = $this->get_realpath();
 
@@ -84,10 +75,10 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
         $db = $this->get_db();
 
         $file->push_type('sitearchive');
-        $gz = new Archive_Tar($file->filepath(), FALSE);
+        $gz = new Archive_Tar($file->filepath(), false);
 
-        $gz->addModify(array($manifest), $file->name . '/', dirname($manifest));
-        $gz->addModify($files, $file->name . '/docroot', $base_dir);
+        $gz->addModify(array($manifest), $file->name .'/', dirname($manifest));
+        $gz->addModify($files, $file->name .'/docroot', $base_dir);
         $gz->addModify($db, $file->name . '/', dirname($db));
 
         unlink($manifest);
@@ -106,7 +97,7 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   /**
    * Backup from this source.
    */
-  public function _backup_to_file_cli($file, $settings) {
+  function _backup_to_file_cli($file, $settings) {
     if (!empty($settings->filters['use_cli']) && function_exists('backup_migrate_exec') && function_exists('escapeshellarg')) {
       $excluded_paths = empty($settings->filters['exclude_filepaths']) ? '' : $settings->filters['exclude_filepaths'];
       foreach ($this->get_excluded_paths($excluded_paths) as $path) {
@@ -114,8 +105,7 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
       }
       $exclude = implode(' ', $exclude);
 
-      // Create a symlink in a temp directory so we can rename the file in the
-      // archive.
+      // Create a symlink in a temp directory so we can rename the file in the archive.
       $temp = backup_migrate_temp_directory();
 
       $manifest = $this->generate_manifest();
@@ -126,12 +116,7 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
       $file->push_type('sitearchive');
       $link = $temp . '/docroot';
       $input = realpath($this->get_location());
-      backup_migrate_exec("ln -s %input %link; tar --dereference -C %temp -rf %output $exclude .", array(
-        '%output' => $file->filepath(),
-        '%input' => $input,
-        '%temp' => $temp,
-        '%link' => $link,
-      ));
+      backup_migrate_exec("ln -s %input %link; tar --dereference -C %temp -rf %output $exclude .", array('%output' => $file->filepath(), '%input' => $input, '%temp' => $temp, '%link' => $link));
 
       return $file;
     }
@@ -139,15 +124,15 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Generates a manifest file.
+   * Generate a manifest file.
    */
-  public function generate_manifest() {
+  function generate_manifest() {
     $info = array(
       'Global' => array(
         'datestamp' => time(),
         'formatversion' => '2011-07-02',
         'generator' => 'Backup and Migrate (http://drupal.org/project/backup_migrate)',
-        'generatorversion' => BACKUP_MIGRATE_VERSION,
+        'generatorversion' => BACKUP_MIGRATE_VERSION, 
       ),
       'Site 0' => array(
         'version' => VERSION,
@@ -171,14 +156,13 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Gets a database dump to add to the archive.
+   * Get a database dump to add to the archive.
    */
-  public function get_db() {
+  function get_db() {
     backup_migrate_include('destinations', 'files', 'filters', 'profiles');
 
     $file = new backup_file();
-    // Clone the default settings so we can make changes without them leaking
-    // out of this function.
+    // Clone the default settings so we can make changes without them leaking out of this function.
     $settings = clone _backup_migrate_profile_saved_default_profile();
     $settings->source_id = 'db';
     $settings->filters['compression'] = 'none';
@@ -186,8 +170,7 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
     // Execute the backup on the db with the default settings.
     $file = backup_migrate_filters_backup($file, $settings);
 
-    // Generate a tmp file with the correct final title (because ArchiveTar
-    // doesn't seem to allow renaming).
+    // Generate a tmp file with the correct final title (because ArchiveTar doesn't seem to allow renaming).
     $tmpdir = backup_migrate_temp_directory();
     $filepath = $tmpdir . '/database.sql';
     rename($file->filepath(), $filepath);
@@ -196,10 +179,10 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Restores to this source.
+   * Restore to this source.
    */
-  public function _restore_from_file_php($file, &$settings) {
-    $success = FALSE;
+  function _restore_from_file_php($file, &$settings) {
+    $success = false;
     if ($this->check_libs()) {
       $from = $file->pop_type();
       $temp = backup_migrate_temp_directory();
@@ -207,25 +190,25 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
       $tar = new Archive_Tar($from->filepath());
       $tar->extractModify($temp, $file->name);
 
-      // Parse the manifest.
+      // Parse the manifest
       $manifest = $this->read_manifest($temp);
 
       // Currently only the first site in the archive is supported.
       $site = $manifest['Site 0'];
 
-      $docroot = $temp . '/' . $site['docroot'];
-      $sqlfile = $temp . '/' . $site['database-file-default'];
+      $docroot  = $temp . '/' . $site['docroot'];
+      $sqlfile  = $temp . '/' . $site['database-file-default'];
       $filepath = NULL;
       if (isset($site['files-private'])) {
         $filepath = $temp . '/' . $site['files-private'];
       }
-      elseif (isset($site['files-public'])) {
+      else if (isset($site['files-public'])) {
         $filepath = $temp . '/' . $site['files-public'];
       }
 
       // Move the files from the temp directory.
       if ($filepath && file_exists($filepath)) {
-        _backup_migrate_move_files($filepath, variable_get('file_public_path', conf_path() . '/files'));
+        _backup_migrate_move_files($filepath, variable_get('file_public_path', conf_path() . '/files') );
       }
       else {
         _backup_migrate_message('Files were not restored because the archive did not seem to contain a files directory or was in a format that Backup and Migrate couldn\'t read', array(), 'warning');
@@ -252,17 +235,17 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Restores to this source.
+   * Restore to this source.
    */
-  public function _restore_from_file_cli($file, &$settings) {
+  function _restore_from_file_cli($file, &$settings) {
     // @TODO: implement the cli version of the restore.
     return FALSE;
   }
 
   /**
-   * Generates a manifest file.
+   * Generate a manifest file.
    */
-  public function read_manifest($directory) {
+  function read_manifest($directory) {
     // Assume some defaults if values ore the manifest is missing.
     $defaults = array(
       'docroot' => 'docroot',
@@ -280,16 +263,14 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Converts an associated array to an ini format string.
-   *
-   * Only allows 2 levels of depth to allow parse_ini_file to parse.
+   * Convert an associated array to an ini format string. Only allows 2 levels of depth to allow parse_ini_file to parse.
    */
-  public function _array_to_ini($sections) {
-    $content = "";
+  function _array_to_ini($sections) {
+    $content = ""; 
     foreach ($sections as $section => $data) {
-      $content .= '[' . $section . ']' . "\n";
+      $content .= '['. $section .']' . "\n";
       foreach ($data as $key => $val) {
-        $content .= $key . " = \"" . $val . "\"\n";
+        $content .= $key . " = \"". $val ."\"\n";
       }
       $content .= "\n";
     }
@@ -297,12 +278,10 @@ class backup_migrate_files_destination_archivesource extends backup_migrate_dest
   }
 
   /**
-   * Converts an associated array to an ini format string.
-   *
-   * Only allows 2 levels of depth to allow parse_ini_file to parse.
+   * Convert an associated array to an ini format string. Only allows 2 levels of depth to allow parse_ini_file to parse.
    */
-  public function _ini_to_array($path) {
+  function _ini_to_array($path) {
     return parse_ini_file($path, TRUE);
   }
-
 }
+

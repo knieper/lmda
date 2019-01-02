@@ -1,9 +1,5 @@
-/**
- * @file
- * Custom CSS for the Backup Migrate module.
- */
-
-.schedule-list-disabled {
+.schedule-list-disabled
+{
   filter:alpha(opacity=50);
   -moz-opacity: .50;
   opacity: .50;
@@ -31,7 +27,8 @@ div.backup-migrate-tables-checkboxes {
 }
 div.backup-migrate-tags,
 div.backup-migrate-description,
-div.backup-migrate-date {
+div.backup-migrate-date
+{
   font-size: smaller;
 }
 span.backup-migrate-label {
