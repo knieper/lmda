@@ -1,0 +1,18 @@
+diff --git a/includes/profiles.inc b/includes/profiles.inc
+index 3e5a029..4297fd3 100644
+--- a/includes/profiles.inc
++++ b/includes/profiles.inc
+@@ -32,12 +32,7 @@ function backup_migrate_backup_migrate_profile_subtypes() {
+  */
+ function backup_migrate_get_profiles() {
+   backup_migrate_include('filters');
+-  $profiles = &drupal_static('backup_migrate_get_profiles', NULL);
+-
+-  // Get the list of profiles and cache them locally.
+-  if ($profiles === NULL) {
+-    $profiles = backup_migrate_crud_get_items('profile');
+-  }
++  $profiles = backup_migrate_crud_get_items('profile');
+   return $profiles;
+ }
+ 
