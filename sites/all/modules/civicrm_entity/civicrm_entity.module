@@ -2246,7 +2246,7 @@ function _civicrm_entity_getproperties($civicrm_entity, $context = '') {
       $info[$fieldname] = array(
         'label' => $label,
         'type' => $types[$field_specs['type']],
-        'sanitize' => 'check_plain',
+        'sanitize' => 'filter_xss',
         'setter callback' => 'entity_property_verbatim_set',
       );
 
@@ -2749,24 +2749,45 @@ function _civicrm_entity_get_title($field_specs, $entity_type = '') {
  */
 function civicrm_entity_civicrm_contact_label_callback($entity, $entity_type) {
   $label = isset($entity->display_name) ? $entity->display_name : '';
-  // drupal_alter('civicrm_entity_contact_label', $label, $entity);
-  if (isset($entity->email) && !empty($entity->email)) {
-    $label = t('!label <!email>', array(
+  $contact_label_setting = variable_get('civicrm_entity_contact_label_format', 'legacy');
+  if ($contact_label_setting == 'legacy') {
+    // drupal_alter('civicrm_entity_contact_label', $label, $entity);
+    if (isset($entity->email) && !empty($entity->email)) {
+      $label = t('!label <!email>', [
+        '!label' => $label,
+        '!email' => $entity->email,
+      ]);
+    }
+    elseif (isset($entity->phone) && !empty($entity->phone)) {
+      $label = t('!label <!phone>', [
+        '!label' => $label,
+        '!phone' => $entity->phone,
+      ]);
+    }
+    elseif (isset($entity->im) && !empty($entity->im)) {
+      $label = t('!label <!im>', [
+        '!label' => $label,
+        '!im'    => $entity->im,
+      ]);
+    }
+  }
+  elseif ($contact_label_setting == 'display_name_email' && !empty($entity->email)) {
+    $label = t('!label <!email>', [
       '!label' => $label,
       '!email' => $entity->email,
-    ));
+    ]);
   }
-  elseif (isset($entity->phone) && !empty($entity->phone)) {
-    $label = t('!label <!phone>', array(
+  elseif ($contact_label_setting == 'display_name_phone' && !empty($entity->phone)) {
+    $label = t('!label <!phone>', [
       '!label' => $label,
       '!phone' => $entity->phone,
-    ));
+    ]);
   }
-  elseif (isset($entity->im) && !empty($entity->im)) {
-    $label = t('!label <!im>', array(
+  elseif ($contact_label_setting == 'display_name_im' && !empty($entity->im)) {
+    $label = t('!label <!im>', [
       '!label' => $label,
-      '!im' => $entity->im,
-    ));
+      '!im'    => $entity->im,
+    ]);
   }
   return $label;
 }
@@ -2991,6 +3012,9 @@ function civicrm_entity_action_create_user($contact, $is_active, $notify = FALSE
     case 'email':
       $params['name'] = $params['email'];
       break;
+    case 'display_name':
+      $params['name'] = _civicrm_entity_clean_login_name(trim($contact['display_name']));
+      break;
     default:
      drupal_set_message(filter_xss("username_format " . $username_format . " unknown!!") , 'info');
      watchdog('civicrm_entity', 'username_format  %format unknown.', array('%format' => $username_format), WATCHDOG_INFO);
@@ -3053,8 +3077,12 @@ function civicrm_entity_action_create_user($contact, $is_active, $notify = FALSE
   // Note that we 'pretend' to be logging in to make it do a ufmatch
   // on just the email.
   // Try to match Individuals, failing that, anything
-  CRM_Core_BAO_UFMatch::synchronizeUFMatch($user_object, $user_object->uid, $contact['email'], 'drupal', NULL, 'Individual', TRUE)
-   || CRM_Core_BAO_UFMatch::synchronizeUFMatch($user_object, $user_object->uid, $contact['email'], 'drupal', NULL, NULL, TRUE);
+  if (!empty($contact['contact_type']) && $contact['contact_type'] == 'Individual') {
+    CRM_Core_BAO_UFMatch::synchronizeUFMatch($user_object, $user_object->uid, $contact['email'], 'drupal', NULL, 'Individual', TRUE);
+  }
+  else {
+    CRM_Core_BAO_UFMatch::synchronizeUFMatch($user_object, $user_object->uid, $contact['email'], 'drupal', NULL, NULL, TRUE);
+  }
   drupal_set_message('User with username, ' . $params['cms_name'] . ', has been created.');
 
   // If selected in action configuration, automatically sign in the
@@ -3076,6 +3104,7 @@ function civicrm_entity_action_create_user($contact, $is_active, $notify = FALSE
 // function _civicrm_entity_options_username_format($field, $instance, $entity_type, $entity) {
 function _civicrm_entity_options_username_format($field, $instance) {
   $options = array(
+    'display_name' => t('Display Name'),
     'first last' => t('First Last'),
     'firstlast' => t('FirstLast'),
     'first.last' => t('First.Last'),
@@ -3205,13 +3234,12 @@ function civicrm_entity_get_locations() {
  *
  * @return array
  */
-function civicrm_entity_contact_has_location_element_email(&$contact, $location_type_id) {
+function civicrm_entity_contact_has_location_element_email($contact, $location_type_id) {
   if (!empty($contact->email)) {
     return TRUE;
   }
-  $email = civicrm_entity_contact_has_location_element('email', $contact, $location_type_id);
-  if (!empty($email['civicrm_email']->email)) {
-    $contact->email = $email['civicrm_email']->email;
+  $email = civicrm_entity_contact_get_location_element('email', $contact, $location_type_id);
+  if (!empty($email['fetched_email'])) {
     return TRUE;
   }
   return FALSE;
@@ -3249,7 +3277,7 @@ function civicrm_entity_contact_get_location_element($entity, &$contact, $locati
   if (!$result['count']) {
     return array('civicrm_' . $entity => '');
   }
-  return array('fetched_' . $entity => $result['values'][0]['email']);
+  return array('fetched_' . $entity => $result['values'][0][$entity]);
 }
 
 /**
@@ -3353,18 +3381,19 @@ function civicrm_entity_rules_action_unassign_contact_to_group($contact, $group_
  * @return array
  */
 function civicrm_entity_rules_assign_contact_group_options_list() {
-  $group_query = new EntityFieldQuery();
-  $groups = $group_query->entityCondition('entity_type', 'civicrm_group')
-    ->propertyCondition('is_active', 1)
-    ->propertyOrderBy('title', 'ASC')
-    ->execute();
+  if (!civicrm_initialize()) {
+    return [];
+  };
+  $result = civicrm_api3('Group', 'get', [
+    'return' => ["title"],
+    'is_active' => 1,
+    'options' => ['limit' => 0, 'sort' => "title ASC"],
+  ]);
+  $options = [];
 
-  $options = array();
-  if(count($groups['civicrm_group'])) {
-    $group_entities = entity_load('civicrm_group', array_keys($groups['civicrm_group']));
-
-    foreach ($group_entities AS $key => $group) {
-      $options[$key] = $group->title;
+  if (!$result['is_error'] && !empty($result['values'])) {
+    foreach ($result['values'] as $key => $value) {
+      $options[$key] = $value['title'];
     }
   }
   return $options;
@@ -3420,8 +3449,28 @@ function civicrm_entity_civicrm_pre($op, $objectName, $id, &$params) {
         break;
     }
     if (isset($valid_entities[$entity_type])) {
-      $entity = entity_load_single($entity_type, $id);
-      field_attach_delete($entity_type, $entity);
+      if ($objectName == 'EntityTag') {
+        $api_params = [
+          'sequential' => 1,
+          'entity_id' => $params[0][0],
+          'entity_table' => $params[1],
+        ];
+        $api_results = civicrm_api3('EntityTag', 'get', $api_params);
+        if (!empty($api_results['values'])) {
+          foreach ($api_results as $delta => $result) {
+            if ($result['tag_id'] == $id) {
+              $entity = entity_load_single($entity_type, $result['id']);
+              break;
+            }
+          }
+        }
+      }
+      else {
+        $entity = entity_load_single($entity_type, $id);
+      }
+      if (!empty($entity)) {
+        field_attach_delete($entity_type, $entity);
+      }
     }
 
   }
@@ -3893,7 +3942,6 @@ function civicrm_entity_form_alter(&$form, &$form_state, $form_id) {
         }
       }
       $form['#validate'][] = '_civicrm_entity_manage_display_suite_forms_validate';
-
     }
   }
 }
