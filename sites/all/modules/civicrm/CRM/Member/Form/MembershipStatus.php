@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2018                                |
+ | Copyright CiviCRM LLC (c) 2004-2019                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2018
+ * @copyright CiviCRM LLC (c) 2004-2019
  */
 
 /**
@@ -106,13 +106,7 @@ class CRM_Member_Form_MembershipStatus extends CRM_Core_Form {
    * @return array
    */
   public function setDefaultValues() {
-    $defaults = array();
-
-    if ($this->getEntityId()) {
-      $params = array('id' => $this->getEntityId());
-      $baoName = $this->_BAOName;
-      $baoName::retrieve($params, $defaults);
-    }
+    $defaults = $this->getEntityDefaults();
 
     if ($this->_action & CRM_Core_Action::ADD) {
       $defaults['is_active'] = 1;

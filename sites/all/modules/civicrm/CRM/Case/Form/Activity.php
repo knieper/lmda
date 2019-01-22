@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2018                                |
+ | Copyright CiviCRM LLC (c) 2004-2019                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2018
+ * @copyright CiviCRM LLC (c) 2004-2019
  */
 
 /**
@@ -178,10 +178,9 @@ class CRM_Case_Form_Activity extends CRM_Activity_Form_Activity {
                 $atArray,
                 $this->_currentUserId
               );
-              $activities = array_keys($activities);
-              $activities = $activities[0];
+              $activityId = CRM_Utils_Array::first(array_keys($activities['data']));
               $editUrl = CRM_Utils_System::url('civicrm/case/activity',
-                "reset=1&cid={$this->_currentlyViewedContactId}&caseid={$caseId}&action=update&id={$activities}"
+                "reset=1&cid={$this->_currentlyViewedContactId}&caseid={$caseId}&action=update&id={$activityId}"
               );
             }
             CRM_Core_Error::statusBounce(ts("You can not add another '%1' activity to this case. %2",
@@ -534,7 +533,7 @@ class CRM_Case_Form_Activity extends CRM_Activity_Form_Activity {
       }
       // copy files attached to old activity if any, to new one,
       // as long as users have not selected the 'delete attachment' option.
-      if (empty($newActParams['is_delete_attachment'])) {
+      if (empty($newActParams['is_delete_attachment']) && ($this->_activityId != $activity->id)) {
         CRM_Core_BAO_File::copyEntityFile('civicrm_activity', $this->_activityId,
           'civicrm_activity', $activity->id
         );

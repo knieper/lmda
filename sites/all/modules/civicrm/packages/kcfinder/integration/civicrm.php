@@ -1,9 +1,9 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.7                                                |
+ | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2019                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -31,7 +31,7 @@
  * Ckeditor and tinyMCE
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2019
  * $Id$
  *
  */
@@ -56,6 +56,9 @@ function checkAuthentication() {
     case 'Drupal':
     case 'Drupal6':
       $auth_function = 'authenticate_drupal';
+      break;
+    case 'Backdrop':
+      $auth_function = 'authenticate_backdrop';
       break;
     case 'Joomla':
       $auth_function = 'authenticate_joomla';
@@ -102,6 +105,39 @@ function authenticate_drupal($config) {
   CRM_Utils_System::loadBootStrap(CRM_Core_DAO::$_nullArray,true,false);
 
   // check if user has access permission...
+  if (CRM_Core_Permission::check('access CiviCRM')) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * If the user is already logged into Backdrop, bootstrap
+ * Backdrop with this user's permissions.
+ */
+function authenticate_backdrop($config) {
+  global $base_url;
+  $base_root = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+  $base_url = $base_root .= '://'. preg_replace('/[^a-z0-9-:._]/i', '', $_SERVER['HTTP_HOST']);
+
+  if ($dir = trim(dirname($_SERVER['SCRIPT_NAME']), '\,/')) {
+    $base_path = "/$dir";
+    $base_url .= $base_path;
+  }
+
+  // Correct base_url so it points to Backdrop root.
+  $pos = strpos($base_url, '/sites/');
+  if ($pos === FALSE) {
+    $pos = strpos($base_url, '/profiles/');
+  }
+  if ($pos === FALSE) {
+    $pos = strpos($base_url, '/modules/');
+  }
+  $base_url = substr($base_url, 0, $pos); // Backdrop root absolute url
+
+  CRM_Utils_System::loadBootStrap(CRM_Core_DAO::$_nullArray, true, false);
+
+  // Check if user has access permission.
   if (CRM_Core_Permission::check('access CiviCRM')) {
     return true;
   }
