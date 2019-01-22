@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2018                                |
+ | Copyright CiviCRM LLC (c) 2004-2019                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2018
+ * @copyright CiviCRM LLC (c) 2004-2019
  */
 
 /**
@@ -615,6 +615,7 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
       $blocks['Address'] = $otherEditOptions['Address'];
     }
 
+    $website_types = array();
     $openIds = array();
     $primaryID = FALSE;
     foreach ($blocks as $name => $label) {
@@ -629,8 +630,17 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
           }
 
           if ($dataExists) {
-            // skip remaining checks for website
             if ($name == 'website') {
+              if (!empty($blockValues['website_type_id'])) {
+                if (empty($website_types[$blockValues['website_type_id']])) {
+                  $website_types[$blockValues['website_type_id']] = $blockValues['website_type_id'];
+                }
+                else {
+                  $errors["{$name}[1][website_type_id]"] = ts('Contacts may only have one website of each type at most.');
+                }
+              }
+
+              // skip remaining checks for website
               continue;
             }
 
@@ -714,7 +724,7 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
     }
 
     // Check for duplicate contact if it wasn't already handled by ajax or disabled
-    if (!Civi::settings()->get('contact_ajax_check_similar')) {
+    if (!Civi::settings()->get('contact_ajax_check_similar') || !empty($fields['_qf_Contact_refresh_dedupe'])) {
       self::checkDuplicateContacts($fields, $errors, $contactId, $contactType);
     }
 
@@ -760,7 +770,7 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
     $className::buildQuickForm($this);
 
     // Ajax duplicate checking
-    $checkSimilar = $this->_action == CRM_Core_Action::ADD && Civi::settings()->get('contact_ajax_check_similar');
+    $checkSimilar = Civi::settings()->get('contact_ajax_check_similar');
     $this->assign('checkSimilar', $checkSimilar);
     if ($checkSimilar == 1) {
       $ruleParams = array('used' => 'Supervised', 'contact_type' => $this->_contactType);
@@ -1004,11 +1014,10 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
 
     if (array_key_exists('TagsAndGroups', $this->_editOptions)) {
       //add contact to tags
-      if (isset($params['tag']) && !empty($params['tag'])) {
+      if (isset($params['tag'])) {
         $params['tag'] = array_flip(explode(',', $params['tag']));
         CRM_Core_BAO_EntityTag::create($params['tag'], 'civicrm_contact', $params['contact_id']);
       }
-
       //save free tags
       if (isset($params['contact_taglist']) && !empty($params['contact_taglist'])) {
         CRM_Core_Form_Tag::postProcess($params['contact_taglist'], $params['contact_id'], 'civicrm_contact', $this);
@@ -1461,7 +1470,7 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
           'max_related' => $dao->max_related,
         );
 
-        CRM_Member_BAO_MembershipLog::add($membershipLog, CRM_Core_DAO::$_nullArray);
+        CRM_Member_BAO_MembershipLog::add($membershipLog);
 
         //create activity when membership status is changed
         $activityParam = array(

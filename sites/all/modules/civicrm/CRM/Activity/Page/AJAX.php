@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2018                                |
+ | Copyright CiviCRM LLC (c) 2004-2019                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2018
+ * @copyright CiviCRM LLC (c) 2004-2019
  *
  */
 
@@ -48,8 +48,9 @@ class CRM_Activity_Page_AJAX {
       'status_id' => 'Integer',
       'activity_deleted' => 'Boolean',
       'activity_type_id' => 'Integer',
-      'activity_date_low' => 'Date',
-      'activity_date_high' => 'Date',
+      // "Date" validation fails because it expects only numbers with no hyphens
+      'activity_date_low' => 'Alphanumeric',
+      'activity_date_high' => 'Alphanumeric',
     );
 
     $params = CRM_Core_Page_AJAX::defaultSortAndPagerParams();
@@ -302,8 +303,8 @@ class CRM_Activity_Page_AJAX {
     $mainActivity->activity_date_time = $actDateTime;
     // Make sure this is current revision.
     $mainActivity->is_current_revision = TRUE;
-    // Drop all relations.
-    $mainActivity->parent_id = $mainActivity->original_id = NULL;
+    $mainActivity->original_id = $otherActivity->id;
+    $otherActivity->is_current_revision = FALSE;
 
     $mainActivity->save();
     $mainActivityId = $mainActivity->id;
@@ -327,7 +328,6 @@ class CRM_Activity_Page_AJAX {
           1 => $params['caseID'],
         )) . ' ' . $otherActivity->subject;
       }
-      $otherActivity->activity_date_time = $actDateTime;
       $otherActivity->save();
 
       $caseActivity->free();
@@ -454,11 +454,7 @@ class CRM_Activity_Page_AJAX {
         }
       }
 
-      /**
-       * @var \Civi\Core\SettingsBag $cSettings
-       */
-      $cSettings = Civi::service('settings_manager')->getBagByContact(CRM_Core_Config::domainID(), $userID);
-      $cSettings->set('activity_tab_filter', $activityFilter);
+      Civi::contactSettings()->set('activity_tab_filter', $activityFilter);
     }
     if (!empty($_GET['is_unit_test'])) {
       return array($activities, $activityFilter);

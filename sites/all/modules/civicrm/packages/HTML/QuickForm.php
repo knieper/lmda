@@ -17,9 +17,9 @@
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Alexey Borzov <avb@php.net>
- * @copyright   2001-2009 The PHP Group
+ * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id: QuickForm.php,v 1.166 2009/04/04 21:34:02 avb Exp $
+ * @version     CVS: $Id$
  * @link        http://pear.php.net/package/HTML_QuickForm
  */
 
@@ -31,6 +31,10 @@ require_once 'PEAR.php';
  * Base class for all HTML classes
  */
 require_once 'HTML/Common.php';
+/**
+ * Static utility methods
+ */
+require_once 'HTML/QuickForm/utils.php';
 
 /**
  * Element types known to HTML_QuickForm
@@ -120,7 +124,7 @@ define('QUICKFORM_INVALID_DATASOURCE',     -9);
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
  * @author      Alexey Borzov <avb@php.net>
- * @version     Release: 3.2.11
+ * @version     Release: 3.2.16
  */
 class HTML_QuickForm extends HTML_Common
 {
@@ -854,11 +858,11 @@ class HTML_QuickForm extends HTML_Common
             $base = substr($elementName, 0, $pos);
             $idx = explode('][', str_replace(["['", "']", '["', '"]'], ['[', ']', '[', ']'], substr($elementName, $pos + 1, -1)));
             if (isset($this->_submitValues[$base])) {
-                $value = CRM_Utils_Array::recursiveValue($this->_submitValues[$base], $idx);
+                $value = CRM_Utils_Array::pathGet($this->_submitValues[$base], $idx);
             }
 
             if ((is_array($value) || null === $value) && isset($this->_submitFiles[$base])) {
-                if (!CRM_Utils_Array::recursiveIsset($this->_submitFiles[$base], array_merge(['name'], $idx))) {
+                if (!CRM_Utils_Array::pathIsset($this->_submitFiles[$base], array_merge(['name'], $idx))) {
                     $fileValue = NULL;
                 }
                 else {
@@ -867,7 +871,7 @@ class HTML_QuickForm extends HTML_Common
                     foreach ($props as $prop) {
                         $fileValue = HTML_QuickForm::arrayMerge(
                           $fileValue,
-                          $this->_reindexFiles(CRM_Utils_Array::recursiveValue($this->_submitFiles[$base], array_merge([$prop], $idx)), $prop)
+                          $this->_reindexFiles(CRM_Utils_Array::pathGet($this->_submitFiles[$base], array_merge([$prop], $idx)), $prop)
                         );
                     }
                 }
@@ -1264,7 +1268,7 @@ class HTML_QuickForm extends HTML_Common
                         $this->_submitValues[$elName] = $this->_recursiveFilter($filter, $value);
                     } else {
                         $keys = explode('[', trim(str_replace(["['", "']", '["', '"]'], ['[', '', '[', ''], $elName), ']['));
-                        $this->_submitValues = CRM_Utils_Array::recursiveBuild($keys, $this->_recursiveFilter($filter, $value), $this->_submitValues);
+                        CRM_Utils_Array::pathSet($this->_submitValues, $keys, $this->_recursiveFilter($filter, $value));
                     }
                 }
             }
@@ -1549,7 +1553,7 @@ class HTML_QuickForm extends HTML_Common
                             $base = substr($target, 0, $pos);
                             $idx = explode('][', str_replace(["['", "']", '["', '"]'], ['[', ']', '[', ']'], substr($target, $pos + 1, -1)));
                             $idx = array_merge([$base, 'name'], $idx);
-                            $isUpload = CRM_Utils_Array::recursiveIsset($this->_submitFiles, $idx);
+                            $isUpload = CRM_Utils_Array::pathIsset($this->_submitFiles, $idx);
                         }
                         if ($isUpload && (!isset($submitValue['error']) || UPLOAD_ERR_NO_FILE == $submitValue['error'])) {
                             continue 2;
@@ -2054,7 +2058,7 @@ class HTML_QuickForm extends HTML_Common
  * @package     HTML_QuickForm
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @author      Bertrand Mansion <bmansion@mamasam.com>
- * @version     Release: 3.2.11
+ * @version     Release: 3.2.16
  */
 class HTML_QuickForm_Error extends PEAR_Error {
 
