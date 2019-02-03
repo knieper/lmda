@@ -2,7 +2,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2018                                |
+ | Copyright CiviCRM LLC (c) 2004-2019                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -115,6 +115,13 @@
                 <br />
                 {ts 1='href="https://developers.google.com/recaptcha/docs/display#config" target="_blank"'}Check the available options at <a %1>Customizing the Look and Feel of reCAPTCHA</a>.{/ts}
               </span>
+            </td>
+        </tr>
+        <tr class="crm-miscellaneous-form-block-recaptchaPrivateKey">
+            <td class="label">{$form.forceRecaptcha.label}</td>
+            <td>
+              {$form.forceRecaptcha.html}
+              <p class="description">{ts}If enabled, reCAPTCHA will show on all contribution pages.{/ts}</p>
             </td>
         </tr>
         </table>
