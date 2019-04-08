@@ -1146,7 +1146,8 @@ abstract class CRM_Core_Payment {
       array(),
       TRUE,
       NULL,
-      FALSE
+      FALSE,
+      TRUE
     );
     return (stristr($url, '.')) ? $url : '';
   }
@@ -1465,6 +1466,9 @@ abstract class CRM_Core_Payment {
     // Set URL
     switch ($action) {
       case 'cancel':
+        if (!$this->supports('cancelRecurring')) {
+          return NULL;
+        }
         $url = 'civicrm/contribute/unsubscribe';
         break;
 
@@ -1477,6 +1481,9 @@ abstract class CRM_Core_Payment {
         break;
 
       case 'update':
+        if (!$this->supports('changeSubscriptionAmount') && !$this->supports('editRecurringContribution')) {
+          return NULL;
+        }
         $url = 'civicrm/contribute/updaterecur';
         break;
     }

@@ -53,6 +53,13 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
   protected $_oid;
 
   /**
+   * Array of Money fields
+   *
+   * @var array
+   */
+  protected $_moneyFields = ['amount', 'non_deductible_amount'];
+
+  /**
    * Set variables up before form is built.
    *
    * @return void
@@ -85,7 +92,9 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
       CRM_Price_BAO_PriceFieldValue::retrieve($params, $defaults);
 
       // fix the display of the monetary value, CRM-4038
-      $defaults['value'] = CRM_Utils_Money::format(CRM_Utils_Array::value('value', $defaults), NULL, '%a');
+      foreach ($this->_moneyFields as $field) {
+        $defaults[$field] = CRM_Utils_Money::format(CRM_Utils_Array::value($field, $defaults), NULL, '%a');
+      }
     }
 
     $memberComponentId = CRM_Core_Component::getComponentID('CiviMember');
@@ -167,7 +176,7 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
           '' => ' ',
         ) + $membershipTypes, FALSE,
         array('onClick' => "calculateRowValues( );"));
-        $this->add('text', 'membership_num_terms', ts('Number of Terms'), $attributes['membership_num_terms']);
+        $this->add('number', 'membership_num_terms', ts('Number of Terms'), $attributes['membership_num_terms']);
       }
       else {
         $allComponents = explode(CRM_Core_DAO::VALUE_SEPARATOR, $extendComponentId);
@@ -175,10 +184,10 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
         if (in_array($eventComponentId, $allComponents)) {
           $this->isEvent = TRUE;
           // count
-          $this->add('text', 'count', ts('Participant Count'));
+          $this->add('number', 'count', ts('Participant Count'));
           $this->addRule('count', ts('Please enter a valid Max Participants.'), 'positiveInteger');
 
-          $this->add('text', 'max_value', ts('Max Participants'));
+          $this->add('number', 'max_value', ts('Max Participants'));
           $this->addRule('max_value', ts('Please enter a valid Max Participants.'), 'positiveInteger');
         }
 
@@ -223,7 +232,7 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
       $this->add('textarea', 'help_post', ts('Post Option Help'));
 
       // weight
-      $this->add('text', 'weight', ts('Order'), NULL, TRUE);
+      $this->add('number', 'weight', ts('Order'), NULL, TRUE);
       $this->addRule('weight', ts('is a numeric field'), 'numeric');
 
       // is active ?
@@ -339,7 +348,9 @@ class CRM_Price_Form_Option extends CRM_Core_Form {
       $params = $this->controller->exportValues('Option');
       $fieldLabel = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceField', $this->_fid, 'label');
 
-      $params['amount'] = CRM_Utils_Rule::cleanMoney(trim($params['amount']));
+      foreach ($this->_moneyFields as $field) {
+        $params[$field] = CRM_Utils_Rule::cleanMoney(trim($params[$field]));
+      }
       $params['price_field_id'] = $this->_fid;
       $params['is_default'] = CRM_Utils_Array::value('is_default', $params, FALSE);
       $params['is_active'] = CRM_Utils_Array::value('is_active', $params, FALSE);

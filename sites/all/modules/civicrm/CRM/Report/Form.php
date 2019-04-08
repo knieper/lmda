@@ -1633,6 +1633,7 @@ class CRM_Report_Form extends CRM_Core_Form {
           )),
         ),
       );
+      unset($actions['report_instance.delete']);
     }
 
     if (!$this->_csvSupported) {
@@ -2864,7 +2865,16 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
     $this->storeGroupByArray();
 
     if (!empty($this->_groupByArray)) {
-      $this->_groupBy = CRM_Contact_BAO_Query::getGroupByFromSelectColumns($this->_selectClauses, $this->_groupByArray);
+      if ($this->optimisedForOnlyFullGroupBy) {
+        // We should probably deprecate this code path. What happens here is that
+        // the group by is amended to reflect the select columns. This often breaks the
+        // results. Retrofitting group strict group by onto existing report classes
+        // went badly.
+        $this->_groupBy = CRM_Contact_BAO_Query::getGroupByFromSelectColumns($this->_selectClauses, $this->_groupByArray);
+      }
+      else {
+        $this->_groupBy = ' GROUP BY ' . implode($this->_groupByArray);
+      }
     }
   }
 
@@ -4248,6 +4258,47 @@ LEFT JOIN civicrm_contact {$field['alias']} ON {$field['alias']}.id = {$this->_a
   }
 
   /**
+   * Add campaign fields.
+   *
+   * @param bool $groupBy
+   *   Add GroupBy? Not appropriate for detail report.
+   * @param bool $orderBy
+   *   Add OrderBy? Not appropriate for detail report.
+   * @param bool $filters
+   *
+   */
+  public function addCampaignFields($entityTable = 'civicrm_contribution', $groupBy = FALSE, $orderBy = FALSE, $filters = TRUE) {
+    // Check if CiviCampaign is a) enabled and b) has active campaigns
+    $config = CRM_Core_Config::singleton();
+    $campaignEnabled = in_array('CiviCampaign', $config->enableComponents);
+    if ($campaignEnabled) {
+      $getCampaigns = CRM_Campaign_BAO_Campaign::getPermissionedCampaigns(NULL, NULL, FALSE, FALSE, TRUE);
+      // If we have a campaign, build out the relevant elements
+      if (!empty($getCampaigns['campaigns'])) {
+        $this->campaigns = $getCampaigns['campaigns'];
+        asort($this->campaigns);
+        $this->_columns[$entityTable]['fields']['campaign_id'] = array('title' => ts('Campaign'), 'default' => 'false');
+        if ($filters) {
+          $this->_columns[$entityTable]['filters']['campaign_id'] = array(
+            'title' => ts('Campaign'),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => $this->campaigns,
+            'type' => CRM_Utils_Type::T_INT,
+          );
+        }
+
+        if ($groupBy) {
+          $this->_columns[$entityTable]['group_bys']['campaign_id'] = array('title' => ts('Campaign'));
+        }
+
+        if ($orderBy) {
+          $this->_columns[$entityTable]['order_bys']['campaign_id'] = array('title' => ts('Campaign'));
+        }
+      }
+    }
+  }
+
+  /**
    * Add address fields.
    *
    * @deprecated - use getAddressColumns which is a more accurate description
@@ -4442,8 +4493,8 @@ LEFT JOIN civicrm_contact {$field['alias']} ON {$field['alias']}.id = {$this->_a
             $rows[$rowNum]["{$fieldName}_link"] = $url;
             $rows[$rowNum]["{$fieldName}_hover"] = ts("%1 for this %2.", array(1 => $linkText, 2 => $addressField));
           }
-          $entryFound = TRUE;
         }
+        $entryFound = TRUE;
       }
     }
 
@@ -4783,9 +4834,11 @@ LEFT JOIN civicrm_contact {$field['alias']} ON {$field['alias']}.id = {$this->_a
   /**
    * Get a standard set of contact filters.
    *
+   * @param array $defaults
+   *
    * @return array
    */
-  public function getBasicContactFilters() {
+  public function getBasicContactFilters($defaults = array()) {
     return array(
       'sort_name' => array(
         'title' => ts('Contact Name'),
@@ -4821,7 +4874,7 @@ LEFT JOIN civicrm_contact {$field['alias']} ON {$field['alias']}.id = {$this->_a
       'is_deceased' => array(
         'title' => ts('Deceased'),
         'type' => CRM_Utils_Type::T_BOOLEAN,
-        'default' => 0,
+        'default' => CRM_Utils_Array::value('deceased', $defaults, 0),
       ),
       'do_not_email' => array(
         'title' => ts('Do not email'),

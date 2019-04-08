@@ -1665,12 +1665,13 @@ FROM   civicrm_domain
         }
 
         if ($newData) {
-          foreach ($newData as $k => $v) {
-            $newObject->$k = $v;
-          }
+          $newObject->copyValues($newData);
         }
       }
       $newObject->save();
+      if (!empty($newData['custom'])) {
+        CRM_Core_BAO_CustomValueTable::store($newData['custom'], $newObject::getTableName(), $newObject->id);
+      }
       CRM_Utils_Hook::post('create', CRM_Core_DAO_AllCoreTables::getBriefName($daoName), $newObject->id, $newObject);
     }
 
@@ -2810,6 +2811,24 @@ SELECT contact_id
       default:
         throw new Exception('Unknown serialization method for field.');
     }
+  }
+
+  /**
+   * Get exportable fields with pseudoconstants rendered as an extra field.
+   *
+   * @param string $baoClass
+   *
+   * @return array
+   */
+  public static function getExportableFieldsWithPseudoConstants($baoClass) {
+    if (method_exists($baoClass, 'exportableFields')) {
+      $fields = $baoClass::exportableFields();
+    }
+    else {
+      $fields = $baoClass::export();
+    }
+    CRM_Core_DAO::appendPseudoConstantsToFields($fields);
+    return $fields;
   }
 
 }

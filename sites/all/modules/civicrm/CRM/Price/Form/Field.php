@@ -292,7 +292,7 @@ class CRM_Price_Form_Field extends CRM_Core_Form {
       }
 
       // weight
-      $this->add('text', 'option_weight[' . $i . ']', ts('Order'), $attributes['weight']);
+      $this->add('number', 'option_weight[' . $i . ']', ts('Order'), $attributes['weight']);
 
       // is active ?
       $this->add('checkbox', 'option_status[' . $i . ']', ts('Active?'));
@@ -311,7 +311,7 @@ class CRM_Price_Form_Field extends CRM_Core_Form {
     $this->add('checkbox', 'is_display_amounts', ts('Display Amount?'));
 
     // weight
-    $this->add('text', 'weight', ts('Order'), CRM_Core_DAO::getAttribute('CRM_Price_DAO_PriceField', 'weight'), TRUE);
+    $this->add('number', 'weight', ts('Order'), CRM_Core_DAO::getAttribute('CRM_Price_DAO_PriceField', 'weight'), TRUE);
     $this->addRule('weight', ts('is a numeric field'), 'numeric');
 
     // checkbox / radio options per line
@@ -666,7 +666,6 @@ class CRM_Price_Form_Field extends CRM_Core_Form {
       $params['option_weight'] = array(1 => $params['weight']);
       $params['option_financial_type_id'] = array(1 => $params['financial_type_id']);
       $params['option_visibility_id'] = array(1 => CRM_Utils_Array::value('visibility_id', $params));
-      $params['is_active'] = array(1 => 1);
     }
 
     if ($this->_fid) {
