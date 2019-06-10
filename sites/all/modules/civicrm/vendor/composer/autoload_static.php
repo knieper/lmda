@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
+class ComposerStaticInit188b9eabfe4090f2e62fb6879322428c
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -49,6 +49,7 @@ class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
         ),
         'M' => 
         array (
+            'MimeType\\' => 9,
             'MJS\\TopSort\\Tests\\' => 18,
             'MJS\\TopSort\\' => 12,
         ),
@@ -141,6 +142,10 @@ class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
         array (
             0 => __DIR__ . '/..' . '/phpoffice/common/src/Common',
         ),
+        'MimeType\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/katzien/php-mime-type/src',
+        ),
         'MJS\\TopSort\\Tests\\' => 
         array (
             0 => __DIR__ . '/..' . '/marcj/topsort/tests/Tests',
@@ -229,6 +234,13 @@ class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
                 0 => __DIR__ . '/..' . '/pear/mail',
             ),
         ),
+        'L' => 
+        array (
+            'Log' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/log',
+            ),
+        ),
         'F' => 
         array (
             'File' => 
@@ -310,6 +322,7 @@ class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
         'ezcBaseConfigurationInitializer' => __DIR__ . '/..' . '/zetacomponents/base/src/interfaces/configuration_initializer.php',
         'ezcBaseDoubleClassRepositoryPrefixException' => __DIR__ . '/..' . '/zetacomponents/base/src/exceptions/double_class_repository_prefix.php',
         'ezcBaseException' => __DIR__ . '/..' . '/zetacomponents/base/src/exceptions/exception.php',
+        'ezcBaseExportable' => __DIR__ . '/..' . '/zetacomponents/base/src/interfaces/exportable.php',
         'ezcBaseExtensionNotFoundException' => __DIR__ . '/..' . '/zetacomponents/base/src/exceptions/extension_not_found.php',
         'ezcBaseFeatures' => __DIR__ . '/..' . '/zetacomponents/base/src/features.php',
         'ezcBaseFile' => __DIR__ . '/..' . '/zetacomponents/base/src/file.php',
@@ -373,6 +386,7 @@ class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
         'ezcMailMultipartReportParser' => __DIR__ . '/..' . '/zetacomponents/mail/src/parser/parts/multipart_report_parser.php',
         'ezcMailNoSuchMessageException' => __DIR__ . '/..' . '/zetacomponents/mail/src/exceptions/no_such_message.php',
         'ezcMailOffsetOutOfRangeException' => __DIR__ . '/..' . '/zetacomponents/mail/src/exceptions/offset_out_of_range.php',
+        'ezcMailOptions' => __DIR__ . '/..' . '/zetacomponents/mail/src/options/mail_options.php',
         'ezcMailParser' => __DIR__ . '/..' . '/zetacomponents/mail/src/parser/parser.php',
         'ezcMailParserOptions' => __DIR__ . '/..' . '/zetacomponents/mail/src/options/parser_options.php',
         'ezcMailParserSet' => __DIR__ . '/..' . '/zetacomponents/mail/src/parser/interfaces/parser_set.php',
@@ -418,11 +432,11 @@ class ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInitb6eeee9efd71930d70a508b3cab70b62::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit188b9eabfe4090f2e62fb6879322428c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit188b9eabfe4090f2e62fb6879322428c::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit188b9eabfe4090f2e62fb6879322428c::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit188b9eabfe4090f2e62fb6879322428c::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit188b9eabfe4090f2e62fb6879322428c::$classMap;
 
         }, null, ClassLoader::class);
     }

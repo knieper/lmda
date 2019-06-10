@@ -7,9 +7,6 @@ use Civi\Api4\Query\Api4SelectQuery;
 
 trait DAOActionTrait {
 
-  /* @var array */
-  private $entityFields;
-
   /**
    * @return \CRM_Core_DAO|string
    */
@@ -79,11 +76,24 @@ trait DAOActionTrait {
       $entityId = UtilsArray::value('id', $item);
       FormattingUtil::formatWriteParams($item, $this->getEntityName(), $this->getEntityFields());
       $this->formatCustomParams($item, $entityId);
+      $item['check_permissions'] = $this->getCheckPermissions();
+
+      $apiKeyPermission = $this->getEntityName() != 'Contact' || !$this->getCheckPermissions() || array_key_exists('api_key', $this->getEntityFields())
+        || ($entityId && \CRM_Core_Permission::check('edit own api keys') && \CRM_Core_Session::getLoggedInContactID() == $entityId);
+
+      if (!$apiKeyPermission && array_key_exists('api_key', $item)) {
+        throw new \Civi\API\Exception\UnauthorizedException('Permission denied to modify api key');
+      }
 
       // For some reason the contact bao requires this
       if ($entityId && $this->getEntityName() == 'Contact') {
         $item['contact_id'] = $entityId;
       }
+
+      if ($this->getCheckPermissions() && $entityId) {
+        $this->checkContactPermissions($baoName, $item);
+      }
+
       if (method_exists($baoName, $method)) {
         $createResult = $baoName::$method($item);
       }
@@ -101,7 +111,13 @@ trait DAOActionTrait {
       }
 
       // trim back the junk and just get the array:
-      $result[] = $this->baoToArray($createResult);
+      $resultArray = $this->baoToArray($createResult);
+
+      if (!$apiKeyPermission && array_key_exists('api_key', $resultArray)) {
+        unset($resultArray['api_key']);
+      }
+
+      $result[] = $resultArray;
     }
     return $result;
   }
@@ -124,20 +140,6 @@ trait DAOActionTrait {
     \CRM_Utils_Hook::post($hook, $this->getEntityName(), $instance->id, $instance);
 
     return $instance;
-  }
-
-  /**
-   * Returns schema fields for this entity & action.
-   *
-   * @return array
-   * @throws \API_Exception
-   */
-  public function getEntityFields() {
-    if (!$this->entityFields) {
-      $this->entityFields = civicrm_api4($this->getEntityName(), 'getFields', ['action' => $this->getActionName(), 'includeCustom' => FALSE])
-        ->indexBy('name');
-    }
-    return $this->entityFields;
   }
 
   /**
@@ -200,6 +202,27 @@ trait DAOActionTrait {
 
     if ($customParams) {
       $params['custom'] = $customParams;
+    }
+  }
+
+  /**
+   * Check edit/delete permissions for contacts and related entities.
+   *
+   * @param $baoName
+   * @param $item
+   * @throws \Civi\API\Exception\UnauthorizedException
+   */
+  protected function checkContactPermissions($baoName, $item) {
+    if ($baoName == 'CRM_Contact_BAO_Contact') {
+      $permission = $this->getActionName() == 'delete' ? \CRM_Core_Permission::DELETE : \CRM_Core_Permission::EDIT;
+      if (!\CRM_Contact_BAO_Contact_Permission::allow($item['id'], $permission)) {
+        throw new \Civi\API\Exception\UnauthorizedException('Permission denied to modify contact record');
+      }
+    }
+    else {
+      // Fixme: decouple from v3
+      require_once 'api/v3/utils.php';
+      _civicrm_api3_check_edit_permissions($baoName, ['check_permissions' => 1] + $item);
     }
   }
 
