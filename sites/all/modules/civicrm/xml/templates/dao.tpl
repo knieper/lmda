@@ -1,7 +1,7 @@
 <?php
 /**
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  *
  * Generated from {$table.sourceFile}
  * {$generated}
@@ -30,7 +30,7 @@ class {$table.className} extends CRM_Core_DAO {ldelim}
 {foreach from=$table.fields item=field}
     /**
 {if $field.comment}
-     * {$field.comment}
+     * {$field.comment|regex_replace:"/\n[ ]*/":"\n* "}
      *
 {/if}
      * @var {$field.phpType}
@@ -128,6 +128,9 @@ class {$table.className} extends CRM_Core_DAO {ldelim}
 {if $field.rule}
                       'rule'      => '{$field.rule}',
 {/if} {* field.rule *}
+{if !empty($field.permission)}
+                      'permission'      => {$field.permission|@print_array},
+{/if}
 {if $field.default || $field.default === '0'}
                          'default'   => '{if ($field.default[0]=="'" or $field.default[0]=='"')}{$field.default|substring:1:-1}{else}{$field.default}{/if}',
 {/if} {* field.default *}
@@ -143,6 +146,9 @@ class {$table.className} extends CRM_Core_DAO {ldelim}
 {if $field.serialize}
   'serialize' => self::SERIALIZE_{$field.serialize|strtoupper},
 {/if}
+{if $field.uniqueTitle}
+  'unique_title' => {$tsFunctionName}('{$field.uniqueTitle}'),
+{/if}
 {if $field.html}
   'html' => array(
   {foreach from=$field.html item=val key=key}
@@ -151,7 +157,7 @@ class {$table.className} extends CRM_Core_DAO {ldelim}
   ),
 {/if}
 {if $field.pseudoconstant}
-  'pseudoconstant' => {$field.pseudoconstant|@print_array}
+  'pseudoconstant' => {$field.pseudoconstant|@print_array},
 {/if} {* field.pseudoconstant *}                                                                    ),
 {/foreach} {* table.fields *}
                                       );

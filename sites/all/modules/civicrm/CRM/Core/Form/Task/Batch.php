@@ -1,33 +1,17 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -49,7 +33,9 @@ class CRM_Core_Form_Task_Batch extends CRM_Core_Form_Task {
   protected $_maxFields = 9;
 
   /**
-   * @var array Fields that belong to this UF Group
+   * Fields that belong to this UF Group.
+   *
+   * @var array
    */
   protected $_fields;
 
@@ -131,7 +117,7 @@ class CRM_Core_Form_Task_Batch extends CRM_Core_Form_Task {
     $this->addButtons([
       [
         'type' => 'submit',
-        'name' => ts('Update ' . ucfirst($this::$entityShortname) . 's)'),
+        'name' => ts('Update'),
         'isDefault' => TRUE,
       ],
       [
@@ -173,10 +159,10 @@ class CRM_Core_Form_Task_Batch extends CRM_Core_Form_Task {
     // don't set the status message when form is submitted.
     $buttonName = $this->controller->getButtonName('submit');
     if ($suppressFields && $buttonName != '_qf_Batch_next') {
-      CRM_Core_Session::setStatus(ts("File type field(s) in the selected profile are not supported for Update multiple %1s", [1 => $this::$entityShortname]), ts('Unsupported Field Type'), 'error');
+      CRM_Core_Session::setStatus(ts("File type fields in the selected profile are not supported for Update multiple %1s", [1 => $this::$entityShortname]), ts('Unsupported Field Type'), 'error');
     }
 
-    $this->addDefaultButtons(ts('Update ' . ucfirst($this::$entityShortname) . 's'));
+    $this->addDefaultButtons(ts('Update'));
 
     $taskComponent['lc'] = $this::$entityShortname;
     $taskComponent['ucfirst'] = ucfirst($this::$entityShortname);

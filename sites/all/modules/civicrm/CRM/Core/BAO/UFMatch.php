@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -296,7 +280,7 @@ AND    domain_id = %2
           }
         }
 
-        $contactId = CRM_Contact_BAO_Contact::createProfileContact($params, CRM_Core_DAO::$_nullArray);
+        $contactId = CRM_Contact_BAO_Contact::createProfileContact($params);
         $ufmatch->contact_id = $contactId;
         $ufmatch->uf_name = $uniqId;
       }
@@ -323,7 +307,6 @@ AND    domain_id    = %4
 
       if (!$conflict) {
         $ufmatch = CRM_Core_BAO_UFMatch::create((array) $ufmatch);
-        $ufmatch->free();
         $newContact = TRUE;
         $transaction->commit();
       }
@@ -431,25 +414,23 @@ AND    domain_id    = %4
       $contactDetails = CRM_Contact_BAO_Contact_Location::getEmailDetails($contactId);
 
       if (trim($contactDetails[1])) {
+        //update if record is found but different
         $emailID = $contactDetails[3];
-        //update if record is found
-        $query = "UPDATE  civicrm_email
-                     SET email = %1
-                     WHERE id =  %2";
-        $p = [
-          1 => [$emailAddress, 'String'],
-          2 => [$emailID, 'Integer'],
-        ];
-        $dao = CRM_Core_DAO::executeQuery($query, $p);
+        if (trim($contactDetails[1]) != $emailAddress) {
+          civicrm_api3('Email', 'create', [
+            'id' => $emailID,
+            'email' => $emailAddress,
+          ]);
+        }
       }
       else {
         //else insert a new email record
-        $email = new CRM_Core_DAO_Email();
-        $email->contact_id = $contactId;
-        $email->is_primary = 1;
-        $email->email = $emailAddress;
-        $email->save();
-        $emailID = $email->id;
+        $result = civicrm_api3('Email', 'create', [
+          'contact_id' => $contactId,
+          'email' => $emailAddress,
+          'is_primary' => 1,
+        ]);
+        $emailID = $result->id;
       }
 
       CRM_Core_BAO_Log::register($contactId,
@@ -482,7 +463,7 @@ AND    domain_id    = %4
    * @param int $ufID
    *   Id of UF for which related contact_id is required.
    *
-   * @return int|NULL
+   * @return int|null
    *   contact_id on success, null otherwise
    */
   public static function getContactId($ufID) {
@@ -515,7 +496,7 @@ AND    domain_id    = %4
    * @param int $contactID
    *   ID of the contact for which related uf_id is required.
    *
-   * @return int|NULL
+   * @return int|null
    *   uf_id of the given contact_id on success, null otherwise
    */
   public static function getUFId($contactID) {

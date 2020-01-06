@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -263,6 +247,9 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
     //CRM-16950
     $taxRate = $this->getTaxRateForFinancialType($this->allMembershipTypeDetails[$defaults['membership_type_id']]['financial_type_id']);
 
+    $contactField = $this->addEntityRef('contact_id', ts('Member'), ['create' => TRUE, 'api' => ['extra' => ['email']]], TRUE);
+    $contactField->freeze();
+
     // auto renew options if enabled for the membership
     $options = CRM_Core_SelectValues::memberAutoRenew();
 
@@ -488,6 +475,9 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
    * Process form submission.
    *
    * This function is also accessed by a unit test.
+   *
+   * @throws \CRM_Core_Exception
+   * @throws \CiviCRM_API3_Exception
    */
   protected function submit() {
     $this->storeContactFields($this->_params);
@@ -574,7 +564,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
 
     //if contribution status is pending then set pay later
     $this->_params['is_pay_later'] = FALSE;
-    if ($this->_params['contribution_status_id'] == array_search('Pending', CRM_Contribute_PseudoConstant::contributionStatus())) {
+    if ($this->_params['contribution_status_id'] == array_search('Pending', CRM_Contribute_PseudoConstant::contributionStatus(NULL, 'label'))) {
       $this->_params['is_pay_later'] = 1;
     }
 
@@ -585,12 +575,12 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
       $membershipSource = $this->_params['membership_source'];
     }
 
-    $isPending = ($this->_params['contribution_status_id'] == 2) ? TRUE : FALSE;
-
+    // @todo Move this into CRM_Member_BAO_Membership::processMembership
+    $pending = ($this->_params['contribution_status_id'] == CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending'));
     list($membership) = CRM_Member_BAO_Membership::processMembership(
       $this->_contactID, $this->_params['membership_type_id'][1], $isTestMembership,
       $renewalDate, NULL, $customFieldsFormatted, $numRenewTerms, $this->_membershipId,
-      $isPending,
+      $pending,
       $contributionRecurID, $membershipSource, $this->_params['is_pay_later'], CRM_Utils_Array::value('campaign_id',
       $this->_params)
     );
@@ -651,72 +641,82 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
     }
 
     if (!empty($this->_params['send_receipt'])) {
-
-      $receiptFrom = $this->_params['from_email_address'];
-
-      if (!empty($this->_params['payment_instrument_id'])) {
-        $paymentInstrument = CRM_Contribute_PseudoConstant::paymentInstrument();
-        $this->_params['paidBy'] = $paymentInstrument[$this->_params['payment_instrument_id']];
-      }
-      //get the group Tree
-      $this->_groupTree = CRM_Core_BAO_CustomGroup::getTree('Membership', NULL, $this->_id, FALSE, $this->_memType);
-
-      // retrieve custom data
-      $customFields = $customValues = $fo = [];
-      foreach ($this->_groupTree as $groupID => $group) {
-        if ($groupID == 'info') {
-          continue;
-        }
-        foreach ($group['fields'] as $k => $field) {
-          $field['title'] = $field['label'];
-          $customFields["custom_{$k}"] = $field;
-        }
-      }
-      $members = [['member_id', '=', $this->_membershipId, 0, 0]];
-      // check whether its a test drive
-      if ($this->_mode == 'test') {
-        $members[] = ['member_test', '=', 1, 0, 0];
-      }
-      CRM_Core_BAO_UFGroup::getValues($this->_contactID, $customFields, $customValues, FALSE, $members);
-
-      $this->assign_by_ref('formValues', $this->_params);
-      if (!empty($this->_params['contribution_id'])) {
-        $this->assign('contributionID', $this->_params['contribution_id']);
-      }
-
-      $this->assign('membership_name', CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipType',
-        $membership->membership_type_id
-      ));
-      $this->assign('customValues', $customValues);
-      $this->assign('mem_start_date', CRM_Utils_Date::customFormat($membership->start_date));
-      $this->assign('mem_end_date', CRM_Utils_Date::customFormat($membership->end_date));
-      if ($this->_mode) {
-        $this->assign('address', CRM_Utils_Address::getFormattedBillingAddressFieldsFromParameters(
-          $this->_params,
-          $this->_bltID
-        ));
-        $this->assign('contributeMode', 'direct');
-        $this->assign('isAmountzero', 0);
-        $this->assign('is_pay_later', 0);
-        $this->assign('isPrimary', 1);
-        $this->assign('receipt_text_renewal', $this->_params['receipt_text']);
-        if ($this->_mode == 'test') {
-          $this->assign('action', '1024');
-        }
-      }
-
-      list($this->isMailSent) = CRM_Core_BAO_MessageTemplate::sendTemplate(
-        [
-          'groupName' => 'msg_tpl_workflow_membership',
-          'valueName' => 'membership_offline_receipt',
-          'contactId' => $this->_receiptContactId,
-          'from' => $receiptFrom,
-          'toName' => $this->_contributorDisplayName,
-          'toEmail' => $this->_contributorEmail,
-          'isTest' => $this->_mode == 'test',
-        ]
-      );
+      $this->sendReceipt($membership);
     }
+  }
+
+  /**
+   * Send a receipt.
+   *
+   * @param array $membership
+   *
+   * @throws \CRM_Core_Exception
+   */
+  protected function sendReceipt($membership) {
+    $receiptFrom = $this->_params['from_email_address'];
+
+    if (!empty($this->_params['payment_instrument_id'])) {
+      $paymentInstrument = CRM_Contribute_PseudoConstant::paymentInstrument();
+      $this->_params['paidBy'] = $paymentInstrument[$this->_params['payment_instrument_id']];
+    }
+    //get the group Tree
+    $this->_groupTree = CRM_Core_BAO_CustomGroup::getTree('Membership', NULL, $this->_id, FALSE, $this->_memType);
+
+    // retrieve custom data
+    $customFields = $customValues = $fo = [];
+    foreach ($this->_groupTree as $groupID => $group) {
+      if ($groupID == 'info') {
+        continue;
+      }
+      foreach ($group['fields'] as $k => $field) {
+        $field['title'] = $field['label'];
+        $customFields["custom_{$k}"] = $field;
+      }
+    }
+    $members = [['member_id', '=', $this->_membershipId, 0, 0]];
+    // check whether its a test drive
+    if ($this->_mode == 'test') {
+      $members[] = ['member_test', '=', 1, 0, 0];
+    }
+    CRM_Core_BAO_UFGroup::getValues($this->_contactID, $customFields, $customValues, FALSE, $members);
+
+    $this->assign_by_ref('formValues', $this->_params);
+    if (!empty($this->_params['contribution_id'])) {
+      $this->assign('contributionID', $this->_params['contribution_id']);
+    }
+
+    $this->assign('membership_name', CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipType',
+      $membership->membership_type_id
+    ));
+    $this->assign('customValues', $customValues);
+    $this->assign('mem_start_date', CRM_Utils_Date::customFormat($membership->start_date));
+    $this->assign('mem_end_date', CRM_Utils_Date::customFormat($membership->end_date));
+    if ($this->_mode) {
+      $this->assign('address', CRM_Utils_Address::getFormattedBillingAddressFieldsFromParameters(
+        $this->_params,
+        $this->_bltID
+      ));
+      $this->assign('contributeMode', 'direct');
+      $this->assign('isAmountzero', 0);
+      $this->assign('is_pay_later', 0);
+      $this->assign('isPrimary', 1);
+      $this->assign('receipt_text_renewal', $this->_params['receipt_text']);
+      if ($this->_mode == 'test') {
+        $this->assign('action', '1024');
+      }
+    }
+
+    list($this->isMailSent) = CRM_Core_BAO_MessageTemplate::sendTemplate(
+      [
+        'groupName' => 'msg_tpl_workflow_membership',
+        'valueName' => 'membership_offline_receipt',
+        'contactId' => $this->_receiptContactId,
+        'from' => $receiptFrom,
+        'toName' => $this->_contributorDisplayName,
+        'toEmail' => $this->_contributorEmail,
+        'isTest' => $this->_mode == 'test',
+      ]
+    );
   }
 
 }

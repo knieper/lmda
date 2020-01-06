@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 require_once 'CRM/Utils/DeprecatedUtils.php';
@@ -30,13 +14,16 @@ require_once 'api/v3/utils.php';
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
  * class to parse contact csv files
  */
 class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
+
+  use CRM_Contact_Import_MetadataTrait;
+
   protected $_mapperKeys = [];
   protected $_mapperLocType = [];
   protected $_mapperPhoneType;
@@ -122,11 +109,11 @@ class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
    * @param array $mapperRelatedContactWebsiteType
    */
   public function __construct(
-    &$mapperKeys, $mapperLocType = [], $mapperPhoneType = [], $mapperImProvider = [], $mapperRelated = [], $mapperRelatedContactType = [], $mapperRelatedContactDetails = [], $mapperRelatedContactLocType = [], $mapperRelatedContactPhoneType = [], $mapperRelatedContactImProvider = [],
+    $mapperKeys, $mapperLocType = [], $mapperPhoneType = [], $mapperImProvider = [], $mapperRelated = [], $mapperRelatedContactType = [], $mapperRelatedContactDetails = [], $mapperRelatedContactLocType = [], $mapperRelatedContactPhoneType = [], $mapperRelatedContactImProvider = [],
     $mapperWebsiteType = [], $mapperRelatedContactWebsiteType = []
   ) {
     parent::__construct();
-    $this->_mapperKeys = &$mapperKeys;
+    $this->_mapperKeys = $mapperKeys;
     $this->_mapperLocType = &$mapperLocType;
     $this->_mapperPhoneType = &$mapperPhoneType;
     $this->_mapperWebsiteType = $mapperWebsiteType;
@@ -146,50 +133,8 @@ class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
    * The initializer code, called before processing.
    */
   public function init() {
-    $contactFields = CRM_Contact_BAO_Contact::importableFields($this->_contactType);
-    // exclude the address options disabled in the Address Settings
-    $fields = CRM_Core_BAO_Address::validateAddressOptions($contactFields);
-
-    //CRM-5125
-    //supporting import for contact subtypes
-    $csType = NULL;
-    if (!empty($this->_contactSubType)) {
-      //custom fields for sub type
-      $subTypeFields = CRM_Core_BAO_CustomField::getFieldsForImport($this->_contactSubType);
-
-      if (!empty($subTypeFields)) {
-        foreach ($subTypeFields as $customSubTypeField => $details) {
-          $fields[$customSubTypeField] = $details;
-        }
-      }
-    }
-
-    //Relationship importables
-    $this->_relationships = $relations
-      = CRM_Contact_BAO_Relationship::getContactRelationshipType(
-        NULL, NULL, NULL, $this->_contactType,
-        FALSE, 'label', TRUE, $this->_contactSubType
-      );
-    asort($relations);
-
-    foreach ($relations as $key => $var) {
-      list($type) = explode('_', $key);
-      $relationshipType[$key]['title'] = $var;
-      $relationshipType[$key]['headerPattern'] = '/' . preg_quote($var, '/') . '/';
-      $relationshipType[$key]['import'] = TRUE;
-      $relationshipType[$key]['relationship_type_id'] = $type;
-      $relationshipType[$key]['related'] = TRUE;
-    }
-
-    if (!empty($relationshipType)) {
-      $fields = array_merge($fields, [
-        'related' => [
-          'title' => ts('- related contact info -'),
-        ],
-      ], $relationshipType);
-    }
-
-    foreach ($fields as $name => $field) {
+    $this->setFieldMetadata();
+    foreach ($this->getImportableFieldsMetadata() as $name => $field) {
       $this->addField($name, $field['title'], CRM_Utils_Array::value('type', $field), CRM_Utils_Array::value('headerPattern', $field), CRM_Utils_Array::value('dataPattern', $field), CRM_Utils_Array::value('hasLocationType', $field));
     }
 
@@ -477,6 +422,9 @@ class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
    *
    * @return bool
    *   the result of this processing
+   *
+   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public function import($onDuplicate, &$values, $doGeocodeAddress = FALSE) {
     $config = CRM_Core_Config::singleton();
@@ -505,10 +453,7 @@ class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
       'contact_type' => $this->_contactType,
     ];
 
-    static $contactFields = NULL;
-    if ($contactFields == NULL) {
-      $contactFields = CRM_Contact_DAO_Contact::import();
-    }
+    $contactFields = CRM_Contact_DAO_Contact::import();
 
     //check if external identifier exists in database
     if (!empty($params['external_identifier']) && (!empty($params['id']) || in_array($onDuplicate, [
@@ -1436,7 +1381,6 @@ class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
             }
             break;
 
-          case 'gender':
           case 'gender_id':
             if (!self::checkGender($value)) {
               self::addToErrorMsg(ts('Gender'), $errorMessage);
@@ -2091,6 +2035,15 @@ class CRM_Contact_Import_Parser_Contact extends CRM_Contact_Import_Parser {
 
     return $parserParameters;
 
+  }
+
+  /**
+   * Set field metadata.
+   */
+  protected function setFieldMetadata() {
+    $this->setImportableFieldsMetadata($this->getContactImportMetadata());
+    // Probably no longer needed but here for now.
+    $this->_relationships = $this->getRelationships();
   }
 
 }

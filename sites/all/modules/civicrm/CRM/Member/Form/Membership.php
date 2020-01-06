@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -206,16 +190,12 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
 
   /**
    * Form preProcess function.
-   *
-   * @throws \Exception
    */
   public function preProcess() {
     // This string makes up part of the class names, differentiating them (not sure why) from the membership fields.
     $this->assign('formClass', 'membership');
     parent::preProcess();
-    if ($this->isUpdateToExistingRecurringMembership()) {
-      $this->entityFields['end_date']['is_freeze'] = TRUE;
-    }
+
     // get price set id.
     $this->_priceSetId = CRM_Utils_Array::value('priceSetId', $_GET);
     $this->set('priceSetId', $this->_priceSetId);
@@ -225,7 +205,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
       $contributionID = CRM_Member_BAO_Membership::getMembershipContributionId($this->_id);
       // check delete permission for contribution
       if ($this->_id && $contributionID && !CRM_Core_Permission::checkActionPermission('CiviContribute', $this->_action)) {
-        CRM_Core_Error::fatal(ts("This Membership is linked to a contribution. You must have 'delete in CiviContribute' permission in order to delete this record."));
+        CRM_Core_Error::statusBounce(ts("This Membership is linked to a contribution. You must have 'delete in CiviContribute' permission in order to delete this record."));
       }
     }
 
@@ -245,7 +225,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
           foreach ($contactMemberships as $mem) {
             $mem['member_of_contact_id'] = CRM_Utils_Array::value($mem['membership_type_id'], $memberorgs);
             if (!empty($mem['membership_end_date'])) {
-              $mem['membership_end_date'] = CRM_Utils_Date::customformat($mem['membership_end_date']);
+              $mem['membership_end_date'] = CRM_Utils_Date::customFormat($mem['membership_end_date']);
             }
             $mem['membership_type'] = CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipType',
               $mem['membership_type_id'],
@@ -337,28 +317,16 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
         }
       }
     }
+    else {
+      if ($this->_contactID) {
+        $defaults['contact_id'] = $this->_contactID;
+      }
+    }
 
     //set Soft Credit Type to Gift by default
     $scTypes = CRM_Core_OptionGroup::values("soft_credit_type");
     $defaults['soft_credit_type_id'] = CRM_Utils_Array::value(ts('Gift'), array_flip($scTypes));
 
-    if (!empty($defaults['record_contribution']) && !$this->_mode) {
-      $contributionParams = ['id' => $defaults['record_contribution']];
-      $contributionIds = [];
-
-      //keep main object campaign in hand.
-      $memberCampaignId = CRM_Utils_Array::value('campaign_id', $defaults);
-
-      CRM_Contribute_BAO_Contribution::getValues($contributionParams, $defaults, $contributionIds);
-
-      //get back original object campaign id.
-      $defaults['campaign_id'] = $memberCampaignId;
-
-      // Contribution::getValues() over-writes the membership record's source field value - so we need to restore it.
-      if (!empty($defaults['membership_source'])) {
-        $defaults['source'] = $defaults['membership_source'];
-      }
-    }
     //CRM-13420
     if (empty($defaults['payment_instrument_id'])) {
       $defaults['payment_instrument_id'] = key(CRM_Core_OptionGroup::values('payment_instrument', FALSE, FALSE, FALSE, 'AND is_default = 1'));
@@ -418,7 +386,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
   public function buildQuickForm() {
 
     $this->buildQuickEntityForm();
-    $this->assign('currency', CRM_Core_Config::singleton()->defaultCurrencySymbol);
+    $this->assign('currency', CRM_Core_BAO_Country::defaultCurrencySymbol());
     $isUpdateToExistingRecurringMembership = $this->isUpdateToExistingRecurringMembership();
     // build price set form.
     $buildPriceSet = FALSE;
@@ -493,11 +461,9 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
       return;
     }
 
-    if ($this->_context == 'standalone') {
-      $this->addEntityRef('contact_id', ts('Contact'), [
-        'create' => TRUE,
-        'api' => ['extra' => ['email']],
-      ], TRUE);
+    $contactField = $this->addEntityRef('contact_id', ts('Member'), ['create' => TRUE, 'api' => ['extra' => ['email']]], TRUE);
+    if ($this->_context != 'standalone') {
+      $contactField->freeze();
     }
 
     $selOrgMemType[0][0] = $selMemTypeOrg[0] = ts('- select -');
@@ -1132,20 +1098,21 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
     //take the required membership recur values.
     if ($this->_mode && !empty($formValues['auto_renew'])) {
       $params['is_recur'] = $formValues['is_recur'] = TRUE;
-      $mapping = [
-        'frequency_interval' => 'duration_interval',
-        'frequency_unit' => 'duration_unit',
-      ];
 
       $count = 0;
       foreach ($this->_memTypeSelected as $memType) {
         $recurMembershipTypeValues = CRM_Utils_Array::value($memType,
-          $this->_recurMembershipTypes, []
+          $this->allMembershipTypeDetails, []
         );
-        foreach ($mapping as $mapVal => $mapParam) {
-          $membershipTypeValues[$memType][$mapVal] = CRM_Utils_Array::value($mapParam,
-            $recurMembershipTypeValues
-          );
+        if (!$recurMembershipTypeValues['auto_renew']) {
+          continue;
+        }
+        foreach ([
+          'frequency_interval' => 'duration_interval',
+          'frequency_unit' => 'duration_unit',
+        ] as $mapVal => $mapParam) {
+          $membershipTypeValues[$memType][$mapVal] = $recurMembershipTypeValues[$mapParam];
+
           if (!$count) {
             $formValues[$mapVal] = CRM_Utils_Array::value($mapParam,
               $recurMembershipTypeValues
@@ -1162,10 +1129,16 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
 
     $lineItem = [$this->_priceSetId => []];
 
+    // BEGIN Fix for dev/core/issues/860
+    // Prepare fee block and call buildAmount hook - based on CRM_Price_BAO_PriceSet::buildPriceSet().
+    CRM_Price_BAO_PriceSet::applyACLFinancialTypeStatusToFeeBlock($this->_priceSet['fields']);
+    CRM_Utils_Hook::buildAmount('membership', $this, $this->_priceSet['fields']);
+    // END Fix for dev/core/issues/860
+
     CRM_Price_BAO_PriceSet::processAmount($this->_priceSet['fields'],
       $formValues, $lineItem[$this->_priceSetId], NULL, $this->_priceSetId);
 
-    if (CRM_Utils_Array::value('tax_amount', $formValues)) {
+    if (!empty($formValues['tax_amount'])) {
       $params['tax_amount'] = $formValues['tax_amount'];
     }
     $params['total_amount'] = CRM_Utils_Array::value('amount', $formValues);
@@ -1418,7 +1391,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
         $paymentParams['contributionTypeID'] = $contribution->financial_type_id;
         $paymentParams['contributionPageID'] = $contribution->contribution_page_id;
         $paymentParams['contributionRecurID'] = $contribution->contribution_recur_id;
-        $ids['contribution'] = $contribution->id;
+        $params['contribution_id'] = $paymentParams['contributionID'];
         $params['contribution_recur_id'] = $paymentParams['contributionRecurID'];
       }
       $paymentStatus = NULL;
@@ -1522,6 +1495,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
           unset($membershipParams['lineItems']);
         }
         $membershipParams['payment_instrument_id'] = $paymentInstrumentID;
+        // @todo stop passing $ids (membership and userId only are set above)
         $membership = CRM_Member_BAO_Membership::create($membershipParams, $ids);
         $params['contribution'] = CRM_Utils_Array::value('contribution', $membershipParams);
         unset($params['lineItems']);
@@ -1618,7 +1592,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
           if (!empty($softParams)) {
             $membershipParams['soft_credit'] = $softParams;
           }
-
+          // @todo stop passing $ids (membership and userId only are set above)
           $membership = CRM_Member_BAO_Membership::create($membershipParams, $ids);
           $params['contribution'] = CRM_Utils_Array::value('contribution', $membershipParams);
           unset($params['lineItems']);
@@ -1738,7 +1712,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
     // if selected membership doesn't match with earlier membership
       !in_array($this->_memType, $this->_memTypeSelected)
     ) {
-      if (CRM_Utils_Array::value('is_recur', $inputParams)) {
+      if (!empty($inputParams['is_recur'])) {
         CRM_Core_Session::setStatus(ts('Associated recurring contribution cannot be updated on membership type change.', ts('Error'), 'error'));
         return;
       }

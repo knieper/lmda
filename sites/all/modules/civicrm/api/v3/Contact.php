@@ -1,28 +1,12 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-  +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
@@ -65,18 +49,6 @@ function civicrm_api3_contact_create($params) {
   $values = _civicrm_api3_contact_check_params($params);
   if ($values) {
     return $values;
-  }
-
-  if (array_key_exists('api_key', $params) && !empty($params['check_permissions'])) {
-    if (CRM_Core_Permission::check('edit api keys') || CRM_Core_Permission::check('administer CiviCRM')) {
-      // OK
-    }
-    elseif ($contactID && CRM_Core_Permission::check('edit own api keys') && CRM_Core_Session::singleton()->get('userID') == $contactID) {
-      // OK
-    }
-    else {
-      throw new \Civi\API\Exception\UnauthorizedException('Permission denied to modify api key');
-    }
   }
 
   if (!$contactID) {
@@ -129,8 +101,6 @@ function civicrm_api3_contact_create($params) {
     _civicrm_api3_object_to_array_unique_fields($contact, $values[$contact->id]);
   }
 
-  $values = _civicrm_api3_contact_formatResult($params, $values);
-
   return civicrm_api3_create_success($values, $params, 'Contact', 'create');
 }
 
@@ -177,42 +147,17 @@ function _civicrm_api3_contact_create_spec(&$params) {
  *
  * @return array
  *   API Result Array
+ *
+ * @throws \API_Exception
  */
 function civicrm_api3_contact_get($params) {
   $options = [];
   _civicrm_api3_contact_get_supportanomalies($params, $options);
   $contacts = _civicrm_api3_get_using_query_object('Contact', $params, $options);
-  $contacts = _civicrm_api3_contact_formatResult($params, $contacts);
-  return civicrm_api3_create_success($contacts, $params, 'Contact');
-}
-
-/**
- * Filter the result.
- *
- * @param array $result
- *
- * @return array
- * @throws \CRM_Core_Exception
- */
-function _civicrm_api3_contact_formatResult($params, $result) {
-  $apiKeyPerms = ['edit api keys', 'administer CiviCRM'];
-  $allowApiKey = empty($params['check_permissions']) || CRM_Core_Permission::check([$apiKeyPerms]);
-  if (!$allowApiKey) {
-    if (is_array($result)) {
-      // Single-value $result
-      if (isset($result['api_key'])) {
-        unset($result['api_key']);
-      }
-
-      // Multi-value $result
-      foreach ($result as $key => $row) {
-        if (is_array($row)) {
-          unset($result[$key]['api_key']);
-        }
-      }
-    }
+  if (!empty($params['check_permissions'])) {
+    CRM_Contact_BAO_Contact::unsetProtectedFields($contacts);
   }
-  return $result;
+  return civicrm_api3_create_success($contacts, $params, 'Contact');
 }
 
 /**
@@ -423,6 +368,11 @@ function _civicrm_api3_contact_get_spec(&$params) {
  *   Array of options (so we can modify the filter).
  */
 function _civicrm_api3_contact_get_supportanomalies(&$params, &$options) {
+  if (!empty($params['email']) && !is_array($params['email'])) {
+    // Fix this to be in array format so the query object does not add LIKE
+    // I think there is a better fix that I will do for master.
+    $params['email'] = ['=' => $params['email']];
+  }
   if (isset($params['showAll'])) {
     if (strtolower($params['showAll']) == "active") {
       $params['contact_is_deleted'] = 0;
@@ -807,6 +757,10 @@ function civicrm_api3_contact_getquick($params) {
     // Unique name contact_id = id
     if ($field_name == 'contact_id') {
       $field_name = 'id';
+    }
+    // core#1420 : trim non-numeric character from phone search string
+    elseif ($field_name == 'phone_numeric') {
+      $name = preg_replace('/[^\d]/', '', $name);
     }
     if (isset($table_names[$field_name])) {
       $table_name = $table_names[$field_name];
@@ -1213,22 +1167,75 @@ function civicrm_api3_contact_merge($params) {
  */
 function _civicrm_api3_contact_merge_spec(&$params) {
   $params['to_remove_id'] = [
-    'title' => 'ID of the contact to merge & remove',
-    'description' => ts('Wow - these 2 params are the logical reverse of what I expect - but what to do?'),
+    'title' => ts('ID of the contact to merge & remove'),
+    'description' => ts('Wow - these 2 aliased params are the logical reverse of what I expect - but what to do?'),
     'api.required' => 1,
     'type' => CRM_Utils_Type::T_INT,
     'api.aliases' => ['main_id'],
   ];
   $params['to_keep_id'] = [
-    'title' => 'ID of the contact to keep',
-    'description' => ts('Wow - these 2 params are the logical reverse of what I expect - but what to do?'),
+    'title' => ts('ID of the contact to keep'),
+    'description' => ts('Wow - these 2 aliased params are the logical reverse of what I expect - but what to do?'),
     'api.required' => 1,
     'type' => CRM_Utils_Type::T_INT,
     'api.aliases' => ['other_id'],
   ];
   $params['mode'] = [
-    // @todo need more detail on what this means.
-    'title' => 'Dedupe mode',
+    'title' => ts('Dedupe mode'),
+    'description' => ts("In 'safe' mode conflicts will result in no merge. In 'aggressive' mode the merge will still proceed (hook dependent)"),
+    'api.default' => 'safe',
+    'options' => ['safe' => ts('Abort on unhandled conflict'), 'aggressive' => ts('Proceed on unhandled conflict. Note hooks may change handling here.')],
+  ];
+}
+
+/**
+ * Determines if given pair of contaacts have conflicts that would affect merging them.
+ *
+ * @param array $params
+ *   Allowed array keys are:
+ *   -int main_id: main contact id with whom merge has to happen
+ *   -int other_id: duplicate contact which would be deleted after merge operation
+ *   -string mode: "safe" skips the merge if there are no conflicts. Does a force merge otherwise.
+ *
+ * @return array
+ *   API Result Array
+ *
+ * @throws \CRM_Core_Exception
+ * @throws \CiviCRM_API3_Exception
+ * @throws \API_Exception
+ */
+function civicrm_api3_contact_get_merge_conflicts($params) {
+  $migrationInfo = [];
+  $result = [];
+  foreach ((array) $params['mode'] as $mode) {
+    $result[$mode]['conflicts'] = CRM_Dedupe_Merger::getConflicts(
+      $migrationInfo,
+      $params['to_remove_id'], $params['to_keep_id'],
+      $mode
+    );
+  }
+  return civicrm_api3_create_success($result, $params);
+}
+
+/**
+ * Adjust metadata for contact_merge api function.
+ *
+ * @param array $params
+ */
+function _civicrm_api3_contact_get_merge_conflicts_spec(&$params) {
+  $params['to_remove_id'] = [
+    'title' => ts('ID of the contact to merge & remove'),
+    'api.required' => 1,
+    'type' => CRM_Utils_Type::T_INT,
+  ];
+  $params['to_keep_id'] = [
+    'title' => ts('ID of the contact to keep'),
+    'api.required' => 1,
+    'type' => CRM_Utils_Type::T_INT,
+  ];
+  $params['mode'] = [
+    'title' => ts('Dedupe mode'),
+    'description' => ts("'safe' or 'aggressive'  - these modes map to the merge actions & may affect resolution done by hooks "),
     'api.default' => 'safe',
   ];
 }

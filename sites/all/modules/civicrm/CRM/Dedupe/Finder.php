@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -51,31 +35,17 @@ class CRM_Dedupe_Finder {
    * @param bool $checkPermissions
    *   Respect logged in user permissions.
    *
-   * @param int $searchLimit
-   *  Limit for the number of contacts to be used for comparison.
-   *  The search methodology finds all matches for the searchedContacts so this limits
-   *  the number of searched contacts, not the matches found.
-   *
    * @return array
    *   Array of (cid1, cid2, weight) dupe triples
    *
-   * @throws CiviCRM_API3_Exception
    * @throws Exception
    */
-  public static function dupes($rgid, $cids = [], $checkPermissions = TRUE, $searchLimit = 0) {
+  public static function dupes($rgid, $cids = [], $checkPermissions = TRUE) {
     $rgBao = new CRM_Dedupe_BAO_RuleGroup();
     $rgBao->id = $rgid;
     $rgBao->contactIds = $cids;
     if (!$rgBao->find(TRUE)) {
-      CRM_Core_Error::fatal("Dedupe rule not found for selected contacts");
-    }
-    if (empty($rgBao->contactIds) && !empty($searchLimit)) {
-      $limitedContacts = civicrm_api3('Contact', 'get', [
-        'return' => 'id',
-        'contact_type' => $rgBao->contact_type,
-        'options' => ['limit' => $searchLimit],
-      ]);
-      $rgBao->contactIds = array_keys($limitedContacts['values']);
+      throw new CRM_Core_Exception('Dedupe rule not found for selected contacts');
     }
 
     $rgBao->fillTable();
@@ -113,6 +83,7 @@ class CRM_Dedupe_Finder {
    *
    * @return array
    *   matching contact ids
+   * @throws \CRM_Core_Exception
    */
   public static function dupesByParams(
     $params,
@@ -144,7 +115,7 @@ class CRM_Dedupe_Finder {
       $rgBao->contact_type = $ctype;
       $rgBao->used = $used;
       if (!$rgBao->find(TRUE)) {
-        CRM_Core_Error::fatal("$used rule for $ctype does not exist");
+        throw new CRM_Core_Exception("$used rule for $ctype does not exist");
       }
     }
 
@@ -181,6 +152,7 @@ class CRM_Dedupe_Finder {
    *
    * @return array
    *   array of (cid1, cid2, weight) dupe triples
+   * @throws \CiviCRM_API3_Exception
    */
   public static function dupesInGroup($rgid, $gid, $searchLimit = 0) {
     $cids = array_keys(CRM_Contact_BAO_Group::getMember($gid, TRUE, $searchLimit));
@@ -201,6 +173,7 @@ class CRM_Dedupe_Finder {
    *
    * @return array
    *   valid $params array for dedupe
+   * @throws \CRM_Core_Exception
    */
   public static function formatParams($fields, $ctype) {
     $flat = [];
@@ -280,7 +253,8 @@ class CRM_Dedupe_Finder {
       $matches = [];
       if (preg_match('/(.*)-(Primary-[\d+])$|(.*)-(\d+|Primary)$/', $key, $matches)) {
         $return = array_values(array_filter($matches));
-        $flat[$return[1]] = $value;
+        // make sure the first occurrence is kept, not the last
+        $flat[$return[1]] = empty($flat[$return[1]]) ? $value : $flat[$return[1]];
         unset($flat[$key]);
       }
     }
@@ -305,7 +279,7 @@ class CRM_Dedupe_Finder {
             }
           }
         }
-        if ($table == 'civicrm_phone') {
+        if ($table === 'civicrm_phone') {
           $fixes = [
             'phone' => 'phone_numeric',
           ];
@@ -339,8 +313,6 @@ class CRM_Dedupe_Finder {
    *   -dstName
    *   -weight
    *   -canMerge
-   *
-   * @throws CRM_Core_Exception
    */
   public static function parseAndStoreDupePairs($foundDupes, $cacheKeyString) {
     $cids = [];
@@ -376,9 +348,8 @@ class CRM_Dedupe_Finder {
       ];
 
       $data = CRM_Core_DAO::escapeString(serialize($row));
-      $values[] = " ( 'civicrm_contact', $dstID, $srcID, '$cacheKeyString', '$data' ) ";
+      CRM_Core_BAO_PrevNextCache::setItem('civicrm_contact', $dstID, $srcID, $cacheKeyString, $data);
     }
-    CRM_Core_BAO_PrevNextCache::setItem($values);
     return $mainContacts;
   }
 

@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -334,9 +318,14 @@ class CRM_Batch_BAO_Batch extends CRM_Batch_DAO_Batch {
         $aid = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Export Accounting Batch');
         $activityParams = ['source_record_id' => $values['id'], 'activity_type_id' => $aid];
         $exportActivity = CRM_Activity_BAO_Activity::retrieve($activityParams, $val);
-        $fid = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_EntityFile', $exportActivity->id, 'file_id', 'entity_id');
-        $fileHash = CRM_Core_BAO_File::generateFileHash($exportActivity->id, $fid);
-        $tokens = array_merge(['eid' => $exportActivity->id, 'fid' => $fid, 'fcs' => $fileHash], $tokens);
+        if ($exportActivity) {
+          $fid = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_EntityFile', $exportActivity->id, 'file_id', 'entity_id');
+          $fileHash = CRM_Core_BAO_File::generateFileHash($exportActivity->id, $fid);
+          $tokens = array_merge(['eid' => $exportActivity->id, 'fid' => $fid, 'fcs' => $fileHash], $tokens);
+        }
+        else {
+          CRM_Utils_Array::remove($newLinks, 'export', 'download');
+        }
       }
       $values['action'] = CRM_Core_Action::formLink(
         $newLinks,
@@ -560,7 +549,6 @@ class CRM_Batch_BAO_Batch extends CRM_Batch_DAO_Batch {
       while ($dao->fetch()) {
         $totals[$dao->batch_id] = (array) $dao;
       }
-      $dao->free();
     }
     return $totals;
   }
@@ -710,15 +698,14 @@ LEFT JOIN civicrm_contribution_soft ON civicrm_contribution_soft.contribution_id
       'contribution_receipt_date_is_not_null',
       'contribution_pcp_made_through_id',
       'contribution_pcp_display_in_roll',
-      'contribution_date_relative',
       'contribution_amount_low',
       'contribution_amount_high',
       'contribution_in_honor_of',
       'contact_tags',
       'group',
-      'contribution_date_relative',
-      'contribution_date_high',
-      'contribution_date_low',
+      'receive_date_relative',
+      'receive_date_high',
+      'receive_date_low',
       'contribution_check_number',
       'contribution_status_id',
       'financial_trxn_card_type_id',
@@ -741,11 +728,11 @@ LEFT JOIN civicrm_contribution_soft ON civicrm_contribution_soft.contribution_id
         if ($field == 'group') {
           $from .= " LEFT JOIN civicrm_group_contact `civicrm_group_contact-{$params[$field]}` ON contact_a.id = `civicrm_group_contact-{$params[$field]}`.contact_id ";
         }
-        if ($field == 'contribution_date_relative') {
+        if ($field == 'receive_date_relative') {
           $relativeDate = explode('.', $params[$field]);
           $date = CRM_Utils_Date::relativeToAbsolute($relativeDate[0], $relativeDate[1]);
-          $values['contribution_date_low'] = $date['from'];
-          $values['contribution_date_high'] = $date['to'];
+          $values['receive_date_low'] = $date['from'];
+          $values['receive_date_high'] = $date['to'];
         }
       }
     }

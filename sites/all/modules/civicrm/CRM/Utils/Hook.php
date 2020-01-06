@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CiviCRM_Hook
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 abstract class CRM_Utils_Hook {
 
@@ -50,7 +34,12 @@ abstract class CRM_Utils_Hook {
   const SUMMARY_REPLACE = 3;
 
   /**
-   * @var ojbect
+   * Object to pass when an object is required to be passed by params.
+   *
+   * This is supposed to be a convenience but note that it is a bad
+   * pattern as it can get contaminated & result in hard-to-diagnose bugs.
+   *
+   * @var null
    */
   public static $_nullObject = NULL;
 
@@ -58,7 +47,7 @@ abstract class CRM_Utils_Hook {
    * We only need one instance of this object. So we use the singleton
    * pattern and cache the instance in this variable
    *
-   * @var object
+   * @var CRM_Utils_Hook
    */
   static private $_singleton = NULL;
 
@@ -82,7 +71,7 @@ abstract class CRM_Utils_Hook {
    *
    * @param bool $fresh
    *
-   * @return self
+   * @return CRM_Utils_Hook
    *   An instance of $config->userHookClass
    */
   public static function singleton($fresh = FALSE) {
@@ -96,6 +85,8 @@ abstract class CRM_Utils_Hook {
 
   /**
    * CRM_Utils_Hook constructor.
+   *
+   * @throws \CRM_Core_Exception
    */
   public function __construct() {
     $this->cache = CRM_Utils_Cache::create([
@@ -168,6 +159,7 @@ abstract class CRM_Utils_Hook {
     // quantities of low-importance data or the table not having an id field, which could cause a fatal error.
     // Instead of not calling any hooks we only call those we know to be frequently important - if a particular extension wanted
     // to avoid this they could do an early return on CRM_Core_Config::singleton()->isUpgradeMode
+    // Futther discussion is happening at https://lab.civicrm.org/dev/core/issues/1460
     $upgradeFriendlyHooks = ['civicrm_alterSettingsFolders', 'civicrm_alterSettingsMetaData', 'civicrm_triggerInfo', 'civicrm_alterLogTables', 'civicrm_container'];
     if (CRM_Core_Config::singleton()->isUpgradeMode() && !in_array($fnSuffix, $upgradeFriendlyHooks)) {
       return;
@@ -181,6 +173,11 @@ abstract class CRM_Utils_Hook {
       return $event->getReturnValues();
     }
     else {
+      // We need to ensure tht we will still run known bootstrap related hooks even if the container is not booted.
+      $prebootContainerHooks = array_merge($upgradeFriendlyHooks, ['civicrm_entityTypes', 'civicrm_config']);
+      if (!\Civi\Core\Container::isContainerBooted() && !in_array($fnSuffix, $prebootContainerHooks)) {
+        return;
+      }
       $count = is_array($names) ? count($names) : $names;
       return $this->invokeViaUF($count, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $fnSuffix);
     }
@@ -239,17 +236,20 @@ abstract class CRM_Utils_Hook {
   }
 
   /**
-   * @param $civiModules
-   * @param $fnSuffix
-   * @param array $numParams
-   * @param $arg1
-   * @param $arg2
-   * @param $arg3
-   * @param $arg4
-   * @param $arg5
-   * @param $arg6
+   * Run hooks.
+   *
+   * @param array $civiModules
+   * @param string $fnSuffix
+   * @param int $numParams
+   * @param mixed $arg1
+   * @param mixed $arg2
+   * @param mixed $arg3
+   * @param mixed $arg4
+   * @param mixed $arg5
+   * @param mixed $arg6
    *
    * @return array|bool
+   * @throws \Exception
    */
   public function runHooks(
     $civiModules, $fnSuffix, $numParams,
@@ -356,6 +356,11 @@ abstract class CRM_Utils_Hook {
    *   the return value is ignored
    */
   public static function pre($op, $objectName, $id, &$params) {
+    // Dev/core#1449 DO not dispatch hook_civicrm_pre if we are in an upgrade as this cases the upgrade to fail
+    // Futher discussion is happening at https://lab.civicrm.org/dev/core/issues/1460
+    if (CRM_Core_Config::singleton()->isUpgradeMode()) {
+      return;
+    }
     $event = new \Civi\Core\Event\PreEvent($op, $objectName, $id, $params);
     \Civi::dispatcher()->dispatch('hook_civicrm_pre', $event);
     return $event->getReturnValues();
@@ -378,6 +383,11 @@ abstract class CRM_Utils_Hook {
    *                           an error message which aborts the operation
    */
   public static function post($op, $objectName, $objectId, &$objectRef = NULL) {
+    // Dev/core#1449 DO not dispatch hook_civicrm_post if we are in an upgrade as this cases the upgrade to fail
+    // Futher discussion is happening at https://lab.civicrm.org/dev/core/issues/1460
+    if (CRM_Core_Config::singleton()->isUpgradeMode()) {
+      return;
+    }
     $event = new \Civi\Core\Event\PostEvent($op, $objectName, $objectId, $objectRef);
     \Civi::dispatcher()->dispatch('hook_civicrm_post', $event);
     return $event->getReturnValues();
@@ -593,6 +603,63 @@ abstract class CRM_Utils_Hook {
   }
 
   /**
+   * A theme is a set of CSS files which are loaded on CiviCRM pages. To register a new
+   * theme, add it to the $themes array. Use these properties:
+   *
+   *  - ext: string (required)
+   *         The full name of the extension which defines the theme.
+   *         Ex: "org.civicrm.themes.greenwich".
+   *  - title: string (required)
+   *         Visible title.
+   *  - help: string (optional)
+   *         Description of the theme's appearance.
+   *  - url_callback: mixed (optional)
+   *         A function ($themes, $themeKey, $cssExt, $cssFile) which returns the URL(s) for a CSS resource.
+   *         Returns either an array of URLs or PASSTHRU.
+   *         Ex: \Civi\Core\Themes\Resolvers::simple (default)
+   *         Ex: \Civi\Core\Themes\Resolvers::none
+   *  - prefix: string (optional)
+   *         A prefix within the extension folder to prepend to the file name.
+   *  - search_order: array (optional)
+   *         A list of themes to search.
+   *         Generally, the last theme should be "*fallback*" (Civi\Core\Themes::FALLBACK).
+   *  - excludes: array (optional)
+   *         A list of files (eg "civicrm:css/bootstrap.css" or "$ext:$file") which should never
+   *         be returned (they are excluded from display).
+   *
+   * @param array $themes
+   *   List of themes, keyed by name.
+   * @return null
+   *   the return value is ignored
+   */
+  public static function themes(&$themes) {
+    return self::singleton()->invoke(1, $themes,
+      self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject,
+      'civicrm_themes'
+    );
+  }
+
+  /**
+   * The activeTheme hook determines which theme is active.
+   *
+   * @param string $theme
+   *   The identifier for the theme. Alterable.
+   *   Ex: 'greenwich'.
+   * @param array $context
+   *   Information about the current page-request. Includes some mix of:
+   *   - page: the relative path of the current Civi page (Ex: 'civicrm/dashboard').
+   *   - themes: an instance of the Civi\Core\Themes service.
+   * @return null
+   *   the return value is ignored
+   */
+  public static function activeTheme(&$theme, $context) {
+    return self::singleton()->invoke(array('theme', 'context'), $theme, $context,
+      self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject,
+      'civicrm_activeTheme'
+    );
+  }
+
+  /**
    * This hook is called for declaring managed entities via API.
    *
    * @param array $entities
@@ -765,6 +832,21 @@ abstract class CRM_Utils_Hook {
   public static function tokens(&$tokens) {
     return self::singleton()->invoke(['tokens'], $tokens,
       self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject, 'civicrm_tokens'
+    );
+  }
+
+  /**
+   * This hook allows modification of the admin panels
+   *
+   * @param array $panels
+   *   Associated array of admin panels
+   *
+   * @return mixed
+   */
+  public static function alterAdminPanel(&$panels) {
+    return self::singleton()->invoke(array('panels'), $panels,
+      self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject, self::$_nullObject,
+      'civicrm_alterAdminPanel'
     );
   }
 
@@ -1286,7 +1368,7 @@ abstract class CRM_Utils_Hook {
    *
    * @return mixed
    */
-  public static function export(&$exportTempTable, &$headerRows, &$sqlColumns, &$exportMode, &$componentTable, &$ids) {
+  public static function export(&$exportTempTable, &$headerRows, &$sqlColumns, $exportMode, $componentTable, $ids) {
     return self::singleton()->invoke(['exportTempTable', 'headerRows', 'sqlColumns', 'exportMode', 'componentTable', 'ids'],
       $exportTempTable, $headerRows, $sqlColumns,
       $exportMode, $componentTable, $ids,
@@ -1879,7 +1961,7 @@ abstract class CRM_Utils_Hook {
   }
 
   /**
-   * @param CRM_Core_ExceptionObject $exception
+   * @param CRM_Core_Exception $exception
    * @param mixed $request
    *   Reserved for future use.
    */
@@ -1891,7 +1973,7 @@ abstract class CRM_Utils_Hook {
   /**
    * This hook is called for declaring managed entities via API.
    *
-   * Note: This is a preboot hook. It will dispatch via the extension/module
+   * Note: This is a pre-boot hook. It will dispatch via the extension/module
    * subsystem but *not* the Symfony EventDispatcher.
    *
    * @param array[] $entityTypes
@@ -2416,9 +2498,10 @@ abstract class CRM_Utils_Hook {
    * @see CRM_Core_Resources::entityRefFilters
    *
    * @param array $filters
+   * @param array $links
    */
-  public static function entityRefFilters(&$filters) {
-    self::singleton()->invoke(['filters'], $filters, self::$_nullObject, self::$_nullObject,
+  public static function entityRefFilters(&$filters, &$links = NULL) {
+    self::singleton()->invoke(['filters', 'links'], $filters, $links, self::$_nullObject,
       self::$_nullObject, self::$_nullObject, self::$_nullObject,
       'civicrm_entityRefFilters'
     );
@@ -2457,7 +2540,7 @@ abstract class CRM_Utils_Hook {
   /**
    * This hook is called before an inbound SMS is processed.
    *
-   * @param \CRM_SMS_MessageObject $message
+   * @param \CRM_SMS_Message $message
    *   An SMS message received
    * @return mixed
    */

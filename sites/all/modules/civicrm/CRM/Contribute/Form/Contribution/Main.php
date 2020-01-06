@@ -1,34 +1,18 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-  +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -335,20 +319,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
       $this->addElement('hidden', "email-{$this->_bltID}", 1);
       $this->add('text', 'total_amount', ts('Total Amount'), ['readonly' => TRUE], FALSE);
     }
-    $pps = [];
-    //@todo - this should be replaced by a check as to whether billing fields are set
-    $onlinePaymentProcessorEnabled = FALSE;
-    if (!empty($this->_paymentProcessors)) {
-      foreach ($this->_paymentProcessors as $key => $name) {
-        if ($name['billing_mode'] == 1) {
-          $onlinePaymentProcessorEnabled = TRUE;
-        }
-        $pps[$key] = $name['name'];
-      }
-    }
-    if (!empty($this->_values['is_pay_later'])) {
-      $pps[0] = $this->_values['pay_later_text'];
-    }
+    $pps = $this->getProcessors();
 
     if (count($pps) > 1) {
       $this->addRadio('payment_processor_id', ts('Payment Method'), $pps,
@@ -361,13 +332,13 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
       $this->addElement('hidden', 'payment_processor_id', $key);
       if ($key === 0) {
         $this->assign('is_pay_later', $this->_values['is_pay_later']);
-        $this->assign('pay_later_text', $this->_values['pay_later_text']);
+        $this->assign('pay_later_text', $this->getPayLaterLabel());
       }
     }
 
     $contactID = $this->getContactID();
     if ($this->getContactID() === 0) {
-      $this->addCidZeroOptions($onlinePaymentProcessorEnabled);
+      $this->addCidZeroOptions();
     }
 
     //build pledge block.
@@ -525,7 +496,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
       ];
       // Add submit-once behavior when confirm page disabled
       if (empty($this->_values['is_confirm_enabled'])) {
-        $submitButton['js'] = ['onclick' => "return submitOnce(this,'" . $this->_name . "','" . ts('Processing') . "');"];
+        $this->submitOnce = TRUE;
       }
       //change button name for updating contribution
       if (!empty($this->_ccid)) {
@@ -631,9 +602,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
   public static function formRule($fields, $files, $self) {
     $errors = [];
     $amount = self::computeAmount($fields, $self->_values);
-    if (CRM_Utils_Array::value('auto_renew', $fields) &&
-      CRM_Utils_Array::value('payment_processor_id', $fields) == 0
-    ) {
+    if (!empty($fields['auto_renew']) && empty($fields['payment_processor_id'])) {
       $errors['auto_renew'] = ts('You cannot have auto-renewal on if you are paying later.');
     }
 
@@ -716,14 +685,13 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
           $is_test
         );
 
-        $errorText = 'Your %1 membership was previously cancelled and can not be renewed online. Please contact the site administrator for assistance.';
         foreach ($self->_values['fee'] as $fieldKey => $fieldValue) {
           if ($fieldValue['html_type'] != 'Text' && CRM_Utils_Array::value('price_' . $fieldKey, $fields)) {
             if (!is_array($fields['price_' . $fieldKey]) && isset($fieldValue['options'][$fields['price_' . $fieldKey]])) {
               if (array_key_exists('membership_type_id', $fieldValue['options'][$fields['price_' . $fieldKey]])
                 && in_array($fieldValue['options'][$fields['price_' . $fieldKey]]['membership_type_id'], $currentMemberships)
               ) {
-                $errors['price_' . $fieldKey] = ts($errorText, [1 => CRM_Member_PseudoConstant::membershipType($fieldValue['options'][$fields['price_' . $fieldKey]]['membership_type_id'])]);
+                $errors['price_' . $fieldKey] = ts('Your %1 membership was previously cancelled and can not be renewed online. Please contact the site administrator for assistance.', [1 => CRM_Member_PseudoConstant::membershipType($fieldValue['options'][$fields['price_' . $fieldKey]]['membership_type_id'])]);
               }
             }
             else {
@@ -732,7 +700,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
                   if (array_key_exists('membership_type_id', $fieldValue['options'][$key])
                     && in_array($fieldValue['options'][$key]['membership_type_id'], $currentMemberships)
                   ) {
-                    $errors['price_' . $fieldKey] = ts($errorText, [1 => CRM_Member_PseudoConstant::membershipType($fieldValue['options'][$key]['membership_type_id'])]);
+                    $errors['price_' . $fieldKey] = ts('Your %1 membership was previously cancelled and can not be renewed online. Please contact the site administrator for assistance.', [1 => CRM_Member_PseudoConstant::membershipType($fieldValue['options'][$key]['membership_type_id'])]);
                   }
                 }
               }
@@ -877,15 +845,13 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
     //CRM-16285 - Function to handle validation errors on form, for recurring contribution field.
     CRM_Contribute_BAO_ContributionRecur::validateRecurContribution($fields, $files, $self, $errors);
 
-    if (!empty($fields['is_recur']) &&
-      CRM_Utils_Array::value('payment_processor_id', $fields) == 0
-    ) {
+    if (!empty($fields['is_recur']) && empty($fields['payment_processor_id'])) {
       $errors['_qf_default'] = ts('You cannot set up a recurring contribution if you are not paying online by credit card.');
     }
 
     // validate PCP fields - if not anonymous, we need a nick name value
     if ($self->_pcpId && !empty($fields['pcp_display_in_roll']) &&
-      (CRM_Utils_Array::value('pcp_is_anonymous', $fields) == 0) &&
+      empty($fields['pcp_is_anonymous']) &&
       CRM_Utils_Array::value('pcp_roll_nickname', $fields) == ''
     ) {
       $errors['pcp_roll_nickname'] = ts('Please enter a name to include in the Honor Roll, or select \'contribute anonymously\'.');
@@ -916,13 +882,13 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
           $errors['pledge_installments'] = ts('Please enter a valid number of pledge installments.');
         }
         else {
-          if (CRM_Utils_Array::value('pledge_installments', $fields) == NULL) {
+          if (!isset($fields['pledge_installments'])) {
             $errors['pledge_installments'] = ts('Pledge Installments is required field.');
           }
           elseif (CRM_Utils_Array::value('pledge_installments', $fields) == 1) {
             $errors['pledge_installments'] = ts('Pledges consist of multiple scheduled payments. Select one-time contribution if you want to make your gift in a single payment.');
           }
-          elseif (CRM_Utils_Array::value('pledge_installments', $fields) == 0) {
+          elseif (empty($fields['pledge_installments'])) {
             $errors['pledge_installments'] = ts('Pledge Installments field must be > 1.');
           }
         }
@@ -932,10 +898,10 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
           $errors['pledge_frequency_interval'] = ts('Please enter a valid Pledge Frequency Interval.');
         }
         else {
-          if (CRM_Utils_Array::value('pledge_frequency_interval', $fields) == NULL) {
+          if (!isset($fields['pledge_frequency_interval'])) {
             $errors['pledge_frequency_interval'] = ts('Pledge Frequency Interval. is required field.');
           }
-          elseif (CRM_Utils_Array::value('pledge_frequency_interval', $fields) == 0) {
+          elseif (empty($fields['pledge_frequency_interval'])) {
             $errors['pledge_frequency_interval'] = ts('Pledge frequency interval field must be > 0');
           }
         }
@@ -948,7 +914,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
       return $errors;
     }
 
-    if (CRM_Utils_Array::value('payment_processor_id', $fields) === NULL) {
+    if (!isset($fields['payment_processor_id'])) {
       $errors['payment_processor_id'] = ts('Payment Method is a required field.');
     }
     else {
@@ -1038,6 +1004,8 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
    *
    * @param array $params
    *   Submitted values.
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function submit($params) {
     //carry campaign from profile.
@@ -1097,19 +1065,9 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
     }
 
     $params['separate_amount'] = $params['amount'];
-    $memFee = NULL;
-    if (!empty($params['selectMembership'])) {
-      if (empty($this->_membershipTypeValues)) {
-        $this->_membershipTypeValues = CRM_Member_BAO_Membership::buildMembershipTypeValues($this,
-          (array) $params['selectMembership']
-        );
-      }
-      $membershipTypeValues = $this->_membershipTypeValues[$params['selectMembership']];
-      $memFee = $membershipTypeValues['minimum_fee'];
-      if (!$params['amount'] && !$this->_separateMembershipPayment) {
-        $params['amount'] = $memFee ? $memFee : 0;
-      }
-    }
+    // @todo - stepping through the code indicates that amount is always set before this point so it never matters.
+    // Move more of the above into this function...
+    $params['amount'] = $this->getMainContributionAmount($params);
     //If the membership & contribution is used in contribution page & not separate payment
     $memPresent = $membershipLabel = $fieldOption = $is_quick_config = NULL;
     $proceFieldAmount = 0;
@@ -1193,7 +1151,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
     if ($params['amount'] != 0 && (($this->_values['is_pay_later'] &&
           empty($this->_paymentProcessor) &&
           !array_key_exists('hidden_processor', $params)) ||
-        (CRM_Utils_Array::value('payment_processor_id', $params) == 0))
+        empty($params['payment_processor_id']))
     ) {
       $params['is_pay_later'] = 1;
     }
@@ -1222,15 +1180,13 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
     $invoiceID = md5(uniqid(rand(), TRUE));
     $this->set('invoiceID', $invoiceID);
     $params['invoiceID'] = $invoiceID;
-    $params['description'] = ts('Online Contribution') . ': ' . ((!empty($this->_pcpInfo['title']) ? $this->_pcpInfo['title'] : $this->_values['title']));
+    $title = !empty($this->_values['frontend_title']) ? $this->_values['frontend_title'] : $this->_values['title'];
+    $params['description'] = ts('Online Contribution') . ': ' . ((!empty($this->_pcpInfo['title']) ? $this->_pcpInfo['title'] : $title));
     $params['button'] = $this->controller->getButtonName();
     // required only if is_monetary and valid positive amount
-    // @todo it seems impossible for $memFee to be greater than 0 & $params['amount'] not to
-    // be & by requiring $memFee down here we make it harder to do a sensible refactoring of the function
-    // above (ie. extract the amount in a small function).
     if ($this->_values['is_monetary'] &&
       !empty($this->_paymentProcessor) &&
-      ((float ) $params['amount'] > 0.0 || $memFee > 0.0)
+      ((float) $params['amount'] > 0.0 || $this->hasSeparateMembershipPaymentAmount($params))
     ) {
       // The concept of contributeMode is deprecated - as should be the 'is_monetary' setting.
       $this->setContributeMode();
@@ -1347,11 +1303,25 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
    * Function for unit tests on the postProcess function.
    *
    * @param array $params
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function testSubmit($params) {
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $this->controller = new CRM_Contribute_Controller_Contribution();
     $this->submit($params);
+  }
+
+  /**
+   * Has a separate membership payment amount been configured.
+   *
+   * @param array $params
+   *
+   * @return mixed
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function hasSeparateMembershipPaymentAmount($params) {
+    return $this->_separateMembershipPayment && (int) CRM_Member_BAO_MembershipType::getMembershipType($params['selectMembership'])['minimum_fee'];
   }
 
 }

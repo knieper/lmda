@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Contact_Form_Search_Custom_ContributionAggregate extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
 
@@ -63,6 +47,8 @@ class CRM_Contact_Form_Search_Custom_ContributionAggregate extends CRM_Contact_F
    * @param CRM_Core_Form $form
    */
   public function buildForm(&$form) {
+    $form->addSearchFieldMetadata(['Contribution' => self::getSearchFieldMetadata()]);
+    $form->addFormFieldsFromMetadata();
 
     /**
      * You can define a custom title for the search form
@@ -83,7 +69,6 @@ class CRM_Contact_Form_Search_Custom_ContributionAggregate extends CRM_Contact_F
       ts('...and $')
     );
     $form->addRule('max_amount', ts('Please enter a valid amount (numbers and decimal point only).'), 'money');
-    CRM_Core_Form_Date::buildDateRange($form, 'contribution_date', 1, '_low', '_high', ts('From:'), FALSE, FALSE);
 
     $form->addSelect('financial_type_id',
       ['entity' => 'contribution', 'multiple' => 'multiple', 'context' => 'search']
@@ -188,6 +173,20 @@ civicrm_contact AS contact_a {$this->_aclFrom}
   }
 
   /**
+   * Get the metadata for fields to be included on the contact search form.
+   */
+  public static function getSearchFieldMetadata() {
+    $fields = [
+      'receive_date' => ['title' => ''],
+    ];
+    $metadata = civicrm_api3('Contribution', 'getfields', [])['values'];
+    foreach ($fields as $fieldName => $field) {
+      $fields[$fieldName] = array_merge(CRM_Utils_Array::value($fieldName, $metadata, []), $field);
+    }
+    return $fields;
+  }
+
+  /**
    * WHERE clause is an array built from any required JOINS plus conditional filters based on search criteria field values.
    *
    * @param bool $includeContactIDs
@@ -201,9 +200,9 @@ civicrm_contact AS contact_a {$this->_aclFrom}
     ];
 
     foreach ([
-      'contribution_date_relative',
-      'contribution_date_low',
-      'contribution_date_high',
+      'receive_date_relative',
+      'receive_date_low',
+      'receive_date_high',
     ] as $dateFieldName) {
       $dateParams[$dateFieldName] = CRM_Utils_Array::value(
         $dateFieldName,
@@ -211,14 +210,29 @@ civicrm_contact AS contact_a {$this->_aclFrom}
       );
     }
 
-    foreach (CRM_Contact_BAO_Query::convertFormValues($dateParams) as $values) {
-      list($name, $op, $value) = $values;
-      if (strstr($name, '_low')) {
-        $clauses[] = "contrib.receive_date >= " . CRM_Utils_Date::processDate($value);
+    if ($dateParams['receive_date_relative']) {
+      list($relativeFrom, $relativeTo) = CRM_Utils_Date::getFromTo($dateParams['receive_date_relative'], $dateParams['receive_date_low'], $dateParams['receive_date_high']);
+    }
+    else {
+      if (strlen($dateParams['receive_date_low']) == 10) {
+        $relativeFrom = $dateParams['receive_date_low'] . ' 00:00:00';
       }
       else {
-        $clauses[] = "contrib.receive_date <= " . CRM_Utils_Date::processDate($value);
+        $relativeFrom = $dateParams['receive_date_low'];
       }
+      if (strlen($dateParams['receive_date_high']) == 10) {
+        $relativeTo = $dateParams['receive_date_high'] . ' 23:59:59';
+      }
+      else {
+        $relativeTo = $dateParams['receive_date_high'];
+      }
+    }
+
+    if ($relativeFrom) {
+      $clauses[] = "contrib.receive_date >= '{$relativeFrom}'";
+    }
+    if ($relativeTo) {
+      $clauses[] = "contrib.receive_date <= '{$relativeTo}'";
     }
 
     if ($includeContactIDs) {
@@ -280,9 +294,7 @@ civicrm_contact AS contact_a {$this->_aclFrom}
   public function count() {
     $sql = $this->all();
 
-    $dao = CRM_Core_DAO::executeQuery($sql,
-      CRM_Core_DAO::$_nullArray
-    );
+    $dao = CRM_Core_DAO::executeQuery($sql);
     return $dao->N;
   }
 

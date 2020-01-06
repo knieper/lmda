@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  *
  */
 
@@ -200,7 +184,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
     }
     else {
       // for edit mode we need to allow our own record to be a dupe match!
-      $exceptions = [$form->_session->get('userID')];
+      $exceptions = [CRM_Core_Session::singleton()->get('userID')];
     }
     $contactType = CRM_Core_BAO_UFGroup::getContactType($form->_gid);
     // If all profile fields is of Contact Type then consider
@@ -308,8 +292,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
       }
     }
 
-    $this->_session = CRM_Core_Session::singleton();
-    $this->_currentUserID = $this->_session->get('userID');
+    $this->_currentUserID = CRM_Core_Session::singleton()->get('userID');
 
     if ($this->_mode == self::MODE_EDIT) {
       //specifies the action being done on a multi record field
@@ -372,7 +355,6 @@ class CRM_Profile_Form extends CRM_Core_Form {
         $this->_isAddCaptcha = $dao->add_captcha;
         $this->_ufGroup = (array) $dao;
       }
-      $dao->free();
 
       if (!CRM_Utils_Array::value('is_active', $this->_ufGroup)) {
         CRM_Core_Error::fatal(ts('The requested profile (gid=%1) is inactive or does not exist.', [
@@ -498,7 +480,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
 
         if (!$emailField) {
           $status = ts("Email field should be included in profile if you want to use Group(s) when Profile double-opt in process is enabled.");
-          $this->_session->setStatus($status);
+          CRM_Core_Session::singleton()->setStatus($status);
         }
       }
 
@@ -892,10 +874,8 @@ class CRM_Profile_Form extends CRM_Core_Form {
 
     //finally add captcha to form.
     if ($this->_isAddCaptcha) {
-      $captcha = CRM_Utils_ReCAPTCHA::singleton();
-      $captcha->add($this);
+      CRM_Utils_ReCAPTCHA::enableCaptchaOnForm($this);
     }
-    $this->assign("isCaptcha", $this->_isAddCaptcha);
 
     if ($this->_mode != self::MODE_SEARCH) {
       if (isset($addToGroupId)) {
@@ -1123,7 +1103,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
       $contactDetails = CRM_Contact_BAO_Contact::getHierContactDetails($this->_id,
         $greetingTypes
       );
-      $details = $contactDetails[0][$this->_id];
+      $details = $contactDetails[$this->_id];
     }
     if (!(!empty($details['addressee_id']) || !empty($details['email_greeting_id']) ||
       CRM_Utils_Array::value('postal_greeting_id', $details)

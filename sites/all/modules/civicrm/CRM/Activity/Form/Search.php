@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -46,22 +30,22 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
   /**
    * Are we restricting ourselves to a single contact.
    *
-   * @var boolean
+   * @var bool
    */
   protected $_single = FALSE;
 
   /**
    * Are we restricting ourselves to a single contact.
    *
-   * @var boolean
+   * @var bool
    */
-  protected $_limit = NULL;
+  protected $_limit;
 
   /**
    * Prefix for the controller.
    * @var string
    */
-  protected $_prefix = "activity_";
+  protected $_prefix = 'activity_';
 
   /**
    * The saved search ID retrieved from the GET vars.
@@ -79,6 +63,9 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
 
   /**
    * Processing needed for buildForm and later.
+   *
+   * @throws \CRM_Core_Exception
+   * @throws \CiviCRM_API3_Exception
    */
   public function preProcess() {
     $this->set('searchFormName', 'Search');
@@ -89,35 +76,12 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
 
     $this->_done = FALSE;
 
-    $this->loadStandardSearchOptionsFromUrl();
-
-    // get user submitted values
-    // get it from controller only if form has been submitted, else preProcess has set this
-    if (!empty($_POST) && !$this->controller->isModal()) {
-      $this->_formValues = $this->controller->exportValues($this->_name);
-    }
-    else {
-      $this->_formValues = $this->get('formValues');
-
-      if ($this->_force) {
-        // If we force the search then merge form values with url values
-        // and set submit values to form values.
-        // @todo this is not good security practice. Instead define the fields in metadata & use
-        // getEntityDefaults.
-        $this->_formValues = array_merge((array) $this->_formValues, CRM_Utils_Request::exportValues());
-        $this->_submitValues = $this->_formValues;
-      }
-    }
+    parent::preProcess();
 
     if (empty($this->_formValues)) {
       if (isset($this->_ssID)) {
         $this->_formValues = CRM_Contact_BAO_SavedSearch::getFormValues($this->_ssID);
       }
-    }
-
-    if ($this->_force) {
-      $this->postProcess();
-      $this->set('force', 0);
     }
 
     $sortID = NULL;
@@ -159,6 +123,9 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
 
   /**
    * Build the form object.
+   *
+   * @throws \CRM_Core_Exception
+   * @throws \CiviCRM_API3_Exception
    */
   public function buildQuickForm() {
     parent::buildQuickForm();
@@ -189,6 +156,8 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
    *
    * The processing consists of using a Selector / Controller framework for getting the
    * search results.
+   *
+   * @throws \CRM_Core_Exception
    */
   public function postProcess() {
     if ($this->_done) {
@@ -196,17 +165,13 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
     }
 
     $this->_done = TRUE;
-
+    $this->setFormValues();
     if (!empty($_POST)) {
-      $this->_formValues = $this->controller->exportValues($this->_name);
       $specialParams = [
         'activity_type_id',
-        'status_id',
         'priority_id',
-        'activity_text',
       ];
       $changeNames = [
-        'status_id' => 'activity_status_id',
         'priority_id' => 'activity_priority_id',
       ];
 
@@ -228,7 +193,6 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
 
     $this->_queryParams = CRM_Contact_BAO_Query::convertFormValues($this->_formValues);
 
-    $this->set('formValues', $this->_formValues);
     $this->set('queryParams', $this->_queryParams);
 
     $buttonName = $this->controller->getButtonName();
@@ -260,7 +224,7 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
     $selector->setKey($this->controller->_key);
 
     $prefix = NULL;
-    if ($this->_context == 'basic' || $this->_context == 'user') {
+    if ($this->_context === 'basic' || $this->_context === 'user') {
       $prefix = $this->_prefix;
     }
 
@@ -275,12 +239,17 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
     $controller->setEmbedded(TRUE);
     $query = &$selector->getQuery();
 
-    if ($this->_context == 'user') {
+    if ($this->_context === 'user') {
       $query->setSkipPermission(TRUE);
     }
     $controller->run();
   }
 
+  /**
+   * Probably more hackery than anything else.
+   *
+   * @throws \CRM_Core_Exception
+   */
   public function fixFormValues() {
     if (!$this->_force) {
       return;
@@ -347,23 +316,6 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
   }
 
   /**
-   * @return null
-   */
-  public function getFormValues() {
-    return NULL;
-  }
-
-  /**
-   * This virtual function is used to set the default values of various form elements.
-   *
-   * @return array|NULL
-   *   reference to the array of default values
-   */
-  public function setDefaultValues() {
-    return array_merge($this->getEntityDefaults($this->getDefaultEntity()), (array) $this->_formValues);
-  }
-
-  /**
    * Return a descriptive name for the page, used in wizard header
    *
    * @return string
@@ -372,8 +324,22 @@ class CRM_Activity_Form_Search extends CRM_Core_Form_Search {
     return ts('Find Activities');
   }
 
+  /**
+   * Get metadata for the entity  fields.
+   *
+   * @return array
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
   protected function getEntityMetadata() {
     return CRM_Activity_BAO_Query::getSearchFieldMetadata();
+  }
+
+  /**
+   * Set the metadata for the form.
+   */
+  protected function setSearchMetadata() {
+    $this->addSearchFieldMetadata(['Activity' => $this->getEntityMetadata()]);
   }
 
 }

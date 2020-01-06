@@ -1,40 +1,25 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
  * This class generates form components for processing a contribution.
  */
 class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
+  use CRM_Financial_Form_FrontEndPaymentFormTrait;
 
   /**
    * The id of the contribution page that we are processing.
@@ -118,7 +103,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
   /**
    * Pcp id
    *
-   * @var integer
+   * @var int
    */
   public $_pcpId;
 
@@ -176,7 +161,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
 
   /**
    * Contribution page supports memberships
-   * @var boolean
+   * @var bool
    */
   public $_useForMember;
 
@@ -286,9 +271,6 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
 
     // we do not want to display recently viewed items, so turn off
     $this->assign('displayRecent', FALSE);
-    // Contribution page values are cleared from session, so can't use normal Printer Friendly view.
-    // Use Browser Print instead.
-    $this->assign('browserPrint', TRUE);
 
     // action
     $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this, FALSE, 'add');
@@ -323,12 +305,12 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
       $endDate = CRM_Utils_Date::processDate(CRM_Utils_Array::value('end_date', $this->_values));
       $now = date('YmdHis');
       if ($endDate && $endDate < $now) {
-        throw new CRM_Contribute_Exception_PastContributionPageException(ts('The page you requested has past its end date on ' . CRM_Utils_Date::customFormat($endDate)), $this->_id);
+        throw new CRM_Contribute_Exception_PastContributionPageException(ts('The page you requested has past its end date on %1', [1 => CRM_Utils_Date::customFormat($endDate)]), $this->_id);
       }
 
       $startDate = CRM_Utils_Date::processDate(CRM_Utils_Array::value('start_date', $this->_values));
       if ($startDate && $startDate > $now) {
-        throw new CRM_Contribute_Exception_FutureContributionPageException(ts('The page you requested will be active from ' . CRM_Utils_Date::customFormat($startDate)), $this->_id);
+        throw new CRM_Contribute_Exception_FutureContributionPageException(ts('The page you requested will be active from %1', [1 => CRM_Utils_Date::customFormat($startDate)]), $this->_id);
       }
 
       $this->assignBillingType();
@@ -346,6 +328,9 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
           $this->_values['is_pay_later'] = FALSE;
         }
       }
+      if ($isPayLater) {
+        $this->setPayLaterLabel($this->_values['pay_later_text']);
+      }
 
       if ($isMonetary) {
         $this->_paymentProcessorIDs = array_filter(explode(
@@ -358,7 +343,8 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
 
       // get price info
       // CRM-5095
-      CRM_Price_BAO_PriceSet::initSet($this, $this->_id, 'civicrm_contribution_page');
+      $priceSetId = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $this->_id);
+      CRM_Price_BAO_PriceSet::initSet($this, 'civicrm_contribution_page', FALSE, $priceSetId);
 
       // this avoids getting E_NOTICE errors in php
       $setNullFields = [
@@ -471,7 +457,9 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
       CRM_Utils_Array::value('cancelSubscriptionUrl', $this->_values)
     );
 
-    $this->setTitle(($this->_pcpId ? $this->_pcpInfo['title'] : $this->_values['title']));
+    $title = !empty($this->_values['frontend_title']) ? $this->_values['frontend_title'] : $this->_values['title'];
+
+    $this->setTitle(($this->_pcpId ? $this->_pcpInfo['title'] : $title));
     $this->_defaults = [];
 
     $this->_amount = $this->get('amount');
@@ -479,14 +467,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
     // This can, for example, by used by payment processors using client side encryption
     $this->assign('currency', $this->getCurrency());
 
-    //CRM-6907
-    // these lines exist to support a non-default currenty on the form but are probably
-    // obsolete & meddling wth the defaultCurrency is not the right approach....
-    $config = CRM_Core_Config::singleton();
-    $config->defaultCurrency = CRM_Utils_Array::value('currency',
-      $this->_values,
-      $config->defaultCurrency
-    );
+    CRM_Contribute_BAO_Contribution_Utils::overrideDefaultCurrency($this->_values);
 
     //lets allow user to override campaign.
     $campID = CRM_Utils_Request::retrieve('campID', 'Positive', $this);
@@ -749,11 +730,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
    * Enable ReCAPTCHA on Contribution form
    */
   protected function enableCaptchaOnForm() {
-    $captcha = CRM_Utils_ReCAPTCHA::singleton();
-    if ($captcha->hasSettingsAvailable()) {
-      $captcha->add($this);
-      $this->assign('isCaptcha', TRUE);
-    }
+    CRM_Utils_ReCAPTCHA::enableCaptchaOnForm($this);
   }
 
   public function assignPaymentFields() {
@@ -813,8 +790,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
    */
   protected function displayCaptchaWarning() {
     if (CRM_Core_Permission::check("administer CiviCRM")) {
-      $captcha = CRM_Utils_ReCAPTCHA::singleton();
-      if (!$captcha->hasSettingsAvailable()) {
+      if (!CRM_Utils_ReCAPTCHA::hasSettingsAvailable()) {
         $this->assign('displayCaptchaWarning', TRUE);
       }
     }
@@ -824,8 +800,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
    * Check if ReCAPTCHA has to be added on Contribution form forcefully.
    */
   protected function hasToAddForcefully() {
-    $captcha = CRM_Utils_ReCAPTCHA::singleton();
-    return $captcha->hasToAddForcefully();
+    return CRM_Utils_ReCAPTCHA::hasToAddForcefully();
   }
 
   /**
@@ -958,7 +933,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
           }
         }
 
-        $form->assign('fieldSetTitle', ts(CRM_Core_BAO_UFGroup::getTitle($form->_values['onbehalf_profile_id'])));
+        $form->assign('fieldSetTitle', CRM_Core_BAO_UFGroup::getTitle($form->_values['onbehalf_profile_id']));
 
         if (CRM_Utils_Array::value('is_for_organization', $form->_values)) {
           if ($form->_values['is_for_organization'] == 2) {
@@ -1402,6 +1377,30 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form {
       return $this->_paymentProcessor['object'];
     }
     return new CRM_Core_Payment_Manual();
+  }
+
+  /**
+   * Get the amount for the main contribution.
+   *
+   * The goal is to expand this function so that all the argy-bargy of figuring out the amount
+   * winds up here as the main spaghetti shrinks.
+   *
+   * If there is a separate membership contribution this is the 'other one'. Otherwise there
+   * is only one.
+   *
+   * @param $params
+   *
+   * @return float
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function getMainContributionAmount($params) {
+    if (!empty($params['selectMembership'])) {
+      if (empty($params['amount']) && !$this->_separateMembershipPayment) {
+        return CRM_Member_BAO_MembershipType::getMembershipType($params['selectMembership'])['minimum_fee'] ?? 0;
+      }
+    }
+    return $params['amount'] ?? 0;
   }
 
 }

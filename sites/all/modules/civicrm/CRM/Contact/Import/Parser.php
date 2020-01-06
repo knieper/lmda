@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
 
@@ -37,18 +21,20 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
   /**
    * Total number of lines in file
    *
-   * @var integer
+   * @var int
    */
   protected $_rowCount;
 
   /**
    * Running total number of un-matched Contacts.
+   *
    * @var int
    */
   protected $_unMatchCount;
 
   /**
-   * Array of unmatched lines
+   * Array of unmatched lines.
+   *
    * @var array
    */
   protected $_unMatch;
@@ -105,7 +91,7 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
    */
   public function run(
     $tableName,
-    &$mapper,
+    $mapper = [],
     $mode = self::MODE_PREVIEW,
     $contactType = self::CONTACT_INDIVIDUAL,
     $primaryKeyName = '_id',
@@ -179,11 +165,11 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
     if ($mode == self::MODE_IMPORT) {
       $query .= " WHERE $statusFieldName = 'NEW'";
     }
-    $dao = new CRM_Core_DAO();
-    $db = $dao->getDatabaseConnection();
-    $result = $db->query($query);
 
-    while ($values = $result->fetchRow(DB_FETCHMODE_ORDERED)) {
+    $result = CRM_Core_DAO::executeQuery($query);
+
+    while ($result->fetch()) {
+      $values = array_values($result->toArray());
       $this->_rowCount++;
 
       /* trim whitespace around the values */
@@ -576,6 +562,7 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
    * @return array
    */
   public function getColumnPatterns() {
+    CRM_Core_Error::deprecatedFunctionWarning('no  longer used- use   CRM_Contact_Import_MetadataTrait');
     $values = [];
     foreach ($this->_fields as $name => $field) {
       $values[$name] = $field->_columnPattern;
@@ -614,8 +601,6 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
     $store->set('fields', $this->getSelectValues());
     $store->set('fieldTypes', $this->getSelectTypes());
 
-    $store->set('columnPatterns', $this->getColumnPatterns());
-    $store->set('dataPatterns', $this->getDataPatterns());
     $store->set('columnCount', $this->_activeFieldCount);
 
     $store->set('totalRowCount', $this->_totalCount);
@@ -817,10 +802,6 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
       elseif ($key == 'is_deceased' && $val) {
         $params[$key] = CRM_Utils_String::strtoboolstr($val);
       }
-      elseif ($key == 'gender') {
-        //CRM-4360
-        $params[$key] = $this->checkGender($val);
-      }
     }
 
     //now format custom data.
@@ -1002,9 +983,6 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
     //      Note
     //      Custom
 
-    // Cache the various object fields
-    static $fields = [];
-
     // first add core contact values since for other Civi modules they are not added
     $contactFields = CRM_Contact_DAO_Contact::fields();
     _civicrm_api3_store_values($contactFields, $values, $params);
@@ -1017,6 +995,10 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
       _civicrm_api3_store_values($fields[$values['contact_type']], $values, $params);
       return TRUE;
     }
+
+    // Cache the various object fields
+    // @todo - remove this after confirming this is just a compilation of other-wise-cached fields.
+    static $fields = [];
 
     if (isset($values['individual_prefix'])) {
       if (!empty($params['prefix_id'])) {
@@ -1166,18 +1148,15 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
     }
 
     // Check for custom field values
-
-    if (empty($fields['custom'])) {
-      $fields['custom'] = &CRM_Core_BAO_CustomField::getFields(CRM_Utils_Array::value('contact_type', $values),
-        FALSE, FALSE, NULL, NULL, FALSE, FALSE, FALSE
-      );
-    }
+    $customFields = CRM_Core_BAO_CustomField::getFields(CRM_Utils_Array::value('contact_type', $values),
+      FALSE, FALSE, NULL, NULL, FALSE, FALSE, FALSE
+    );
 
     foreach ($values as $key => $value) {
       if ($customFieldID = CRM_Core_BAO_CustomField::getKeyID($key)) {
         // check if it's a valid custom field id
 
-        if (!array_key_exists($customFieldID, $fields['custom'])) {
+        if (!array_key_exists($customFieldID, $customFields)) {
           return civicrm_api3_create_error('Invalid custom field ID');
         }
         else {
@@ -1211,6 +1190,7 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
       if (!array_key_exists($blockFieldName, $values)) {
         continue;
       }
+      $blockIndex = $values['location_type_id'] . (!empty($values['phone_type_id']) ? '_' . $values['phone_type_id'] : '');
 
       // block present in value array.
       if (!array_key_exists($blockFieldName, $params) || !is_array($params[$blockFieldName])) {
@@ -1225,13 +1205,13 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
       }
 
       _civicrm_api3_store_values($fields[$block], $values,
-        $params[$blockFieldName][$values['location_type_id']]
+        $params[$blockFieldName][$blockIndex]
       );
 
-      $this->fillPrimary($params[$blockFieldName][$values['location_type_id']], $values, $block, CRM_Utils_Array::value('id', $params));
+      $this->fillPrimary($params[$blockFieldName][$blockIndex], $values, $block, CRM_Utils_Array::value('id', $params));
 
       if (empty($params['id']) && (count($params[$blockFieldName]) == 1)) {
-        $params[$blockFieldName][$values['location_type_id']]['is_primary'] = TRUE;
+        $params[$blockFieldName][$blockIndex]['is_primary'] = TRUE;
       }
 
       // we only process single block at a time.
@@ -1345,7 +1325,9 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
    *   Input values
    * @param string $entity
    *  - address, email, phone
-   * @param int|NULL $contactID
+   * @param int|null $contactID
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   protected function fillPrimary(&$params, $values, $entity, $contactID) {
     if ($values['location_type_id'] === 'Primary') {
@@ -1354,7 +1336,7 @@ abstract class CRM_Contact_Import_Parser extends CRM_Import_Parser {
           'return' => 'location_type_id',
           'contact_id' => $contactID,
           'is_primary' => 1,
-          'sequential' => 1
+          'sequential' => 1,
         ]);
       }
       $defaultLocationType = CRM_Core_BAO_LocationType::getDefault();

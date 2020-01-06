@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -120,7 +104,7 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
   /**
    * The profile group id used for display.
    *
-   * @var integer
+   * @var int
    */
   protected $_ufGroupID;
 
@@ -132,13 +116,16 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
   public static $csv = ['contact_type', 'group', 'tag'];
 
   /**
-   * @var string how to display the results. Should we display as
-   *             contributons, members, cases etc
+   * How to display the results. Should we display as contributons, members, cases etc.
+   *
+   * @var string
    */
   protected $_componentMode;
 
   /**
-   * @var string what operator should we use, AND or OR
+   * What operator should we use, AND or OR.
+   *
+   * @var string
    */
   protected $_operator;
 
@@ -299,7 +286,8 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
     }
 
     self::setModeValues();
-    if (!array_key_exists($mode, self::$_modeValues)) {
+    // Note $mode might === FALSE because array_search above failed, e.g. for searchPane='location'
+    if (empty(self::$_modeValues[$mode])) {
       $mode = CRM_Contact_BAO_Query::MODE_CONTACTS;
     }
 
@@ -649,6 +637,9 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
           'mailing_unsubscribe',
           'mailing_date_low',
           'mailing_date_high',
+          'mailing_job_start_date_low',
+          'mailing_job_start_date_high',
+          'mailing_job_start_date_relative',
         ] as $mailingFilter) {
           $type = 'String';
           if ($mailingFilter == 'mailing_id' &&
@@ -728,7 +719,7 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
     $controller->setDynamicAction($setDynamic);
 
     if ($this->_force) {
-
+      $this->loadMetadata();
       $this->postProcess();
 
       /*
@@ -755,13 +746,6 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
   }
 
   /**
-   * @return array
-   */
-  public function &getFormValues() {
-    return $this->_formValues;
-  }
-
-  /**
    * Common post processing.
    */
   public function postProcess() {
@@ -777,14 +761,6 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
 
     //for prev/next pagination
     $crmPID = CRM_Utils_Request::retrieve('crmPID', 'Integer');
-
-    if (array_key_exists($this->_searchButtonName, $_POST) ||
-      ($this->_force && !$crmPID)
-    ) {
-      //reset the cache table for new search
-      $cacheKey = "civicrm search {$this->controller->_key}";
-      Civi::service('prevnext')->deleteItem(NULL, $cacheKey);
-    }
 
     //get the button name
     $buttonName = $this->controller->getButtonName();
@@ -823,6 +799,13 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
       return;
     }
     else {
+      if (array_key_exists($this->_searchButtonName, $_POST) ||
+        ($this->_force && !$crmPID)
+      ) {
+        //reset the cache table for new search
+        $cacheKey = "civicrm search {$this->controller->_key}";
+        Civi::service('prevnext')->deleteItem(NULL, $cacheKey);
+      }
       $output = CRM_Core_Selector_Controller::SESSION;
 
       // create the selector, controller and run - store results in session
@@ -905,6 +888,48 @@ class CRM_Contact_Form_Search extends CRM_Core_Form_Search {
    */
   public function getTitle() {
     return ts('Search');
+  }
+
+  /**
+   * Check Access for a component
+   * @param string $component
+   * @return bool
+   */
+  protected static function checkComponentAccess($component) {
+    $enabledComponents = CRM_Core_Component::getEnabledComponents();
+    if (!array_key_exists($component, $enabledComponents)) {
+      return FALSE;
+    }
+    return CRM_Core_Permission::access($component);
+  }
+
+  /**
+   * Load metadata for fields on the form.
+   *
+   * @throws \CiviCRM_API3_Exception
+   */
+  protected function loadMetadata() {
+    // can't by pass acls by passing search criteria in the url.
+    if (self::checkComponentAccess('CiviContribute')) {
+      $this->addSearchFieldMetadata(['Contribution' => CRM_Contribute_BAO_Query::getSearchFieldMetadata()]);
+      $this->addSearchFieldMetadata(['ContributionRecur' => CRM_Contribute_BAO_ContributionRecur::getContributionRecurSearchFieldMetadata()]);
+    }
+    if (self::checkComponentAccess('CiviPledge')) {
+      $this->addSearchFieldMetadata(['Pledge' => CRM_Pledge_BAO_Query::getSearchFieldMetadata()]);
+      $this->addSearchFieldMetadata(['PledgePayment' => CRM_Pledge_BAO_Query::getPledgePaymentSearchFieldMetadata()]);
+    }
+    if (self::checkComponentAccess('CiviEvent')) {
+      $this->addSearchFieldMetadata(['Participant' => CRM_Event_BAO_Query::getSearchFieldMetadata()]);
+    }
+    if (self::checkComponentAccess('CiviMember')) {
+      $this->addSearchFieldMetadata(['Membership' => CRM_Member_BAO_Query::getSearchFieldMetadata()]);
+    }
+    if (self::checkComponentAccess('CiviGrant')) {
+      $this->addSearchFieldMetadata(['Grant' => CRM_Grant_BAO_Query::getSearchFieldMetadata()]);
+    }
+    if (self::checkComponentAccess('CiviCase')) {
+      $this->addSearchFieldMetadata(['Case' => CRM_Case_BAO_Query::getSearchFieldMetadata()]);
+    }
   }
 
 }

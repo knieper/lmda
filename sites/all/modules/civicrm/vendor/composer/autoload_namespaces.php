@@ -7,8 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Validate' => array($vendorDir . '/pear/validate_finance_creditcard'),
+    'TOGoS_GitIgnore_' => array($vendorDir . '/togos/gitignore/src/main/php'),
     'System' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
-    'Svg\\' => array($vendorDir . '/phenx/php-svg-lib/src'),
     'Sabberworm\\CSS' => array($vendorDir . '/sabberworm/php-css-parser/lib'),
     'PHPUnit_' => array($baseDir . '/packages'),
     'PEAR' => array($vendorDir . '/pear/pear_exception'),

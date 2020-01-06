@@ -1,41 +1,25 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Contact_Form_Search_Custom_FullText extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
 
   const LIMIT = 10;
 
   /**
-   * @var array CRM_Contact_Form_Search_Custom_FullText_AbstractPartialQuery
+   * @var CRM_Contact_Form_Search_Custom_FullText_AbstractPartialQuery[]
    */
   protected $_partialQueries = NULL;
 
@@ -54,23 +38,37 @@ class CRM_Contact_Form_Search_Custom_FullText extends CRM_Contact_Form_Search_Cu
   protected $_tableFields = NULL;
 
   /**
-   * @var array|null NULL if no limit; or array(0 => $limit, 1 => $offset)
+   * Limit clause.
+   *
+   * NULL if no limit; or array(0 => $limit, 1 => $offset).
+   *
+   * @var array|null
    */
   protected $_limitClause = NULL;
 
   /**
-   * @var array|null NULL if no limit; or array(0 => $limit, 1 => $offset)
+   * Limit row clause.
+   *
+   * NULL if no limit; or array(0 => $limit, 1 => $offset)
+   *
+   * @var array|null
    */
   protected $_limitRowClause = NULL;
 
   /**
-   * @var array|null NULL if no limit; or array(0 => $limit, 1 => $offset)
+   * Limit detail clause.
+   *
+   * NULL if no limit; or array(0 => $limit, 1 => $offset).
+   *
+   * @var array|null
    */
   protected $_limitDetailClause = NULL;
 
   protected $_limitNumber = 10;
+
   /**
-   * this should be one more than self::LIMIT
+   * This should be one more than self::LIMIT.
+   *
    * @var int
    */
   protected $_limitNumberPlus1 = 11;
@@ -151,7 +149,7 @@ class CRM_Contact_Form_Search_Custom_FullText extends CRM_Contact_Form_Search_Cu
   }
 
   public function buildTempTable() {
-    $table = CRM_Utils_SQL_TempTable::build()->setCategory('custom')->setMemory()->setUtf8();
+    $table = CRM_Utils_SQL_TempTable::build()->setCategory('custom')->setMemory();
     $this->_tableName = $table->getName();
 
     $this->_tableFields = [
@@ -216,7 +214,7 @@ class CRM_Contact_Form_Search_Custom_FullText extends CRM_Contact_Form_Search_Cu
 ";
     $table->createWithColumns($sql);
 
-    $entityIdTable = CRM_Utils_SQL_TempTable::build()->setCategory('custom')->setMemory()->setUtf8();
+    $entityIdTable = CRM_Utils_SQL_TempTable::build()->setCategory('custom')->setMemory();
     $this->_entityIDTableName = $entityIdTable->getName();
     $sql = "
   id int unsigned NOT NULL AUTO_INCREMENT,

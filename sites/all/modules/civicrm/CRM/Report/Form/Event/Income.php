@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -37,6 +21,7 @@ class CRM_Report_Form_Event_Income extends CRM_Report_Form {
 
   protected $_summary = NULL;
   protected $_noFields = TRUE;
+  protected $eventIDs = [];
 
   protected $_add2groupSupported = FALSE;
 
@@ -75,47 +60,13 @@ class CRM_Report_Form_Event_Income extends CRM_Report_Form {
   public function buildEventReport($eventIDs) {
 
     $this->assign('events', $eventIDs);
-
-    $eventID = implode(',', $eventIDs);
-
+    $this->eventIDs = $eventIDs;
+    $eventID = implode(',', $this->eventIDs);
     $participantRole = CRM_Event_PseudoConstant::participantRole();
     $paymentInstruments = CRM_Contribute_PseudoConstant::paymentInstrument();
 
     $rows = $eventSummary = $roleRows = $statusRows = $instrumentRows = $count = [];
-
-    $optionGroupDAO = new CRM_Core_DAO_OptionGroup();
-    $optionGroupDAO->name = 'event_type';
-    $optionGroupId = NULL;
-    if ($optionGroupDAO->find(TRUE)) {
-      $optionGroupId = $optionGroupDAO->id;
-    }
-
-    $activeParticipantClause = " AND civicrm_participant.status_id IN ( " . implode(',', array_keys($this->getActiveParticipantStatuses())) . " ) ";
-    $select = [
-      "civicrm_event.id as event_id",
-      "civicrm_event.title as event_title",
-      "civicrm_event.max_participants as max_participants",
-      "civicrm_event.start_date as start_date",
-      "civicrm_event.end_date as end_date",
-      "civicrm_option_value.label as event_type",
-      "civicrm_participant.fee_currency as currency",
-    ];
-
-    $groupBy = CRM_Contact_BAO_Query::getGroupByFromSelectColumns($select, 'civicrm_event.id');
-    $sql = "
-            SELECT  " . implode(', ', $select) . ",
-                    SUM(civicrm_participant.fee_amount) as total,
-                    COUNT(civicrm_participant.id)       as participant
-
-            FROM       civicrm_event
-            LEFT JOIN  civicrm_option_value
-                   ON  ( civicrm_event.event_type_id = civicrm_option_value.value AND
-                         civicrm_option_value.option_group_id = {$optionGroupId} )
-            LEFT JOIN  civicrm_participant ON ( civicrm_event.id = civicrm_participant.event_id
-                       {$activeParticipantClause} AND civicrm_participant.is_test  = 0 )
-
-            WHERE      civicrm_event.id IN( {$eventID}) {$groupBy}";
-
+    $sql = $this->buildQuery();
     $eventDAO = $this->executeReportQuery($sql);
     $currency = [];
     while ($eventDAO->fetch()) {
@@ -130,6 +81,7 @@ class CRM_Report_Form_Event_Income extends CRM_Report_Form {
     }
     $this->assign_by_ref('summary', $eventSummary);
 
+    $activeParticipantClause = " AND civicrm_participant.status_id IN ( " . implode(',', array_keys($this->getActiveParticipantStatuses())) . " ) ";
     //Total Participant Registerd for the Event
     $pariticipantCount = "
             SELECT COUNT(civicrm_participant.id ) as count, civicrm_participant.event_id as event_id
@@ -382,6 +334,52 @@ class CRM_Report_Form_Event_Income extends CRM_Report_Form {
    */
   protected function getActiveParticipantStatuses() {
     return CRM_Event_PseudoConstant::participantStatus(NULL, "is_counted = 1", "label");
+  }
+
+  /**
+   * Build main report sql query.
+   *
+   * @param bool $applyLimit
+   *
+   * @return string
+   */
+  public function buildQuery($applyLimit = FALSE) {
+    $eventID = implode(',', $this->eventIDs);
+
+    $optionGroupDAO = new CRM_Core_DAO_OptionGroup();
+    $optionGroupDAO->name = 'event_type';
+    $optionGroupId = NULL;
+    if ($optionGroupDAO->find(TRUE)) {
+      $optionGroupId = $optionGroupDAO->id;
+    }
+
+    $activeParticipantClause = " AND civicrm_participant.status_id IN ( " . implode(',', array_keys($this->getActiveParticipantStatuses())) . " ) ";
+    $select = [
+      "civicrm_event.id as event_id",
+      "civicrm_event.title as event_title",
+      "civicrm_event.max_participants as max_participants",
+      "civicrm_event.start_date as start_date",
+      "civicrm_event.end_date as end_date",
+      "civicrm_option_value.label as event_type",
+      "civicrm_participant.fee_currency as currency",
+    ];
+
+    $groupBy = CRM_Contact_BAO_Query::getGroupByFromSelectColumns($select, 'civicrm_event.id');
+    $sql = "
+            SELECT  " . implode(', ', $select) . ",
+                    SUM(civicrm_participant.fee_amount) as total,
+                    COUNT(civicrm_participant.id)       as participant
+
+            FROM       civicrm_event
+            LEFT JOIN  civicrm_option_value
+                   ON  ( civicrm_event.event_type_id = civicrm_option_value.value AND
+                         civicrm_option_value.option_group_id = {$optionGroupId} )
+            LEFT JOIN  civicrm_participant ON ( civicrm_event.id = civicrm_participant.event_id
+                       {$activeParticipantClause} AND civicrm_participant.is_test  = 0 )
+
+            WHERE      civicrm_event.id IN( {$eventID}) {$groupBy}";
+
+    return $sql;
   }
 
 }

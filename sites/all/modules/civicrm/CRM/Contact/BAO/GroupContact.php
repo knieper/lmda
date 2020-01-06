@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
 
@@ -165,7 +149,7 @@ class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
    *
    * @param string $method
    * @param string $status
-   * @param NULL $tracking
+   * @param string $tracking
    *
    * @return array
    *   (total, removed, notRemoved) count of contacts removed to group
@@ -180,7 +164,6 @@ class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
     if (!is_array($contactIds)) {
       return [0, 0, 0];
     }
-
     if ($status == 'Removed' || $status == 'Deleted') {
       $op = 'delete';
     }
@@ -200,8 +183,11 @@ class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
 
     foreach ($contactIds as $contactId) {
       if ($status == 'Deleted') {
-        $query = "DELETE FROM civicrm_group_contact WHERE contact_id=$contactId AND group_id=$groupId";
-        $dao = CRM_Core_DAO::executeQuery($query);
+        $query = "DELETE FROM civicrm_group_contact WHERE contact_id = %1 AND group_id = %2";
+        $dao = CRM_Core_DAO::executeQuery($query, [
+          1 => [$contactId, 'Positive'],
+          2 => [$groupId, 'Positive'],
+        ]);
         $historyParams = [
           'group_id' => $groupId,
           'contact_id' => $contactId,
@@ -211,6 +197,10 @@ class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
           'tracking' => $tracking,
         ];
         CRM_Contact_BAO_SubscriptionHistory::create($historyParams);
+        // Removing a row from civicrm_group_contact for a smart group may mean a contact
+        // Is now back in a group based on criteria so we will invalidate the cache if it is there
+        // So that accurate group cache is created next time it is needed.
+        CRM_Contact_BAO_GroupContactCache::invalidateGroupContactCache($groupId);
       }
       else {
         $groupContact = new CRM_Contact_DAO_GroupContact();
@@ -239,6 +229,8 @@ class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
         CRM_Contact_BAO_SubscriptionHistory::create($historyParams);
         $groupContact->status = $status;
         $groupContact->save();
+        // Remove any rows from the group contact cache so it disappears straight away from smart groups.
+        CRM_Contact_BAO_GroupContactCache::removeContact($contactId, $groupId);
       }
     }
 
@@ -698,7 +690,7 @@ AND       group_id IN ( $groupIDString )
    *   The id of the group.
    * @param string $method
    * @param string $status
-   * @param NULL $tracking
+   * @param string $tracking
    *
    * @return array
    *   (total, added, notAdded) count of contacts added to group

@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -162,15 +146,20 @@ class CRM_Core_BAO_Address extends CRM_Core_DAO_Address {
     $address->save();
 
     if ($address->id) {
-      $customFields = CRM_Core_BAO_CustomField::getFields('Address', FALSE, TRUE, NULL, NULL, FALSE, FALSE, $checkPermissions);
+      if (isset($params['custom'])) {
+        $addressCustom = $params['custom'];
+      }
+      else {
+        $customFields = CRM_Core_BAO_CustomField::getFields('Address', FALSE, TRUE, NULL, NULL, FALSE, FALSE, $checkPermissions);
 
-      if (!empty($customFields)) {
-        $addressCustom = CRM_Core_BAO_CustomField::postProcess($params,
-          $address->id,
-          'Address',
-          FALSE,
-          $checkPermissions
-        );
+        if (!empty($customFields)) {
+          $addressCustom = CRM_Core_BAO_CustomField::postProcess($params,
+            $address->id,
+            'Address',
+            FALSE,
+            $checkPermissions
+          );
+        }
       }
       if (!empty($addressCustom)) {
         CRM_Core_BAO_CustomValueTable::store($addressCustom, 'civicrm_address', $address->id);
@@ -411,9 +400,9 @@ class CRM_Core_BAO_Address extends CRM_Core_DAO_Address {
         if (substr($name, 0, 7) == 'country') {
           // make sure its different from the default country
           // iso code
-          $defaultCountry = $config->defaultContactCountry();
+          $defaultCountry = CRM_Core_BAO_Country::defaultContactCountry();
           // full name
-          $defaultCountryName = $config->defaultContactCountryName();
+          $defaultCountryName = CRM_Core_BAO_Country::defaultContactCountryName();
 
           if ($defaultCountry) {
             if ($value == $defaultCountry ||
@@ -658,8 +647,7 @@ ORDER BY civicrm_address.is_primary DESC, civicrm_address.location_type_id DESC,
    *   Array of address sequence.
    */
   public static function addressSequence() {
-    $config = CRM_Core_Config::singleton();
-    $addressSequence = $config->addressSequence();
+    $addressSequence = CRM_Utils_Address::sequence(\Civi::settings()->get('address_format'));
 
     $countryState = $cityPostal = FALSE;
     foreach ($addressSequence as $key => $field) {
@@ -1063,7 +1051,6 @@ SELECT is_primary,
       $addressDAO->copyValues($params);
       $addressDAO->id = $dao->id;
       $addressDAO->save();
-      $addressDAO->free();
     }
   }
 

@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
@@ -38,7 +22,7 @@
  * for other useful tips and suggestions
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 require_once 'HTML/QuickForm/Controller.php';
@@ -82,7 +66,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
    * so the display routine needs to not do any work. (The
    * parent object takes care of the display)
    *
-   * @var boolean
+   * @var bool
    */
   protected $_embedded = FALSE;
 
@@ -94,7 +78,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
    * Useful when we run form in non civicrm context
    * and we need to transfer control back.(eg. drupal)
    *
-   * @var boolean
+   * @var bool
    */
   protected $_skipRedirection = FALSE;
 
@@ -102,14 +86,14 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
    * Are we in print mode? if so we need to modify the display
    * functionality to do a minimal display :)
    *
-   * @var boolean
+   * @var bool
    */
   public $_print = 0;
 
   /**
    * Should we generate a qfKey, true by default
    *
-   * @var boolean
+   * @var bool
    */
   public $_generateQFKey = TRUE;
 
@@ -144,7 +128,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
   /**
    * The destination if set will override the destination the code wants to send it to.
    *
-   * @var string;
+   * @var string
    */
   public $_destination = NULL;
 
@@ -170,6 +154,8 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
    *   Should we add a unique sequence number to the end of the key.
    * @param bool $ignoreKey
    *   Should we not set a qfKey for this controller (for standalone forms).
+   *
+   * @throws \CRM_Core_Exception
    */
   public function __construct(
     $title = NULL,

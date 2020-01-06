@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
@@ -394,10 +378,33 @@ function _civicrm_api3_system_get_whitelist($whitelistFile) {
  * This updates the engine type if defined in the hook and changes the field type
  * for log_conn_id to reflect CRM-18193.
  */
-function civicrm_api3_system_updatelogtables() {
+function civicrm_api3_system_updatelogtables($params) {
   $schema = new CRM_Logging_Schema();
-  $schema->updateLogTableSchema();
-  return civicrm_api3_create_success(1);
+  $updatedTablesCount = $schema->updateLogTableSchema($params);
+  return civicrm_api3_create_success($updatedTablesCount);
+}
+
+/**
+ * Adjust Metadata for Flush action.
+ *
+ * The metadata is used for setting defaults, documentation & validation.
+ *
+ * @param array $params
+ *   Array of parameters determined by getfields.
+ */
+function _civicrm_api3_system_updatelogtables_spec(&$params) {
+  $params['updateChangedEngineConfig'] = [
+    'title' => 'Update Engine Config if changed?',
+    'description' => 'By default, we only update if the ENGINE has changed, set this to TRUE to update if the ENGINE_CONFIG has changed.',
+    'type' => CRM_Utils_Type::T_BOOLEAN,
+    'api.default' => FALSE,
+  ];
+  $params['forceEngineMigration'] = [
+    'title' => 'Force storage engine to upgrade to InnoDB?',
+    'description' => 'Older versions of CiviCRM used the ARCHIVE engine by default. Set this to TRUE to migrate the engine to the new default.',
+    'type' => CRM_Utils_Type::T_BOOLEAN,
+    'api.default' => FALSE,
+  ];
 }
 
 /**
@@ -420,7 +427,7 @@ function civicrm_api3_system_createmissinglogtables() {
   $missingLogTables = $schema->getMissingLogTables();
   if (!empty($missingLogTables)) {
     foreach ($missingLogTables as $tableName) {
-      $schema->fixSchemaDifferencesFor($tableName, NULL, FALSE);
+      $schema->fixSchemaDifferencesFor($tableName);
     }
   }
   return civicrm_api3_create_success(1);

@@ -2,34 +2,18 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                            |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -218,9 +202,9 @@ class CRM_Event_Form_SelfSvcTransfer extends CRM_Core_Form {
     }
     // for front-end user show and use the basic three fields used to create a contact
     else {
-      $this->add('text', 'email', ts('To Email'), ts($this->_contact_email), TRUE);
-      $this->add('text', 'last_name', ts('To Last Name'), ts($this->_to_contact_last_name), TRUE);
-      $this->add('text', 'first_name', ts('To First Name'), ts($this->_to_contact_first_name), TRUE);
+      $this->add('text', 'email', ts('To Email'), $this->_contact_email, TRUE);
+      $this->add('text', 'last_name', ts('To Last Name'), $this->_to_contact_last_name, TRUE);
+      $this->add('text', 'first_name', ts('To First Name'), $this->_to_contact_first_name, TRUE);
     }
 
     $this->addButtons([
@@ -365,7 +349,11 @@ class CRM_Event_Form_SelfSvcTransfer extends CRM_Core_Form {
     }
     $value_to['contact_id'] = $contact_id;
     $value_to['event_id'] = $this->_event_id;
-    $value_to['status_id'] = 1;
+    $value_to['status_id'] = CRM_Core_PseudoConstant::getKey(
+      'CRM_Event_BAO_Participant',
+      'status_id',
+      'Registered'
+    );
     $value_to['register_date'] = date("Y-m-d");
     //first create the new participant row -don't set registered_by yet or email won't be sent
     $participant = CRM_Event_BAO_Participant::create($value_to);

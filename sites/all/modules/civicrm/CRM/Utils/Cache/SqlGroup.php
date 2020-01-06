@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -58,17 +42,23 @@ class CRM_Utils_Cache_SqlGroup implements CRM_Utils_Cache_Interface {
   protected $componentID;
 
   /**
-   * @var array in-memory cache to optimize redundant get()s
+   * In-memory cache to optimize redundant get()s.
+   *
+   * @var array
    */
   protected $valueCache;
 
   /**
-   * @var array in-memory cache to optimize redundant get()s
+   * In-memory cache to optimize redundant get()s.
+   *
+   * @var array
    *   Note: expiresCache[$key]===NULL means cache-miss
    */
   protected $expiresCache;
 
   /**
+   * Table.
+   *
    * @var string
    */
   protected $table;
@@ -153,8 +143,6 @@ class CRM_Utils_Cache_SqlGroup implements CRM_Utils_Cache_Interface {
 
     $lock->release();
 
-    $dao->free();
-
     $this->valueCache[$key] = CRM_Core_BAO_Cache::decode($dataSerialized);
     $this->expiresCache[$key] = $expires;
     return TRUE;
@@ -175,7 +163,6 @@ class CRM_Utils_Cache_SqlGroup implements CRM_Utils_Cache_Interface {
         $this->expiresCache[$key] = $dao->expires;
         $this->valueCache[$key] = CRM_Core_BAO_Cache::decode($dao->data);
       }
-      $dao->free();
     }
     return (isset($this->expiresCache[$key]) && time() < $this->expiresCache[$key]) ? $this->reobjectify($this->valueCache[$key]) : $default;
   }
@@ -210,6 +197,11 @@ class CRM_Utils_Cache_SqlGroup implements CRM_Utils_Cache_Interface {
    */
   public function delete($key) {
     CRM_Utils_Cache::assertValidKey($key);
+    // If we are triggering a deletion of a prevNextCache key in the civicrm_cache tabl
+    // Alssure that the relevant prev_next_cache values are also removed.
+    if ($this->group == CRM_Utils_Cache::cleanKey('CiviCRM Search PrevNextCache')) {
+      Civi::service('prevnext')->deleteItem(NULL, $key);
+    }
     CRM_Core_DAO::executeQuery("DELETE FROM {$this->table} WHERE {$this->where($key)}");
     unset($this->valueCache[$key]);
     unset($this->expiresCache[$key]);
@@ -217,7 +209,14 @@ class CRM_Utils_Cache_SqlGroup implements CRM_Utils_Cache_Interface {
   }
 
   public function flush() {
-    CRM_Core_DAO::executeQuery("DELETE FROM {$this->table} WHERE {$this->where()}");
+    if ($this->group == CRM_Utils_Cache::cleanKey('CiviCRM Search PrevNextCache') &&
+      Civi::service('prevnext') instanceof CRM_Core_PrevNextCache_Sql) {
+      // Use the standard PrevNextCache cleanup function here not just delete from civicrm_cache
+      CRM_Core_BAO_PrevNextCache::cleanupCache();
+    }
+    else {
+      CRM_Core_DAO::executeQuery("DELETE FROM {$this->table} WHERE {$this->where()}");
+    }
     $this->valueCache = [];
     $this->expiresCache = [];
     return TRUE;
@@ -235,7 +234,6 @@ class CRM_Utils_Cache_SqlGroup implements CRM_Utils_Cache_Interface {
       $this->valueCache[$dao->path] = CRM_Core_BAO_Cache::decode($dao->data);
       $this->expiresCache[$dao->path] = $dao->expires;
     }
-    $dao->free();
   }
 
   protected function where($path = NULL) {

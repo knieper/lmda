@@ -1,25 +1,9 @@
 -- +--------------------------------------------------------------------+
--- | CiviCRM version 5                                                  |
--- +--------------------------------------------------------------------+
--- | Copyright CiviCRM LLC (c) 2004-2019                                |
--- +--------------------------------------------------------------------+
--- | This file is a part of CiviCRM.                                    |
+-- | Copyright CiviCRM LLC. All rights reserved.                        |
 -- |                                                                    |
--- | CiviCRM is free software; you can copy, modify, and distribute it  |
--- | under the terms of the GNU Affero General Public License           |
--- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
--- |                                                                    |
--- | CiviCRM is distributed in the hope that it will be useful, but     |
--- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
--- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
--- | See the GNU Affero General Public License for more details.        |
--- |                                                                    |
--- | You should have received a copy of the GNU Affero General Public   |
--- | License and the CiviCRM Licensing Exception along                  |
--- | with this program; if not, contact CiviCRM LLC                     |
--- | at info[AT]civicrm[DOT]org. If you have questions about the        |
--- | GNU Affero General Public License or the licensing of CiviCRM,     |
--- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+-- | This work is published under the GNU AGPLv3 license with some      |
+-- | permitted exceptions and without any warranty. For full license    |
+-- | and copyright information, see https://civicrm.org/licensing       |
 -- +--------------------------------------------------------------------+
 --
 -- Generated from civicrm_country.tpl
@@ -169,7 +153,7 @@ INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1125", "Lithuania", "LT", "1", "0");
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1126", "Luxembourg", "LU", "1", "0");
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1127", "Macao", "MO", "4", "0");
-INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1128", "Macedonia, Republic of", "MK", "1", "0");
+INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1128", "North Macedonia", "MK", "1", "0");
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1129", "Madagascar", "MG", "5", "0");
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1130", "Malawi", "MW", "5", "0");
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1131", "Malaysia", "MY", "4", "0");
@@ -295,27 +279,11 @@ INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1252", "Saint Barthélemy", "BL", "2", "0");
 INSERT INTO civicrm_country (id, name,iso_code,region_id,is_province_abbreviated) VALUES("1253", "Saint Martin (French part)", "MF", "2", "0");
 -- +--------------------------------------------------------------------+
--- | CiviCRM version 5                                                  |
--- +--------------------------------------------------------------------+
--- | Copyright CiviCRM LLC (c) 2004-2019                                |
--- +--------------------------------------------------------------------+
--- | This file is a part of CiviCRM.                                    |
+-- | Copyright CiviCRM LLC. All rights reserved.                        |
 -- |                                                                    |
--- | CiviCRM is free software; you can copy, modify, and distribute it  |
--- | under the terms of the GNU Affero General Public License           |
--- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
--- |                                                                    |
--- | CiviCRM is distributed in the hope that it will be useful, but     |
--- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
--- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
--- | See the GNU Affero General Public License for more details.        |
--- |                                                                    |
--- | You should have received a copy of the GNU Affero General Public   |
--- | License and the CiviCRM Licensing Exception along                  |
--- | with this program; if not, contact CiviCRM LLC                     |
--- | at info[AT]civicrm[DOT]org. If you have questions about the        |
--- | GNU Affero General Public License or the licensing of CiviCRM,     |
--- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+-- | This work is published under the GNU AGPLv3 license with some      |
+-- | permitted exceptions and without any warranty. For full license    |
+-- | and copyright information, see https://civicrm.org/licensing       |
 -- +--------------------------------------------------------------------+
 --
 -- Generated from civicrm_state_province.tpl
@@ -4421,27 +4389,11 @@ INSERT INTO civicrm_state_province (id, country_id, abbreviation, name) VALUES
 -- dev/Core#131 Missing UK State
 (NULL, 1226, "MON", "Monmouthshire");
 -- +--------------------------------------------------------------------+
--- | CiviCRM version 5                                                  |
--- +--------------------------------------------------------------------+
--- | Copyright CiviCRM LLC (c) 2004-2019                                |
--- +--------------------------------------------------------------------+
--- | This file is a part of CiviCRM.                                    |
+-- | Copyright CiviCRM LLC. All rights reserved.                        |
 -- |                                                                    |
--- | CiviCRM is free software; you can copy, modify, and distribute it  |
--- | under the terms of the GNU Affero General Public License           |
--- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
--- |                                                                    |
--- | CiviCRM is distributed in the hope that it will be useful, but     |
--- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
--- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
--- | See the GNU Affero General Public License for more details.        |
--- |                                                                    |
--- | You should have received a copy of the GNU Affero General Public   |
--- | License and the CiviCRM Licensing Exception along                  |
--- | with this program; if not, contact CiviCRM LLC                     |
--- | at info[AT]civicrm[DOT]org. If you have questions about the        |
--- | GNU Affero General Public License or the licensing of CiviCRM,     |
--- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+-- | This work is published under the GNU AGPLv3 license with some      |
+-- | permitted exceptions and without any warranty. For full license    |
+-- | and copyright information, see https://civicrm.org/licensing       |
 -- +--------------------------------------------------------------------+
 --
 -- Generated from civicrm_currency.tpl
@@ -4634,27 +4586,11 @@ INSERT INTO civicrm_currency (id, name, symbol, numeric_code, full_name) VALUES
 (184, "ZMK", NULL, "894", "Zambian Kwacha"),
 (185, "ZWD", "Z$", "716", "Zimbabwe Dollar");
 -- +--------------------------------------------------------------------+
--- | CiviCRM version 5                                                  |
--- +--------------------------------------------------------------------+
--- | Copyright CiviCRM LLC (c) 2004-2019                                |
--- +--------------------------------------------------------------------+
--- | This file is a part of CiviCRM.                                    |
+-- | Copyright CiviCRM LLC. All rights reserved.                        |
 -- |                                                                    |
--- | CiviCRM is free software; you can copy, modify, and distribute it  |
--- | under the terms of the GNU Affero General Public License           |
--- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
--- |                                                                    |
--- | CiviCRM is distributed in the hope that it will be useful, but     |
--- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
--- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
--- | See the GNU Affero General Public License for more details.        |
--- |                                                                    |
--- | You should have received a copy of the GNU Affero General Public   |
--- | License and the CiviCRM Licensing Exception along                  |
--- | with this program; if not, contact CiviCRM LLC                     |
--- | at info[AT]civicrm[DOT]org. If you have questions about the        |
--- | GNU Affero General Public License or the licensing of CiviCRM,     |
--- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+-- | This work is published under the GNU AGPLv3 license with some      |
+-- | permitted exceptions and without any warranty. For full license    |
+-- | and copyright information, see https://civicrm.org/licensing       |
 -- +--------------------------------------------------------------------+
 --
 -- Generated from civicrm_data.tpl
@@ -4836,6 +4772,7 @@ VALUES
    ('wysiwyg_presets'               , 'WYSIWYG Editor Presets'             , NULL, 1, 1, 0),
    ('relative_date_filters'         , 'Relative Date Filters'              , NULL, 1, 1, 0),
    ('pledge_status'                 , 'Pledge Status'                      , NULL, 1, 1, 1),
+   ('contribution_recur_status'     , 'Recurring Contribution Status'      , NULL, 1, 1, 1),
    ('environment'                   , 'Environment'                        , NULL, 1, 1, 0),
    ('activity_default_assignee'     , 'Activity default assignee'          , NULL, 1, 1, 0);
 
@@ -4918,6 +4855,7 @@ SELECT @option_group_id_contactDateMode := max(id) from civicrm_option_group whe
 SELECT @option_group_id_date_filter    := max(id) from civicrm_option_group where name = 'relative_date_filters';
 SELECT @option_group_id_wysiwyg_presets    := max(id) from civicrm_option_group where name = 'wysiwyg_presets';
 SELECT @option_group_id_ps    := max(id) from civicrm_option_group where name = 'pledge_status';
+SELECT @option_group_id_crs    := max(id) from civicrm_option_group where name = 'contribution_recur_status';
 SELECT @option_group_id_env    := max(id) from civicrm_option_group where name = 'environment';
 SELECT @option_group_id_default_assignee := max(id) from civicrm_option_group where name = 'activity_default_assignee';
 
@@ -5070,6 +5008,7 @@ VALUES
   (@option_group_id_cs, 'Partially paid', 8, 'Partially paid', NULL, 0, NULL, 8, NULL, 0, 1, 1, NULL, NULL, NULL),
   (@option_group_id_cs, 'Pending refund', 9, 'Pending refund', NULL, 0, NULL, 9, NULL, 0, 1, 1, NULL, NULL, NULL),
   (@option_group_id_cs, 'Chargeback', 10, 'Chargeback', NULL, 0, NULL, 10, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_cs, 'Template'  , 11, 'Template',   NULL, 0, NULL, 11, 'Status for contribution records which represent a template for a recurring contribution rather than an actual contribution. This status is transitional, to ensure that said contributions don\\\'t appear in reports. The is_template field is the preferred way to find and filter these contributions.', 0, 1, 1, NULL, NULL, NULL),
 
   (@option_group_id_pcp, 'Waiting Review', 1, 'Waiting Review', NULL, 0, NULL, 1, NULL, 0, 1, 1, NULL, NULL, NULL),
   (@option_group_id_pcp, 'Approved'      , 2, 'Approved'      , NULL, 0, NULL, 2, NULL, 0, 1, 1, NULL, NULL, NULL),
@@ -5202,7 +5141,6 @@ VALUES
 
   (@option_group_id_csearch , 'CRM_Contact_Form_Search_Custom_Sample'               , 1, 'CRM_Contact_Form_Search_Custom_Sample'      , NULL, 0, NULL, 1, 'Household Name and State', 0, 0, 1, NULL, NULL, NULL),
   (@option_group_id_csearch , 'CRM_Contact_Form_Search_Custom_ContributionAggregate', 2, 'CRM_Contact_Form_Search_Custom_ContributionAggregate', NULL, 0, NULL, 2, 'Contribution Aggregate', 0, 0, 1, NULL, NULL, NULL),
-  (@option_group_id_csearch , 'CRM_Contact_Form_Search_Custom_Basic'                , 3, 'CRM_Contact_Form_Search_Custom_Basic'       , NULL, 0, NULL, 3, 'Basic Search', 0, 0, 1, NULL, NULL, NULL),
   (@option_group_id_csearch , 'CRM_Contact_Form_Search_Custom_Group'                , 4, 'CRM_Contact_Form_Search_Custom_Group'       , NULL, 0, NULL, 4, 'Include / Exclude Search', 0, 0, 1, NULL, NULL, NULL),
   (@option_group_id_csearch , 'CRM_Contact_Form_Search_Custom_PostalMailing'        , 5, 'CRM_Contact_Form_Search_Custom_PostalMailing', NULL, 0, NULL, 5, 'Postal Mailing', 0, 0, 1, NULL, NULL, NULL),
   (@option_group_id_csearch , 'CRM_Contact_Form_Search_Custom_Proximity'            , 6, 'CRM_Contact_Form_Search_Custom_Proximity', NULL, 0, NULL, 6, 'Proximity Search', 0, 0, 1, NULL, NULL, NULL),
@@ -5299,6 +5237,7 @@ VALUES
   (@option_group_id_sfe, 'xlsx', 13, 'xlsx',  NULL, 0, 0, 13, NULL, 0, 0, 1, NULL, NULL, NULL),
   (@option_group_id_sfe, 'odt',  14, 'odt',   NULL, 0, 0, 14, NULL, 0, 0, 1, NULL, NULL, NULL),
   (@option_group_id_sfe, 'ics',  15, 'ics',   NULL, 0, 0, 15, NULL, 0, 0, 1, NULL, NULL, NULL),
+  (@option_group_id_sfe, 'pptx',  16, 'pptx',   NULL, 0, 0, 16, NULL, 0, 0, 1, NULL, NULL, NULL),
 
   (@option_group_id_we, 'Textarea', 1, 'Textarea', NULL, 0, NULL, 1, NULL, 0, 1, 1, NULL, NULL, NULL),
   (@option_group_id_we, 'CKEditor', 2, 'CKEditor', NULL, 0, NULL, 2, NULL, 0, 1, 1, NULL, NULL, NULL),
@@ -5667,6 +5606,17 @@ VALUES
   (@option_group_id_ps, 'Cancelled'  , 3, 'Cancelled'  , NULL, 0, NULL, 3, NULL, 0, 1, 1, NULL, NULL, NULL),
   (@option_group_id_ps, 'In Progress', 5, 'In Progress', NULL, 0, NULL, 4, NULL, 0, 1, 1, NULL, NULL, NULL),
   (@option_group_id_ps, 'Overdue'    , 6, 'Overdue'    , NULL, 0, NULL, 5, NULL, 0, 1, 1, NULL, NULL, NULL),
+
+
+-- Contribution Recur Status
+  (@option_group_id_crs, 'Completed'  , 1, 'Completed'  , NULL, 0, NULL, 1, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'Pending'    , 2, 'Pending'    , NULL, 0, NULL, 2, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'Cancelled'  , 3, 'Cancelled'  , NULL, 0, NULL, 3, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'Failed'     , 4, 'Failed'     , NULL, 0, NULL, 4, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'In Progress', 5, 'In Progress', NULL, 0, NULL, 5, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'Overdue'    , 6, 'Overdue'    , NULL, 0, NULL, 6, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'Processing' , 7, 'Processing' , NULL, 0, NULL, 7, NULL, 0, 1, 1, NULL, NULL, NULL),
+  (@option_group_id_crs, 'Failing'    , 8, 'Failing'    , NULL, 0, NULL, 8, NULL, 0, 1, 1, NULL, NULL, NULL),
 
 -- CiviCase - Activity Assignee Default
 --  (`option_group_id`,             `label`,                                                `value`, `name`,                    `grouping`, `filter`, `is_default`, `weight`, `description`, `is_optgroup`, `is_reserved`, `is_active`, `component_id`, `visibility_id`, `icon`)
@@ -6423,7 +6373,7 @@ INSERT INTO civicrm_uf_field
        ( 10,     'soft_credit',                 0, 0, 10, 'User and User Admin Only', 0, 0, NULL, 'Soft Credit', 'Contribution', NULL, NULL ),
        ( 10,     'soft_credit_type',            0, 0, 11, 'User and User Admin Only', 0, 0, NULL, 'Soft Credit Type', 'Contribution', NULL, NULL ),
        ( 11,     'membership_type',             1, 1, 1, 'User and User Admin Only', 0, 0, NULL, 'Membership Type', 'Membership', NULL, NULL ),
-       ( 11,     'join_date',                   1, 1, 2, 'User and User Admin Only', 0, 0, NULL, 'Member Since', 'Membership', NULL, NULL ),
+       ( 11,     'membership_join_date',        1, 1, 2, 'User and User Admin Only', 0, 0, NULL, 'Member Since', 'Membership', NULL, NULL ),
        ( 11,     'membership_start_date',       0, 1, 3, 'User and User Admin Only', 0, 0, NULL, 'Start Date', 'Membership', NULL, NULL ),
        ( 11,     'membership_end_date',         0, 1, 4, 'User and User Admin Only', 0, 0, NULL, 'End Date', 'Membership', NULL, NULL ),
        ( 11,     'membership_source',           0, 0, 5, 'User and User Admin Only', 0, 0, NULL, 'Source', 'Membership', NULL, NULL ),
@@ -6483,27 +6433,11 @@ INSERT INTO `civicrm_contact_type`
   ( 3, 'Organization', 'Organization', NULL, NULL, 1, 1);
 
 -- +--------------------------------------------------------------------+
--- | CiviCRM version 5                                                  |
--- +--------------------------------------------------------------------+
--- | Copyright CiviCRM LLC (c) 2004-2019                                |
--- +--------------------------------------------------------------------+
--- | This file is a part of CiviCRM.                                    |
+-- | Copyright CiviCRM LLC. All rights reserved.                        |
 -- |                                                                    |
--- | CiviCRM is free software; you can copy, modify, and distribute it  |
--- | under the terms of the GNU Affero General Public License           |
--- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
--- |                                                                    |
--- | CiviCRM is distributed in the hope that it will be useful, but     |
--- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
--- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
--- | See the GNU Affero General Public License for more details.        |
--- |                                                                    |
--- | You should have received a copy of the GNU Affero General Public   |
--- | License and the CiviCRM Licensing Exception along                  |
--- | with this program; if not, contact CiviCRM LLC                     |
--- | at info[AT]civicrm[DOT]org. If you have questions about the        |
--- | GNU Affero General Public License or the licensing of CiviCRM,     |
--- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+-- | This work is published under the GNU AGPLv3 license with some      |
+-- | permitted exceptions and without any warranty. For full license    |
+-- | and copyright information, see https://civicrm.org/licensing       |
 -- +--------------------------------------------------------------------+
 --
 -- Generated from civicrm_msg_template.tpl
@@ -6616,7 +6550,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -6760,7 +6694,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -6854,7 +6788,7 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_case_activity, 0,          1) ,      
       
       
-      ('Contributions - Duplicate Organization Alert', '{ts}CiviContribute Alert: Possible Duplicate Contact Record{/ts}
+      ('Contributions - Duplicate Organization Alert', '{ts}CiviContribute Alert: Possible Duplicate Contact Record{/ts} - {contact.display_name}
 ', '{ts}A contribution / membership signup was made on behalf of the organization listed below.{/ts}
 {ts}The information provided matched multiple existing database records based on the configured Duplicate Matching Rules for your site.{/ts}
 
@@ -6885,7 +6819,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -6959,7 +6893,7 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_contribution_dupalert, 1,          0),
-      ('Contributions - Duplicate Organization Alert', '{ts}CiviContribute Alert: Possible Duplicate Contact Record{/ts}
+      ('Contributions - Duplicate Organization Alert', '{ts}CiviContribute Alert: Possible Duplicate Contact Record{/ts} - {contact.display_name}
 ', '{ts}A contribution / membership signup was made on behalf of the organization listed below.{/ts}
 {ts}The information provided matched multiple existing database records based on the configured Duplicate Matching Rules for your site.{/ts}
 
@@ -6990,7 +6924,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -7066,13 +7000,12 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_contribution_dupalert, 0,          1) ,      
       
       
-      ('Contributions - Receipt (off-line)', '{ts}Contribution Receipt{/ts}
-', '{if $formValues.receipt_text}
+      ('Contributions - Receipt (off-line)', '{ts}Contribution Receipt{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{if $formValues.receipt_text}
 {$formValues.receipt_text}
-{else}{ts}Thank you for your support.{/ts}{/if}
-
-{ts}Please print this receipt for your records.{/ts}
-
+{else}{ts}Below you will find a receipt for this contribution.{/ts}{/if}
 
 ===========================================================
 {ts}Contribution Information{/ts}
@@ -7198,7 +7131,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -7208,15 +7141,12 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     {if $formValues.receipt_text}
      <p>{$formValues.receipt_text|htmlize}</p>
     {else}
-     <p>{ts}Thank you for your support.{/ts}</p>
+     <p>{ts}Below you will find a receipt for this contribution.{/ts}</p>
     {/if}
-
-    <p>{ts}Please print this receipt for your records.{/ts}</p>
-
    </td>
   </tr>
   <tr>
@@ -7505,13 +7435,12 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_contribution_offline_receipt, 1,          0),
-      ('Contributions - Receipt (off-line)', '{ts}Contribution Receipt{/ts}
-', '{if $formValues.receipt_text}
+      ('Contributions - Receipt (off-line)', '{ts}Contribution Receipt{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{if $formValues.receipt_text}
 {$formValues.receipt_text}
-{else}{ts}Thank you for your support.{/ts}{/if}
-
-{ts}Please print this receipt for your records.{/ts}
-
+{else}{ts}Below you will find a receipt for this contribution.{/ts}{/if}
 
 ===========================================================
 {ts}Contribution Information{/ts}
@@ -7637,7 +7566,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -7647,15 +7576,12 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     {if $formValues.receipt_text}
      <p>{$formValues.receipt_text|htmlize}</p>
     {else}
-     <p>{ts}Thank you for your support.{/ts}</p>
+     <p>{ts}Below you will find a receipt for this contribution.{/ts}</p>
     {/if}
-
-    <p>{ts}Please print this receipt for your records.{/ts}</p>
-
    </td>
   </tr>
   <tr>
@@ -7946,7 +7872,7 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_contribution_offline_receipt, 0,          1) ,      
       
       
-      ('Contributions - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title}
+      ('Contributions - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title} - {contact.display_name}
 ', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $receipt_text}
 {$receipt_text}
@@ -7956,9 +7882,6 @@ INSERT INTO civicrm_msg_template
 ===========================================================
 {$pay_later_receipt}
 ===========================================================
-{else}
-
-{ts}Please print this receipt for your records.{/ts}
 {/if}
 
 {if $amount}
@@ -8078,14 +8001,7 @@ INSERT INTO civicrm_msg_template
 {/foreach}
 {/if}
 
-{if !( $contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\' ) and $is_monetary}
-{if $is_pay_later && !$isBillingAddressRequiredForPayLater}
-===========================================================
-{ts}Registered Email{/ts}
-
-===========================================================
-{$email}
-{elseif $amount GT 0}
+{if $billingName}
 ===========================================================
 {ts}Billing Name and Address{/ts}
 
@@ -8094,9 +8010,14 @@ INSERT INTO civicrm_msg_template
 {$address}
 
 {$email}
-{/if} {* End ! is_pay_later condition. *}
-{/if}
-{if $contributeMode eq \'direct\' AND !$is_pay_later AND $amount GT 0}
+{elseif $email}
+===========================================================
+{ts}Registered Email{/ts}
+
+===========================================================
+{$email}
+{/if} {* End billingName or Email*}
+{if $credit_card_type}
 
 ===========================================================
 {ts}Credit Card Information{/ts}
@@ -8178,7 +8099,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="500" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -8195,14 +8116,12 @@ INSERT INTO civicrm_msg_template
 
     {if $is_pay_later}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
   </tr>
   </table>
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
 
      {if $amount}
 
@@ -8480,19 +8399,7 @@ INSERT INTO civicrm_msg_template
       </tr>
      {/if}
 
-     {if ! ($contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\') and $is_monetary}
-      {if $is_pay_later && !$isBillingAddressRequiredForPayLater}
-       <tr>
-        <th {$headerStyle}>
-         {ts}Registered Email{/ts}
-        </th>
-       </tr>
-       <tr>
-        <td colspan="2" {$valueStyle}>
-         {$email}
-        </td>
-       </tr>
-      {elseif $amount GT 0}
+     {if $billingName}
        <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
@@ -8505,10 +8412,20 @@ INSERT INTO civicrm_msg_template
          {$email}
         </td>
        </tr>
-      {/if}
+     {elseif $email}
+       <tr>
+        <th {$headerStyle}>
+         {ts}Registered Email{/ts}
+        </th>
+       </tr>
+       <tr>
+        <td colspan="2" {$valueStyle}>
+         {$email}
+        </td>
+       </tr>
      {/if}
 
-     {if $contributeMode eq \'direct\' AND !$is_pay_later AND $amount GT 0}
+     {if $credit_card_type}
       <tr>
        <th {$headerStyle}>
         {ts}Credit Card Information{/ts}
@@ -8642,7 +8559,7 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_contribution_online_receipt, 1,          0),
-      ('Contributions - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title}
+      ('Contributions - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title} - {contact.display_name}
 ', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $receipt_text}
 {$receipt_text}
@@ -8652,9 +8569,6 @@ INSERT INTO civicrm_msg_template
 ===========================================================
 {$pay_later_receipt}
 ===========================================================
-{else}
-
-{ts}Please print this receipt for your records.{/ts}
 {/if}
 
 {if $amount}
@@ -8774,14 +8688,7 @@ INSERT INTO civicrm_msg_template
 {/foreach}
 {/if}
 
-{if !( $contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\' ) and $is_monetary}
-{if $is_pay_later && !$isBillingAddressRequiredForPayLater}
-===========================================================
-{ts}Registered Email{/ts}
-
-===========================================================
-{$email}
-{elseif $amount GT 0}
+{if $billingName}
 ===========================================================
 {ts}Billing Name and Address{/ts}
 
@@ -8790,9 +8697,14 @@ INSERT INTO civicrm_msg_template
 {$address}
 
 {$email}
-{/if} {* End ! is_pay_later condition. *}
-{/if}
-{if $contributeMode eq \'direct\' AND !$is_pay_later AND $amount GT 0}
+{elseif $email}
+===========================================================
+{ts}Registered Email{/ts}
+
+===========================================================
+{$email}
+{/if} {* End billingName or Email*}
+{if $credit_card_type}
 
 ===========================================================
 {ts}Credit Card Information{/ts}
@@ -8874,7 +8786,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="500" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -8891,14 +8803,12 @@ INSERT INTO civicrm_msg_template
 
     {if $is_pay_later}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
   </tr>
   </table>
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
 
      {if $amount}
 
@@ -9176,19 +9086,7 @@ INSERT INTO civicrm_msg_template
       </tr>
      {/if}
 
-     {if ! ($contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\') and $is_monetary}
-      {if $is_pay_later && !$isBillingAddressRequiredForPayLater}
-       <tr>
-        <th {$headerStyle}>
-         {ts}Registered Email{/ts}
-        </th>
-       </tr>
-       <tr>
-        <td colspan="2" {$valueStyle}>
-         {$email}
-        </td>
-       </tr>
-      {elseif $amount GT 0}
+     {if $billingName}
        <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
@@ -9201,10 +9099,20 @@ INSERT INTO civicrm_msg_template
          {$email}
         </td>
        </tr>
-      {/if}
+     {elseif $email}
+       <tr>
+        <th {$headerStyle}>
+         {ts}Registered Email{/ts}
+        </th>
+       </tr>
+       <tr>
+        <td colspan="2" {$valueStyle}>
+         {$email}
+        </td>
+       </tr>
      {/if}
 
-     {if $contributeMode eq \'direct\' AND !$is_pay_later AND $amount GT 0}
+     {if $credit_card_type}
       <tr>
        <th {$headerStyle}>
         {ts}Credit Card Information{/ts}
@@ -9351,6 +9259,7 @@ INSERT INTO civicrm_msg_template
 {else}
   {ts}Invoice{/ts}
 {/if}
+ - {contact.display_name}
 ', '{ts}Contribution Invoice{/ts}
 ', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns = "http://www.w3.org/1999/xhtml">
@@ -9822,6 +9731,7 @@ INSERT INTO civicrm_msg_template
 {else}
   {ts}Invoice{/ts}
 {/if}
+ - {contact.display_name}
 ', '{ts}Contribution Invoice{/ts}
 ', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns = "http://www.w3.org/1999/xhtml">
@@ -10284,8 +10194,8 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_contribution_invoice_receipt, 0,          1) ,      
       
       
-      ('Contributions - Recurring Start and End Notification', '{ts}Recurring Contribution Notification{/ts}
-', '{ts 1=$displayName}Dear %1{/ts},
+      ('Contributions - Recurring Start and End Notification', '{ts}Recurring Contribution Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {if $recur_txnType eq \'START\'}
 {if $auto_renew_membership}
@@ -10336,7 +10246,7 @@ INSERT INTO civicrm_msg_template
 {ts}Your recurring contribution term has ended.{/ts}
 
 
-{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you for your support.{/ts}
+{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you.{/ts}
 
 
 ==================================================
@@ -10362,7 +10272,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10372,7 +10282,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$displayName}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
    </td>
   </tr>
 
@@ -10445,7 +10355,7 @@ INSERT INTO civicrm_msg_template
       <tr>
        <td>
         <p>{ts}Your recurring contribution term has ended.{/ts}</p>
-        <p>{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you for your support.{/ts}</p>
+        <p>{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you.{/ts}</p>
        </td>
       </tr>
       <tr>
@@ -10485,8 +10395,8 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_contribution_recurring_notify, 1,          0),
-      ('Contributions - Recurring Start and End Notification', '{ts}Recurring Contribution Notification{/ts}
-', '{ts 1=$displayName}Dear %1{/ts},
+      ('Contributions - Recurring Start and End Notification', '{ts}Recurring Contribution Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {if $recur_txnType eq \'START\'}
 {if $auto_renew_membership}
@@ -10537,7 +10447,7 @@ INSERT INTO civicrm_msg_template
 {ts}Your recurring contribution term has ended.{/ts}
 
 
-{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you for your support.{/ts}
+{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you.{/ts}
 
 
 ==================================================
@@ -10563,7 +10473,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10573,7 +10483,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$displayName}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
    </td>
   </tr>
 
@@ -10646,7 +10556,7 @@ INSERT INTO civicrm_msg_template
       <tr>
        <td>
         <p>{ts}Your recurring contribution term has ended.{/ts}</p>
-        <p>{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you for your support.{/ts}</p>
+        <p>{ts 1=$recur_installments}You have successfully completed %1 recurring contributions. Thank you.{/ts}</p>
        </td>
       </tr>
       <tr>
@@ -10688,8 +10598,8 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_contribution_recurring_notify, 0,          1) ,      
       
       
-      ('Contributions - Recurring Cancellation Notification', '{ts}Recurring Contribution Cancellation Notification{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Contributions - Recurring Cancellation Notification', '{ts}Recurring Contribution Cancellation Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Your recurring contribution of %1, every %2 %3 has been cancelled as requested.{/ts}
 ', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -10705,7 +10615,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10715,7 +10625,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Your recurring contribution of %1, every %2 %3 has been cancelled as requested.{/ts}</p>
    </td>
   </tr>
@@ -10726,8 +10636,8 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_contribution_recurring_cancelled, 1,          0),
-      ('Contributions - Recurring Cancellation Notification', '{ts}Recurring Contribution Cancellation Notification{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Contributions - Recurring Cancellation Notification', '{ts}Recurring Contribution Cancellation Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Your recurring contribution of %1, every %2 %3 has been cancelled as requested.{/ts}
 ', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -10743,7 +10653,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10753,7 +10663,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Your recurring contribution of %1, every %2 %3 has been cancelled as requested.{/ts}</p>
    </td>
   </tr>
@@ -10766,7 +10676,8 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_contribution_recurring_cancelled, 0,          1) ,      
       
       
-      ('Contributions - Recurring Billing Updates', '{ts}Recurring Contribution Billing Updates{/ts}', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Contributions - Recurring Billing Updates', '{ts}Recurring Contribution Billing Updates{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Billing details for your recurring contribution of %1, every %2 %3 have been updated.{/ts}
 
@@ -10788,7 +10699,8 @@ INSERT INTO civicrm_msg_template
 {ts}Expires{/ts}: {$credit_card_exp_date|truncate:7:\'\'|crmDate}
 
 
-{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}
+', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10801,7 +10713,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10811,15 +10723,15 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Billing details for your recurring contribution of %1, every %2 %3 have been updated.{/ts}</p>
    </td>
   </tr>
   <tr>
  </table>
 
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
-<tr>
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+    <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
         </th>
@@ -10852,8 +10764,10 @@ INSERT INTO civicrm_msg_template
 </center>
 
 </body>
-</html>', @tpl_ovid_contribution_recurring_billing, 1,          0),
-      ('Contributions - Recurring Billing Updates', '{ts}Recurring Contribution Billing Updates{/ts}', '{ts 1=$contact.display_name}Dear %1{/ts},
+</html>
+', @tpl_ovid_contribution_recurring_billing, 1,          0),
+      ('Contributions - Recurring Billing Updates', '{ts}Recurring Contribution Billing Updates{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Billing details for your recurring contribution of %1, every %2 %3 have been updated.{/ts}
 
@@ -10875,7 +10789,8 @@ INSERT INTO civicrm_msg_template
 {ts}Expires{/ts}: {$credit_card_exp_date|truncate:7:\'\'|crmDate}
 
 
-{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}
+', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10888,7 +10803,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10898,15 +10813,15 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Billing details for your recurring contribution of %1, every %2 %3 have been updated.{/ts}</p>
    </td>
   </tr>
   <tr>
  </table>
 
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
-<tr>
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+    <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
         </th>
@@ -10939,17 +10854,20 @@ INSERT INTO civicrm_msg_template
 </center>
 
 </body>
-</html>', @tpl_ovid_contribution_recurring_billing, 0,          1) ,      
+</html>
+', @tpl_ovid_contribution_recurring_billing, 0,          1) ,      
       
       
-      ('Contributions - Recurring Updates', '{ts}Recurring Contribution Update Notification{/ts}', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Contributions - Recurring Updates', '{ts}Recurring Contribution Update Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts}Your recurring contribution has been updated as requested:{/ts}
 
 {ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Recurring contribution is for %1, every %2 %3(s){/ts}
 {if $installments}{ts 1=$installments} for %1 installments.{/ts}{/if}
 
-{ts 1=$receipt_from_email}If you have questions please contact us at %1.{/ts}', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{ts 1=$receipt_from_email}If you have questions please contact us at %1.{/ts}
+', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10962,7 +10880,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -10972,7 +10890,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts}Your recurring contribution has been updated as requested:{/ts}
     <p>{ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Recurring contribution is for %1, every %2 %3(s){/ts}{if $installments}{ts 1=$installments} for %1 installments{/ts}{/if}.</p>
 
@@ -10986,14 +10904,16 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_contribution_recurring_edit, 1,          0),
-      ('Contributions - Recurring Updates', '{ts}Recurring Contribution Update Notification{/ts}', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Contributions - Recurring Updates', '{ts}Recurring Contribution Update Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts}Your recurring contribution has been updated as requested:{/ts}
 
 {ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Recurring contribution is for %1, every %2 %3(s){/ts}
 {if $installments}{ts 1=$installments} for %1 installments.{/ts}{/if}
 
-{ts 1=$receipt_from_email}If you have questions please contact us at %1.{/ts}', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{ts 1=$receipt_from_email}If you have questions please contact us at %1.{/ts}
+', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -11006,7 +10926,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11016,7 +10936,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts}Your recurring contribution has been updated as requested:{/ts}
     <p>{ts 1=$amount 2=$recur_frequency_interval 3=$recur_frequency_unit}Recurring contribution is for %1, every %2 %3(s){/ts}{if $installments}{ts 1=$installments} for %1 installments{/ts}{/if}.</p>
 
@@ -11032,7 +10952,7 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_contribution_recurring_edit, 0,          1) ,      
       
       
-      ('Personal Campaign Pages - Admin Notification', '{ts}Personal Campaign Page Notification{/ts}
+      ('Personal Campaign Pages - Admin Notification', '{ts}Personal Campaign Page Notification{/ts} - {contact.display_name}
 ', '===========================================================
 {ts}Personal Campaign Page Notification{/ts}
 
@@ -11067,7 +10987,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=pcpURL     }{crmURL p="civicrm/pcp/info" q="reset=1&id=`$pcpId`" h=0 a=1}{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11150,7 +11070,7 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_pcp_notify, 1,          0),
-      ('Personal Campaign Pages - Admin Notification', '{ts}Personal Campaign Page Notification{/ts}
+      ('Personal Campaign Pages - Admin Notification', '{ts}Personal Campaign Page Notification{/ts} - {contact.display_name}
 ', '===========================================================
 {ts}Personal Campaign Page Notification{/ts}
 
@@ -11185,7 +11105,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=pcpURL     }{crmURL p="civicrm/pcp/info" q="reset=1&id=`$pcpId`" h=0 a=1}{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11270,7 +11190,7 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_pcp_notify, 0,          1) ,      
       
       
-      ('Personal Campaign Pages - Supporter Status Change Notification', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts}
+      ('Personal Campaign Pages - Supporter Status Change Notification', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts} - {contact.display_name}
 ', '{if $pcpStatus eq \'Approved\'}
 ============================
 {ts}Your Personal Campaign Page{/ts}
@@ -11325,7 +11245,7 @@ INSERT INTO civicrm_msg_template
 <body>
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11374,7 +11294,7 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_pcp_status_change, 1,          0),
-      ('Personal Campaign Pages - Supporter Status Change Notification', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts}
+      ('Personal Campaign Pages - Supporter Status Change Notification', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts} - {contact.display_name}
 ', '{if $pcpStatus eq \'Approved\'}
 ============================
 {ts}Your Personal Campaign Page{/ts}
@@ -11429,7 +11349,7 @@ INSERT INTO civicrm_msg_template
 <body>
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11480,8 +11400,9 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_pcp_status_change, 0,          1) ,      
       
       
-      ('Personal Campaign Pages - Supporter Welcome', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts}
-', '{ts}Dear supporter{/ts},
+      ('Personal Campaign Pages - Supporter Welcome', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
 {ts 1="$contribPageTitle"}Thanks for creating a personal campaign page in support of %1.{/ts}
 
 {if $pcpStatus eq \'Approved\'}
@@ -11551,7 +11472,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11561,7 +11482,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts}Dear supporter{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1="$contribPageTitle"}Thanks for creating a personal campaign page in support of %1.{/ts}</p>
    </td>
   </tr>
@@ -11638,8 +11559,9 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_pcp_supporter_notify, 1,          0),
-      ('Personal Campaign Pages - Supporter Welcome', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts}
-', '{ts}Dear supporter{/ts},
+      ('Personal Campaign Pages - Supporter Welcome', '{ts 1=$contribPageTitle}Your Personal Campaign Page for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
 {ts 1="$contribPageTitle"}Thanks for creating a personal campaign page in support of %1.{/ts}
 
 {if $pcpStatus eq \'Approved\'}
@@ -11709,7 +11631,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -11719,7 +11641,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{ts}Dear supporter{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1="$contribPageTitle"}Thanks for creating a personal campaign page in support of %1.{/ts}</p>
    </td>
   </tr>
@@ -11798,11 +11720,13 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_pcp_supporter_notify, 0,          1) ,      
       
       
-      ('Personal Campaign Pages - Owner Notification', '{ts}Someone has just donated to your personal campaign page{/ts}
+      ('Personal Campaign Pages - Owner Notification', '{ts}Someone has just donated to your personal campaign page{/ts} - {contact.display_name}
 ', '===========================================================
 {ts}Personal Campaign Page Owner Notification{/ts}
 
 ===========================================================
+{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
 {ts}You have received a donation at your personal page{/ts}: {$page_title}
 >> {$pcpInfoURL}
 
@@ -11831,6 +11755,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=labelStyle }style="padding: 4px; border-bottom: 1px solid #999; background-color: #f7f7f7;"{/capture}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
+  {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
   <p>{ts}You have received a donation at your personal page{/ts}: <a href="{$pcpInfoURL}">{$page_title}</a></p>
   <p>{ts}Your fundraising total has been updated.{/ts}<br/>
     {ts}The donor\'s information is listed below.  You can choose to contact them and convey your thanks if you wish.{/ts} <br/>
@@ -11838,7 +11763,7 @@ INSERT INTO civicrm_msg_template
       {ts}The donor\'s name has been added to your honor roll unless they asked not to be included.{/ts}<br/>
     {/if}
   </p>
-  <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
     <tr><td>{ts}Received{/ts}:</td><td> {$receive_date|crmDate}</td></tr>
     <tr><td>{ts}Amount{/ts}:</td><td> {$total_amount|crmMoney:$currency}</td></tr>
     <tr><td>{ts}Name{/ts}:</td><td> {$donors_display_name}</td></tr>
@@ -11847,11 +11772,13 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_pcp_owner_notify, 1,          0),
-      ('Personal Campaign Pages - Owner Notification', '{ts}Someone has just donated to your personal campaign page{/ts}
+      ('Personal Campaign Pages - Owner Notification', '{ts}Someone has just donated to your personal campaign page{/ts} - {contact.display_name}
 ', '===========================================================
 {ts}Personal Campaign Page Owner Notification{/ts}
 
 ===========================================================
+{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
 {ts}You have received a donation at your personal page{/ts}: {$page_title}
 >> {$pcpInfoURL}
 
@@ -11880,6 +11807,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=labelStyle }style="padding: 4px; border-bottom: 1px solid #999; background-color: #f7f7f7;"{/capture}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
+  {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
   <p>{ts}You have received a donation at your personal page{/ts}: <a href="{$pcpInfoURL}">{$page_title}</a></p>
   <p>{ts}Your fundraising total has been updated.{/ts}<br/>
     {ts}The donor\'s information is listed below.  You can choose to contact them and convey your thanks if you wish.{/ts} <br/>
@@ -11887,7 +11815,7 @@ INSERT INTO civicrm_msg_template
       {ts}The donor\'s name has been added to your honor roll unless they asked not to be included.{/ts}<br/>
     {/if}
   </p>
-  <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
     <tr><td>{ts}Received{/ts}:</td><td> {$receive_date|crmDate}</td></tr>
     <tr><td>{ts}Amount{/ts}:</td><td> {$total_amount|crmMoney:$currency}</td></tr>
     <tr><td>{ts}Name{/ts}:</td><td> {$donors_display_name}</td></tr>
@@ -11898,11 +11826,17 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_pcp_owner_notify, 0,          1) ,      
       
       
-      ('Additional Payment Receipt or Refund Notification', '{if $isRefund}{ts}Refund Notification{/ts}{else}{ts}Payment Receipt{/ts}{/if} - {if $component eq \'event\'}{$event.title}{/if}', '{if $emailGreeting}{$emailGreeting},
-{/if}{if $isRefund}
+      ('Additional Payment Receipt or Refund Notification', '{if $isRefund}{ts}Refund Notification{/ts}{else}{ts}Payment Receipt{/ts}{/if}{if $component eq \'event\'} - {$event.title}{/if} - {contact.display_name}
+', '{if $emailGreeting}{$emailGreeting},
+{/if}
+
+{if $isRefund}
 {ts}A refund has been issued based on changes in your registration selections.{/ts}
 {else}
-{ts}A payment has been received.{/ts}
+{ts}Below you will find a receipt for this payment.{/ts}
+{/if}
+{if $paymentsComplete}
+{ts}Thank you for completing this payment.{/ts}
 {/if}
 
 {if $isRefund}
@@ -11911,10 +11845,8 @@ INSERT INTO civicrm_msg_template
 {ts}Refund Details{/ts}
 
 ===============================================================================
-{ts}Total Fees{/ts}: {$totalAmount|crmMoney}
-{ts}You Paid{/ts}: {$totalPaid|crmMoney}
+{ts}This Refund Amount{/ts}: {$refundAmount|crmMoney}
 ------------------------------------------------------------------------------------
-{ts}Refund Amount{/ts}: {$refundAmount|crmMoney}
 
 {else}
 ===============================================================================
@@ -11922,15 +11854,8 @@ INSERT INTO civicrm_msg_template
 {ts}Payment Details{/ts}
 
 ===============================================================================
-{ts}Total Fees{/ts}: {$totalAmount|crmMoney}
 {ts}This Payment Amount{/ts}: {$paymentAmount|crmMoney}
 ------------------------------------------------------------------------------------
-{ts}Balance Owed{/ts}: {$amountOwed|crmMoney} {* This will be zero after final payment. *}
-
-{if $paymentsComplete}
-
-{ts}Thank you for completing payment.{/ts}
-{/if}
 {/if}
 {if $receive_date}
 {ts}Transaction Date{/ts}: {$receive_date|crmDate}
@@ -11944,6 +11869,17 @@ INSERT INTO civicrm_msg_template
 {if $checkNumber}
 {ts}Check Number{/ts}: {$checkNumber}
 {/if}
+
+===============================================================================
+
+{ts}Contribution Details{/ts}
+
+===============================================================================
+{ts}Total Fee{/ts}: {$totalAmount|crmMoney}
+{ts}Total Paid{/ts}: {$totalPaid|crmMoney}
+{ts}Balance Owed{/ts}: {$amountOwed|crmMoney} {* This will be zero after final payment. *}
+
+
 {if $billingName || $address}
 
 ===============================================================================
@@ -12013,33 +11949,101 @@ INSERT INTO civicrm_msg_template
 {capture assign=emptyBlockValueStyle }style="padding: 10px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+ <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
   <!-- END HEADER -->
 
   <!-- BEGIN CONTENT -->
-   {if $emailGreeting}<tr><td>{$emailGreeting},</td></tr>{/if}
   <tr>
     <td>
+      {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
       {if $isRefund}
-      <p>{ts}A refund has been issued based on changes in your registration selections.{/ts}</p>
+        <p>{ts}A refund has been issued based on changes in your registration selections.{/ts}</p>
       {else}
-      <p>{ts}A payment has been received.{/ts}</p>
+        <p>{ts}Below you will find a receipt for this payment.{/ts}</p>
+        {if $paymentsComplete}
+          <p>{ts}Thank you for completing this contribution.{/ts}</p>
+        {/if}
       {/if}
     </td>
   </tr>
   <tr>
    <td>
     <table style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse; width:100%;">
-  {if $isRefund}
+    {if $isRefund}
+      <tr>
+        <th {$headerStyle}>{ts}Refund Details{/ts}</th>
+      </tr>
+      <tr>
+        <td {$labelStyle}>
+        {ts}This Refund Amount{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$refundAmount|crmMoney}
+        </td>
+      </tr>
+    {else}
+      <tr>
+        <th {$headerStyle}>{ts}Payment Details{/ts}</th>
+      </tr>
+      <tr>
+        <td {$labelStyle}>
+        {ts}This Payment Amount{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$paymentAmount|crmMoney}
+        </td>
+      </tr>
+    {/if}
+    {if $receive_date}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Transaction Date{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$receive_date|crmDate}
+        </td>
+      </tr>
+    {/if}
+    {if $trxn_id}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Transaction #{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$trxn_id}
+        </td>
+      </tr>
+    {/if}
+    {if $paidBy}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Paid By{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$paidBy}
+        </td>
+      </tr>
+    {/if}
+    {if $checkNumber}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Check Number{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$checkNumber}
+        </td>
+      </tr>
+    {/if}
+
   <tr>
-    <th {$headerStyle}>{ts}Refund Details{/ts}</th>
+    <th {$headerStyle}>{ts}Contribution Details{/ts}</th>
   </tr>
   <tr>
     <td {$labelStyle}>
-      {ts}Total Amount{/ts}
+      {ts}Total Fee{/ts}
     </td>
     <td {$valueStyle}>
       {$totalAmount|crmMoney}
@@ -12047,7 +12051,7 @@ INSERT INTO civicrm_msg_template
   </tr>
   <tr>
     <td {$labelStyle}>
-      {ts}You Paid{/ts}
+      {ts}Total Paid{/ts}
     </td>
     <td {$valueStyle}>
       {$totalPaid|crmMoney}
@@ -12055,91 +12059,14 @@ INSERT INTO civicrm_msg_template
   </tr>
   <tr>
     <td {$labelStyle}>
-      {ts}Refund Amount{/ts}
+      {ts}Balance Owed{/ts}
     </td>
     <td {$valueStyle}>
-      {$refundAmount|crmMoney}
-    <td>
+      {$amountOwed|crmMoney}
+    </td> {* This will be zero after final payment. *}
   </tr>
-  {else}
-    <tr>
-      <th {$headerStyle}>{ts}Payment Details{/ts}</th>
-    </tr>
-    <tr>
-      <td {$labelStyle}>
-        {ts}Total Amount{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$totalAmount|crmMoney}
-      </td>
-      </tr>
-      <tr>
-      <td {$labelStyle}>
-        {ts}This Payment Amount{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$paymentAmount|crmMoney}
-      </td>
-      </tr>
-     <tr>
-      <td {$labelStyle}>
-        {ts}Balance Owed{/ts}
-      </td>
-       <td {$valueStyle}>
-         {$amountOwed|crmMoney}
-      </td> {* This will be zero after final payment. *}
-     </tr>
-     <tr> <td {$emptyBlockStyle}></td>
-     <td {$emptyBlockValueStyle}></td></tr>
-      {if $paymentsComplete}
-      <tr>
-      <td colspan=\'2\' {$valueStyle}>
-        {ts}Thank you for completing payment.{/ts}
-      </td>
-     </tr>
-      {/if}
-  {/if}
-  {if $receive_date}
-    <tr>
-      <td {$labelStyle}>
-        {ts}Transaction Date{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$receive_date|crmDate}
-      </td>
-    </tr>
-  {/if}
-  {if $trxn_id}
-    <tr>
-      <td {$labelStyle}>
-  {ts}Transaction #{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$trxn_id}
-      </td>
-    </tr>
-  {/if}
-  {if $paidBy}
-    <tr>
-      <td {$labelStyle}>
-        {ts}Paid By{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$paidBy}
-      </td>
-    </tr>
-  {/if}
-  {if $checkNumber}
-    <tr>
-      <td {$labelStyle}>
-        {ts}Check Number{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$checkNumber}
-      </td>
-    </tr>
-  {/if}
   </table>
+
   </td>
   </tr>
     <tr>
@@ -12250,11 +12177,17 @@ INSERT INTO civicrm_msg_template
  </body>
 </html>
 ', @tpl_ovid_payment_or_refund_notification, 1,          0),
-      ('Additional Payment Receipt or Refund Notification', '{if $isRefund}{ts}Refund Notification{/ts}{else}{ts}Payment Receipt{/ts}{/if} - {if $component eq \'event\'}{$event.title}{/if}', '{if $emailGreeting}{$emailGreeting},
-{/if}{if $isRefund}
+      ('Additional Payment Receipt or Refund Notification', '{if $isRefund}{ts}Refund Notification{/ts}{else}{ts}Payment Receipt{/ts}{/if}{if $component eq \'event\'} - {$event.title}{/if} - {contact.display_name}
+', '{if $emailGreeting}{$emailGreeting},
+{/if}
+
+{if $isRefund}
 {ts}A refund has been issued based on changes in your registration selections.{/ts}
 {else}
-{ts}A payment has been received.{/ts}
+{ts}Below you will find a receipt for this payment.{/ts}
+{/if}
+{if $paymentsComplete}
+{ts}Thank you for completing this payment.{/ts}
 {/if}
 
 {if $isRefund}
@@ -12263,10 +12196,8 @@ INSERT INTO civicrm_msg_template
 {ts}Refund Details{/ts}
 
 ===============================================================================
-{ts}Total Fees{/ts}: {$totalAmount|crmMoney}
-{ts}You Paid{/ts}: {$totalPaid|crmMoney}
+{ts}This Refund Amount{/ts}: {$refundAmount|crmMoney}
 ------------------------------------------------------------------------------------
-{ts}Refund Amount{/ts}: {$refundAmount|crmMoney}
 
 {else}
 ===============================================================================
@@ -12274,15 +12205,8 @@ INSERT INTO civicrm_msg_template
 {ts}Payment Details{/ts}
 
 ===============================================================================
-{ts}Total Fees{/ts}: {$totalAmount|crmMoney}
 {ts}This Payment Amount{/ts}: {$paymentAmount|crmMoney}
 ------------------------------------------------------------------------------------
-{ts}Balance Owed{/ts}: {$amountOwed|crmMoney} {* This will be zero after final payment. *}
-
-{if $paymentsComplete}
-
-{ts}Thank you for completing payment.{/ts}
-{/if}
 {/if}
 {if $receive_date}
 {ts}Transaction Date{/ts}: {$receive_date|crmDate}
@@ -12296,6 +12220,17 @@ INSERT INTO civicrm_msg_template
 {if $checkNumber}
 {ts}Check Number{/ts}: {$checkNumber}
 {/if}
+
+===============================================================================
+
+{ts}Contribution Details{/ts}
+
+===============================================================================
+{ts}Total Fee{/ts}: {$totalAmount|crmMoney}
+{ts}Total Paid{/ts}: {$totalPaid|crmMoney}
+{ts}Balance Owed{/ts}: {$amountOwed|crmMoney} {* This will be zero after final payment. *}
+
+
 {if $billingName || $address}
 
 ===============================================================================
@@ -12365,33 +12300,101 @@ INSERT INTO civicrm_msg_template
 {capture assign=emptyBlockValueStyle }style="padding: 10px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+ <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
   <!-- END HEADER -->
 
   <!-- BEGIN CONTENT -->
-   {if $emailGreeting}<tr><td>{$emailGreeting},</td></tr>{/if}
   <tr>
     <td>
+      {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
       {if $isRefund}
-      <p>{ts}A refund has been issued based on changes in your registration selections.{/ts}</p>
+        <p>{ts}A refund has been issued based on changes in your registration selections.{/ts}</p>
       {else}
-      <p>{ts}A payment has been received.{/ts}</p>
+        <p>{ts}Below you will find a receipt for this payment.{/ts}</p>
+        {if $paymentsComplete}
+          <p>{ts}Thank you for completing this contribution.{/ts}</p>
+        {/if}
       {/if}
     </td>
   </tr>
   <tr>
    <td>
     <table style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse; width:100%;">
-  {if $isRefund}
+    {if $isRefund}
+      <tr>
+        <th {$headerStyle}>{ts}Refund Details{/ts}</th>
+      </tr>
+      <tr>
+        <td {$labelStyle}>
+        {ts}This Refund Amount{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$refundAmount|crmMoney}
+        </td>
+      </tr>
+    {else}
+      <tr>
+        <th {$headerStyle}>{ts}Payment Details{/ts}</th>
+      </tr>
+      <tr>
+        <td {$labelStyle}>
+        {ts}This Payment Amount{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$paymentAmount|crmMoney}
+        </td>
+      </tr>
+    {/if}
+    {if $receive_date}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Transaction Date{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$receive_date|crmDate}
+        </td>
+      </tr>
+    {/if}
+    {if $trxn_id}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Transaction #{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$trxn_id}
+        </td>
+      </tr>
+    {/if}
+    {if $paidBy}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Paid By{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$paidBy}
+        </td>
+      </tr>
+    {/if}
+    {if $checkNumber}
+      <tr>
+        <td {$labelStyle}>
+        {ts}Check Number{/ts}
+        </td>
+        <td {$valueStyle}>
+        {$checkNumber}
+        </td>
+      </tr>
+    {/if}
+
   <tr>
-    <th {$headerStyle}>{ts}Refund Details{/ts}</th>
+    <th {$headerStyle}>{ts}Contribution Details{/ts}</th>
   </tr>
   <tr>
     <td {$labelStyle}>
-      {ts}Total Amount{/ts}
+      {ts}Total Fee{/ts}
     </td>
     <td {$valueStyle}>
       {$totalAmount|crmMoney}
@@ -12399,7 +12402,7 @@ INSERT INTO civicrm_msg_template
   </tr>
   <tr>
     <td {$labelStyle}>
-      {ts}You Paid{/ts}
+      {ts}Total Paid{/ts}
     </td>
     <td {$valueStyle}>
       {$totalPaid|crmMoney}
@@ -12407,91 +12410,14 @@ INSERT INTO civicrm_msg_template
   </tr>
   <tr>
     <td {$labelStyle}>
-      {ts}Refund Amount{/ts}
+      {ts}Balance Owed{/ts}
     </td>
     <td {$valueStyle}>
-      {$refundAmount|crmMoney}
-    <td>
+      {$amountOwed|crmMoney}
+    </td> {* This will be zero after final payment. *}
   </tr>
-  {else}
-    <tr>
-      <th {$headerStyle}>{ts}Payment Details{/ts}</th>
-    </tr>
-    <tr>
-      <td {$labelStyle}>
-        {ts}Total Amount{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$totalAmount|crmMoney}
-      </td>
-      </tr>
-      <tr>
-      <td {$labelStyle}>
-        {ts}This Payment Amount{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$paymentAmount|crmMoney}
-      </td>
-      </tr>
-     <tr>
-      <td {$labelStyle}>
-        {ts}Balance Owed{/ts}
-      </td>
-       <td {$valueStyle}>
-         {$amountOwed|crmMoney}
-      </td> {* This will be zero after final payment. *}
-     </tr>
-     <tr> <td {$emptyBlockStyle}></td>
-     <td {$emptyBlockValueStyle}></td></tr>
-      {if $paymentsComplete}
-      <tr>
-      <td colspan=\'2\' {$valueStyle}>
-        {ts}Thank you for completing payment.{/ts}
-      </td>
-     </tr>
-      {/if}
-  {/if}
-  {if $receive_date}
-    <tr>
-      <td {$labelStyle}>
-        {ts}Transaction Date{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$receive_date|crmDate}
-      </td>
-    </tr>
-  {/if}
-  {if $trxn_id}
-    <tr>
-      <td {$labelStyle}>
-  {ts}Transaction #{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$trxn_id}
-      </td>
-    </tr>
-  {/if}
-  {if $paidBy}
-    <tr>
-      <td {$labelStyle}>
-        {ts}Paid By{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$paidBy}
-      </td>
-    </tr>
-  {/if}
-  {if $checkNumber}
-    <tr>
-      <td {$labelStyle}>
-        {ts}Check Number{/ts}
-      </td>
-      <td {$valueStyle}>
-        {$checkNumber}
-      </td>
-    </tr>
-  {/if}
   </table>
+
   </td>
   </tr>
     <tr>
@@ -12604,8 +12530,8 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_payment_or_refund_notification, 0,          1) ,      
       
       
-      ('Events - Registration Confirmation and Receipt (off-line)', '{ts}Event Confirmation{/ts} - {$event.title}
-', '{contact.email_greeting}
+      ('Events - Registration Confirmation and Receipt (off-line)', '{ts}Event Confirmation{/ts} - {$event.title} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $event.confirm_email_text AND (not $isOnWaitlist AND not $isRequireApproval)}
 {$event.confirm_email_text}
 {/if}
@@ -12639,9 +12565,6 @@ INSERT INTO civicrm_msg_template
 {$pay_later_receipt}
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
-{else}
-
-{ts}Please print this confirmation for your records.{/ts}
 {/if}
 
 
@@ -12802,7 +12725,7 @@ INSERT INTO civicrm_msg_template
 {if $checkNumber}
 {ts}Check Number{/ts}: {$checkNumber}
 {/if}
-{if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+{if $billingName}
 
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
@@ -12814,7 +12737,7 @@ INSERT INTO civicrm_msg_template
 {$address}
 {/if}
 
-{if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+{if $credit_card_type}
 ===========================================================
 {ts}Credit Card Information{/ts}
 
@@ -12910,7 +12833,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -12920,7 +12843,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{contact.email_greeting}</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
 
     {if $event.confirm_email_text AND (not $isOnWaitlist AND not $isRequireApproval)}
      <p>{$event.confirm_email_text|htmlize}</p>
@@ -12938,8 +12861,6 @@ INSERT INTO civicrm_msg_template
      {/if}
     {elseif $is_pay_later}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
@@ -13275,7 +13196,7 @@ INSERT INTO civicrm_msg_template
         </tr>
        {/if}
 
-       {if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+       {if $billingName}
         <tr>
          <th {$headerStyle}>
           {ts}Billing Name and Address{/ts}
@@ -13289,7 +13210,7 @@ INSERT INTO civicrm_msg_template
         </tr>
        {/if}
 
-       {if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+       {if $credit_card_type}
         <tr>
          <th {$headerStyle}>
           {ts}Credit Card Information{/ts}
@@ -13411,8 +13332,8 @@ INSERT INTO civicrm_msg_template
 </body>
 </html>
 ', @tpl_ovid_event_offline_receipt, 1,          0),
-      ('Events - Registration Confirmation and Receipt (off-line)', '{ts}Event Confirmation{/ts} - {$event.title}
-', '{contact.email_greeting}
+      ('Events - Registration Confirmation and Receipt (off-line)', '{ts}Event Confirmation{/ts} - {$event.title} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $event.confirm_email_text AND (not $isOnWaitlist AND not $isRequireApproval)}
 {$event.confirm_email_text}
 {/if}
@@ -13446,9 +13367,6 @@ INSERT INTO civicrm_msg_template
 {$pay_later_receipt}
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
-{else}
-
-{ts}Please print this confirmation for your records.{/ts}
 {/if}
 
 
@@ -13609,7 +13527,7 @@ INSERT INTO civicrm_msg_template
 {if $checkNumber}
 {ts}Check Number{/ts}: {$checkNumber}
 {/if}
-{if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+{if $billingName}
 
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
@@ -13621,7 +13539,7 @@ INSERT INTO civicrm_msg_template
 {$address}
 {/if}
 
-{if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+{if $credit_card_type}
 ===========================================================
 {ts}Credit Card Information{/ts}
 
@@ -13717,7 +13635,7 @@ INSERT INTO civicrm_msg_template
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -13727,7 +13645,7 @@ INSERT INTO civicrm_msg_template
 
   <tr>
    <td>
-    <p>{contact.email_greeting}</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
 
     {if $event.confirm_email_text AND (not $isOnWaitlist AND not $isRequireApproval)}
      <p>{$event.confirm_email_text|htmlize}</p>
@@ -13745,8 +13663,6 @@ INSERT INTO civicrm_msg_template
      {/if}
     {elseif $is_pay_later}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
@@ -14082,7 +13998,7 @@ INSERT INTO civicrm_msg_template
         </tr>
        {/if}
 
-       {if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+       {if $billingName}
         <tr>
          <th {$headerStyle}>
           {ts}Billing Name and Address{/ts}
@@ -14096,7 +14012,7 @@ INSERT INTO civicrm_msg_template
         </tr>
        {/if}
 
-       {if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+       {if $credit_card_type}
         <tr>
          <th {$headerStyle}>
           {ts}Credit Card Information{/ts}
@@ -14220,17 +14136,16 @@ INSERT INTO civicrm_msg_template
 ', @tpl_ovid_event_offline_receipt, 0,          1) ,      
       
       
-      ('Events - Registration Confirmation and Receipt (on-line)', '{if $isOnWaitlist}{ts}Wait List Confirmation{/ts}{elseif $isRequireApproval}{ts}Registration Request Confirmation{/ts}{else}{ts}Registration Confirmation{/ts}{/if} - {$event.event_title}
+      ('Events - Registration Confirmation and Receipt (on-line)', '{if $isOnWaitlist}{ts}Wait List Confirmation{/ts}{elseif $isRequireApproval}{ts}Registration Request Confirmation{/ts}{else}{ts}Registration Confirmation{/ts}{/if} - {$event.event_title} - {contact.display_name}
 ', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $event.confirm_email_text AND (not $isOnWaitlist AND not $isRequireApproval)}
 {$event.confirm_email_text}
 
 {else}
-  {ts}Thank you for your participation.{/ts}
-  {if $participant_status}{ts 1=$participant_status}This letter is a confirmation that your registration has been received and your status has been updated to %1.{/ts}
-  {else}{if $isOnWaitlist}{ts}This letter is a confirmation that your registration has been received and your status has been updated to waitlisted.{/ts}{else}{ts}This letter is a confirmation that your registration has been received and your status has been updated to registered.{/ts}{/if}
-  {/if}.
-
+  {ts}Thank you for your registration.{/ts}
+  {if $participant_status}{ts 1=$participant_status}This is a confirmation that your registration has been received and your status has been updated to %1.{/ts}
+  {else}{if $isOnWaitlist}{ts}This is a confirmation that your registration has been received and your status has been updated to waitlisted.{/ts}{else}{ts}This is a confirmation that your registration has been received and your status has been updated to registered.{/ts}{/if}
+  {/if}
 {/if}
 
 {if $isOnWaitlist}
@@ -14261,9 +14176,6 @@ INSERT INTO civicrm_msg_template
 {$pay_later_receipt}
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
-{else}
-
-{ts}Please print this confirmation for your records.{/ts}
 {/if}
 
 
@@ -14426,7 +14338,7 @@ You were registered by: {$payer.name}
 {if $checkNumber}
 {ts}Check Number{/ts}: {$checkNumber}
 {/if}
-{if $contributeMode ne \'notify\' and !$isAmountzero and (!$is_pay_later or $isBillingAddressRequiredForPayLater) and !$isOnWaitlist and !$isRequireApproval}
+{if $billingName}
 
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
@@ -14438,7 +14350,7 @@ You were registered by: {$payer.name}
 {$address}
 {/if}
 
-{if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+{if $credit_card_type}
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
 {ts}Credit Card Information{/ts}
@@ -14539,7 +14451,7 @@ You were registered by: {$payer.name}
 
 
 <center>
- <table width="700" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -14555,9 +14467,9 @@ You were registered by: {$payer.name}
      <p>{$event.confirm_email_text|htmlize}</p>
 
     {else}
-     <p>{ts}Thank you for your participation.{/ts}
-     {if $participant_status}{ts 1=$participant_status}This letter is a confirmation that your registration has been received and your status has been updated to <strong> %1</strong>.{/ts}
-     {else}{if $isOnWaitlist}{ts}This letter is a confirmation that your registration has been received and your status has been updated to <strong>waitlisted</strong>.{/ts}{else}{ts}This letter is a confirmation that your registration has been received and your status has been updated to <strong>registered<strong>.{/ts}{/if}{/if}.</p>
+     <p>{ts}Thank you for your registration.{/ts}
+     {if $participant_status}{ts 1=$participant_status}This is a confirmation that your registration has been received and your status has been updated to <strong> %1</strong>.{/ts}
+     {else}{if $isOnWaitlist}{ts}This is a confirmation that your registration has been received and your status has been updated to <strong>waitlisted</strong>.{/ts}{else}{ts}This is a confirmation that your registration has been received and your status has been updated to <strong>registered<strong>.{/ts}{/if}{/if}</p>
 
     {/if}
 
@@ -14574,15 +14486,13 @@ You were registered by: {$payer.name}
      {/if}
     {elseif $is_pay_later && !$isAmountzero && !$isAdditionalParticipant}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
   </tr>
   <tr>
    <td>
-    <table width="700" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+    <table style="width:100%; max-width:700px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
      <tr>
       <th {$headerStyle}>
        {ts}Event Information and Location{/ts}
@@ -14772,9 +14682,9 @@ You were registered by: {$payer.name}
             {if $individual}
               <tr {$participantTotal}>
                 <td colspan=3>{ts}Participant Total{/ts}</td>
-                <td  colspan=2>{$individual.$priceset.totalAmtWithTax-$individual.$priceset.totalTaxAmt|crmMoney}</td>
-                <td  colspan=1>{$individual.$priceset.totalTaxAmt|crmMoney}</td>
-                <td  colspan=2>{$individual.$priceset.totalAmtWithTax|crmMoney}</td>
+                <td colspan=2>{$individual.$priceset.totalAmtWithTax-$individual.$priceset.totalTaxAmt|crmMoney}</td>
+                <td colspan=1>{$individual.$priceset.totalTaxAmt|crmMoney}</td>
+                <td colspan=2>{$individual.$priceset.totalAmtWithTax|crmMoney}</td>
               </tr>
             {/if}
            </table>
@@ -14922,7 +14832,7 @@ You were registered by: {$payer.name}
         </tr>
        {/if}
 
-       {if $contributeMode ne \'notify\' and !$isAmountzero and (!$is_pay_later or $isBillingAddressRequiredForPayLater) and !$isOnWaitlist and !$isRequireApproval}
+       {if $billingName}
         <tr>
          <th {$headerStyle}>
           {ts}Billing Name and Address{/ts}
@@ -14936,7 +14846,7 @@ You were registered by: {$payer.name}
         </tr>
        {/if}
 
-       {if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+       {if $credit_card_type}
         <tr>
          <th {$headerStyle}>
           {ts}Credit Card Information{/ts}
@@ -15029,25 +14939,22 @@ You were registered by: {$payer.name}
       </td>
      </tr>
     {/if}
-   </td>
-  </tr>
  </table>
 </center>
 
 </body>
 </html>
 ', @tpl_ovid_event_online_receipt, 1,          0),
-      ('Events - Registration Confirmation and Receipt (on-line)', '{if $isOnWaitlist}{ts}Wait List Confirmation{/ts}{elseif $isRequireApproval}{ts}Registration Request Confirmation{/ts}{else}{ts}Registration Confirmation{/ts}{/if} - {$event.event_title}
+      ('Events - Registration Confirmation and Receipt (on-line)', '{if $isOnWaitlist}{ts}Wait List Confirmation{/ts}{elseif $isRequireApproval}{ts}Registration Request Confirmation{/ts}{else}{ts}Registration Confirmation{/ts}{/if} - {$event.event_title} - {contact.display_name}
 ', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $event.confirm_email_text AND (not $isOnWaitlist AND not $isRequireApproval)}
 {$event.confirm_email_text}
 
 {else}
-  {ts}Thank you for your participation.{/ts}
-  {if $participant_status}{ts 1=$participant_status}This letter is a confirmation that your registration has been received and your status has been updated to %1.{/ts}
-  {else}{if $isOnWaitlist}{ts}This letter is a confirmation that your registration has been received and your status has been updated to waitlisted.{/ts}{else}{ts}This letter is a confirmation that your registration has been received and your status has been updated to registered.{/ts}{/if}
-  {/if}.
-
+  {ts}Thank you for your registration.{/ts}
+  {if $participant_status}{ts 1=$participant_status}This is a confirmation that your registration has been received and your status has been updated to %1.{/ts}
+  {else}{if $isOnWaitlist}{ts}This is a confirmation that your registration has been received and your status has been updated to waitlisted.{/ts}{else}{ts}This is a confirmation that your registration has been received and your status has been updated to registered.{/ts}{/if}
+  {/if}
 {/if}
 
 {if $isOnWaitlist}
@@ -15078,9 +14985,6 @@ You were registered by: {$payer.name}
 {$pay_later_receipt}
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
-{else}
-
-{ts}Please print this confirmation for your records.{/ts}
 {/if}
 
 
@@ -15243,7 +15147,7 @@ You were registered by: {$payer.name}
 {if $checkNumber}
 {ts}Check Number{/ts}: {$checkNumber}
 {/if}
-{if $contributeMode ne \'notify\' and !$isAmountzero and (!$is_pay_later or $isBillingAddressRequiredForPayLater) and !$isOnWaitlist and !$isRequireApproval}
+{if $billingName}
 
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
@@ -15255,7 +15159,7 @@ You were registered by: {$payer.name}
 {$address}
 {/if}
 
-{if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+{if $credit_card_type}
 ==========================================================={if $pricesetFieldsCount }===================={/if}
 
 {ts}Credit Card Information{/ts}
@@ -15356,7 +15260,7 @@ You were registered by: {$payer.name}
 
 
 <center>
- <table width="700" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -15372,9 +15276,9 @@ You were registered by: {$payer.name}
      <p>{$event.confirm_email_text|htmlize}</p>
 
     {else}
-     <p>{ts}Thank you for your participation.{/ts}
-     {if $participant_status}{ts 1=$participant_status}This letter is a confirmation that your registration has been received and your status has been updated to <strong> %1</strong>.{/ts}
-     {else}{if $isOnWaitlist}{ts}This letter is a confirmation that your registration has been received and your status has been updated to <strong>waitlisted</strong>.{/ts}{else}{ts}This letter is a confirmation that your registration has been received and your status has been updated to <strong>registered<strong>.{/ts}{/if}{/if}.</p>
+     <p>{ts}Thank you for your registration.{/ts}
+     {if $participant_status}{ts 1=$participant_status}This is a confirmation that your registration has been received and your status has been updated to <strong> %1</strong>.{/ts}
+     {else}{if $isOnWaitlist}{ts}This is a confirmation that your registration has been received and your status has been updated to <strong>waitlisted</strong>.{/ts}{else}{ts}This is a confirmation that your registration has been received and your status has been updated to <strong>registered<strong>.{/ts}{/if}{/if}</p>
 
     {/if}
 
@@ -15391,15 +15295,13 @@ You were registered by: {$payer.name}
      {/if}
     {elseif $is_pay_later && !$isAmountzero && !$isAdditionalParticipant}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
   </tr>
   <tr>
    <td>
-    <table width="700" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+    <table style="width:100%; max-width:700px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
      <tr>
       <th {$headerStyle}>
        {ts}Event Information and Location{/ts}
@@ -15589,9 +15491,9 @@ You were registered by: {$payer.name}
             {if $individual}
               <tr {$participantTotal}>
                 <td colspan=3>{ts}Participant Total{/ts}</td>
-                <td  colspan=2>{$individual.$priceset.totalAmtWithTax-$individual.$priceset.totalTaxAmt|crmMoney}</td>
-                <td  colspan=1>{$individual.$priceset.totalTaxAmt|crmMoney}</td>
-                <td  colspan=2>{$individual.$priceset.totalAmtWithTax|crmMoney}</td>
+                <td colspan=2>{$individual.$priceset.totalAmtWithTax-$individual.$priceset.totalTaxAmt|crmMoney}</td>
+                <td colspan=1>{$individual.$priceset.totalTaxAmt|crmMoney}</td>
+                <td colspan=2>{$individual.$priceset.totalAmtWithTax|crmMoney}</td>
               </tr>
             {/if}
            </table>
@@ -15739,7 +15641,7 @@ You were registered by: {$payer.name}
         </tr>
        {/if}
 
-       {if $contributeMode ne \'notify\' and !$isAmountzero and (!$is_pay_later or $isBillingAddressRequiredForPayLater) and !$isOnWaitlist and !$isRequireApproval}
+       {if $billingName}
         <tr>
          <th {$headerStyle}>
           {ts}Billing Name and Address{/ts}
@@ -15753,7 +15655,7 @@ You were registered by: {$payer.name}
         </tr>
        {/if}
 
-       {if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later and !$isOnWaitlist and !$isRequireApproval}
+       {if $credit_card_type}
         <tr>
          <th {$headerStyle}>
           {ts}Credit Card Information{/ts}
@@ -15846,8 +15748,6 @@ You were registered by: {$payer.name}
       </td>
      </tr>
     {/if}
-   </td>
-  </tr>
  </table>
 </center>
 
@@ -15856,8 +15756,9 @@ You were registered by: {$payer.name}
 ', @tpl_ovid_event_online_receipt, 0,          1) ,      
       
       
-      ('Events - Receipt only', 'Receipt for {if $events_in_cart} Event Registration{/if}
-', 'Dear {contact.display_name},
+      ('Events - Receipt only', 'Receipt for {if $events_in_cart} Event Registration{/if} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
 {if $is_pay_later}
   This is being sent to you as an acknowledgement that you have registered one or more members for the following workshop, event or purchase. Please note, however, that the status of your payment is pending, and the registration for this event will not be completed until your payment is received.
 {else}
@@ -15868,7 +15769,7 @@ You were registered by: {$payer.name}
   {$pay_later_receipt}
 {/if}
 
-  Your order number is #{$transaction_id}. Please print this confirmation for your records.{if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
+  Your order number is #{$transaction_id}. {if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
  Here\'s a summary of your transaction placed on {$transaction_date|date_format:"%D %I:%M %p %Z"}:
 
 {if $billing_name}
@@ -15948,7 +15849,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
     {capture assign=labelStyle }style="padding: 4px; border-bottom: 1px solid #999; background-color: #f7f7f7;"{/capture}
     {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
-    <p>Dear {contact.display_name},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     {if $is_pay_later}
       <p>
         This is being sent to you as an acknowledgement that you have registered one or more members for the following workshop, event or purchase. Please note, however, that the status of your payment is pending, and the registration for this event will not be completed until your payment is received.
@@ -15963,9 +15864,8 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
       <p>{$pay_later_receipt}</p>
     {/if}
 
-    <p>Your order number is #{$transaction_id}. Please print this confirmation for your records.{if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
+    <p>Your order number is #{$transaction_id}. {if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
   Here\'s a summary of your transaction placed on {$transaction_date|date_format:"%D %I:%M %p %Z"}:</p>
-
 
 {if $billing_name}
   <table class="billing-info">
@@ -16007,7 +15907,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
     {$source}
 {/if}
     <p>&nbsp;</p>
-    <table width="600">
+    <table width="700">
       <thead>
     <tr>
 {if $line_items}
@@ -16113,8 +16013,9 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
   </body>
 </html>
 ', @tpl_ovid_event_registration_receipt, 1,          0),
-      ('Events - Receipt only', 'Receipt for {if $events_in_cart} Event Registration{/if}
-', 'Dear {contact.display_name},
+      ('Events - Receipt only', 'Receipt for {if $events_in_cart} Event Registration{/if} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
 {if $is_pay_later}
   This is being sent to you as an acknowledgement that you have registered one or more members for the following workshop, event or purchase. Please note, however, that the status of your payment is pending, and the registration for this event will not be completed until your payment is received.
 {else}
@@ -16125,7 +16026,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
   {$pay_later_receipt}
 {/if}
 
-  Your order number is #{$transaction_id}. Please print this confirmation for your records.{if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
+  Your order number is #{$transaction_id}. {if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
  Here\'s a summary of your transaction placed on {$transaction_date|date_format:"%D %I:%M %p %Z"}:
 
 {if $billing_name}
@@ -16205,7 +16106,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
     {capture assign=labelStyle }style="padding: 4px; border-bottom: 1px solid #999; background-color: #f7f7f7;"{/capture}
     {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
-    <p>Dear {contact.display_name},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     {if $is_pay_later}
       <p>
         This is being sent to you as an acknowledgement that you have registered one or more members for the following workshop, event or purchase. Please note, however, that the status of your payment is pending, and the registration for this event will not be completed until your payment is received.
@@ -16220,9 +16121,8 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
       <p>{$pay_later_receipt}</p>
     {/if}
 
-    <p>Your order number is #{$transaction_id}. Please print this confirmation for your records.{if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
+    <p>Your order number is #{$transaction_id}. {if $line_items && !$is_refund} Information about the workshops will be sent separately to each participant.{/if}
   Here\'s a summary of your transaction placed on {$transaction_date|date_format:"%D %I:%M %p %Z"}:</p>
-
 
 {if $billing_name}
   <table class="billing-info">
@@ -16264,7 +16164,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
     {$source}
 {/if}
     <p>&nbsp;</p>
-    <table width="600">
+    <table width="700">
       <thead>
     <tr>
 {if $line_items}
@@ -16372,8 +16272,8 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 ', @tpl_ovid_event_registration_receipt, 0,          1) ,      
       
       
-      ('Events - Registration Cancellation Notice', '{ts 1=$event.event_title}Event Registration Cancelled for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Registration Cancellation Notice', '{ts 1=$event.event_title}Event Registration Cancelled for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts}Your Event Registration has been cancelled.{/ts}
 
@@ -16433,7 +16333,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -16443,7 +16343,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts}Your Event Registration has been cancelled.{/ts}</p>
    </td>
   </tr>
@@ -16550,8 +16450,8 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 </body>
 </html>
 ', @tpl_ovid_participant_cancelled, 1,          0),
-      ('Events - Registration Cancellation Notice', '{ts 1=$event.event_title}Event Registration Cancelled for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Registration Cancellation Notice', '{ts 1=$event.event_title}Event Registration Cancelled for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts}Your Event Registration has been cancelled.{/ts}
 
@@ -16611,7 +16511,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -16621,7 +16521,7 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts}Your Event Registration has been cancelled.{/ts}</p>
    </td>
   </tr>
@@ -16730,8 +16630,11 @@ Total: {$total|crmMoney:$currency|string_format:"%10s"}
 ', @tpl_ovid_participant_cancelled, 0,          1) ,      
       
       
-      ('Events - Registration Confirmation Invite', '{ts 1=$event.event_title}Confirm your registration for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Registration Confirmation Invite', '{ts 1=$event.event_title}Confirm your registration for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{ts}This is an invitation to complete your registration that was initially waitlisted.{/ts}
+
 {if !$isAdditional and $participant.id}
 
 ===========================================================
@@ -16825,8 +16728,7 @@ Click this link to go to a web page where you can confirm your registration onli
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
-
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
   <!-- END HEADER -->
@@ -16835,7 +16737,8 @@ Click this link to go to a web page where you can confirm your registration onli
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+    <p>{ts}This is an invitation to complete your registration that was initially waitlisted.{/ts}</p>
    </td>
   </tr>
   {if !$isAdditional and $participant.id}
@@ -16847,14 +16750,14 @@ Click this link to go to a web page where you can confirm your registration onli
    <tr>
     <td colspan="2" {$valueStyle}>
      {capture assign=confirmUrl}{crmURL p=\'civicrm/event/confirm\' q="reset=1&participantId=`$participant.id`&cs=`$checksumValue`" a=true h=0 fe=1}{/capture}
-     <a href="{$confirmUrl}">Go to a web page where you can confirm your registration online</a>
+     <a href="{$confirmUrl}">{ts}Click here to confirm and complete your registration{/ts}</a>
     </td>
    </tr>
   {/if}
   {if $event.allow_selfcancelxfer }
-  This event allows for self-cancel or transfer
-  {capture assign=selfService}{crmURL p=\'civicrm/event/selfsvcupdate\' q="reset=1&pid=`$participantID`&{contact.checksum}"  h=0 a=1 fe=1}{/capture}
-       <a href="{$selfService}">{ts}Self service cancel transfer{/ts}</a>
+  {ts}This event allows for{/ts}
+  {capture assign=selfService}{crmURL p=\'civicrm/event/selfsvcupdate\' q="reset=1&pid=`$participantID`&{contact.checksum}" h=0 a=1 fe=1}{/capture}
+       <a href="{$selfService}"> {ts}self service cancel or transfer{/ts}</a>
   {/if}
 
   <tr>
@@ -16997,8 +16900,11 @@ Click this link to go to a web page where you can confirm your registration onli
 </body>
 </html>
 ', @tpl_ovid_participant_confirm, 1,          0),
-      ('Events - Registration Confirmation Invite', '{ts 1=$event.event_title}Confirm your registration for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Registration Confirmation Invite', '{ts 1=$event.event_title}Confirm your registration for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{ts}This is an invitation to complete your registration that was initially waitlisted.{/ts}
+
 {if !$isAdditional and $participant.id}
 
 ===========================================================
@@ -17092,8 +16998,7 @@ Click this link to go to a web page where you can confirm your registration onli
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
-
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
   <!-- END HEADER -->
@@ -17102,7 +17007,8 @@ Click this link to go to a web page where you can confirm your registration onli
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+    <p>{ts}This is an invitation to complete your registration that was initially waitlisted.{/ts}</p>
    </td>
   </tr>
   {if !$isAdditional and $participant.id}
@@ -17114,14 +17020,14 @@ Click this link to go to a web page where you can confirm your registration onli
    <tr>
     <td colspan="2" {$valueStyle}>
      {capture assign=confirmUrl}{crmURL p=\'civicrm/event/confirm\' q="reset=1&participantId=`$participant.id`&cs=`$checksumValue`" a=true h=0 fe=1}{/capture}
-     <a href="{$confirmUrl}">Go to a web page where you can confirm your registration online</a>
+     <a href="{$confirmUrl}">{ts}Click here to confirm and complete your registration{/ts}</a>
     </td>
    </tr>
   {/if}
   {if $event.allow_selfcancelxfer }
-  This event allows for self-cancel or transfer
-  {capture assign=selfService}{crmURL p=\'civicrm/event/selfsvcupdate\' q="reset=1&pid=`$participantID`&{contact.checksum}"  h=0 a=1 fe=1}{/capture}
-       <a href="{$selfService}">{ts}Self service cancel transfer{/ts}</a>
+  {ts}This event allows for{/ts}
+  {capture assign=selfService}{crmURL p=\'civicrm/event/selfsvcupdate\' q="reset=1&pid=`$participantID`&{contact.checksum}" h=0 a=1 fe=1}{/capture}
+       <a href="{$selfService}"> {ts}self service cancel or transfer{/ts}</a>
   {/if}
 
   <tr>
@@ -17266,8 +17172,8 @@ Click this link to go to a web page where you can confirm your registration onli
 ', @tpl_ovid_participant_confirm, 0,          1) ,      
       
       
-      ('Events - Pending Registration Expiration Notice', '{ts 1=$event.event_title}Event registration has expired for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Pending Registration Expiration Notice', '{ts 1=$event.event_title}Event registration has expired for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$event.event_title}Your pending event registration for %1 has expired
 because you did not confirm your registration.{/ts}
@@ -17331,7 +17237,7 @@ or want to inquire about reinstating your registration for this event.{/ts}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -17341,7 +17247,7 @@ or want to inquire about reinstating your registration for this event.{/ts}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$event.event_title}Your pending event registration for %1 has expired
 because you did not confirm your registration.{/ts}</p>
     <p>{ts 1=$domain.phone 2=$domain.email}Please contact us at %1 or send email to %2 if you have questions
@@ -17451,8 +17357,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_participant_expired, 1,          0),
-      ('Events - Pending Registration Expiration Notice', '{ts 1=$event.event_title}Event registration has expired for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Pending Registration Expiration Notice', '{ts 1=$event.event_title}Event registration has expired for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$event.event_title}Your pending event registration for %1 has expired
 because you did not confirm your registration.{/ts}
@@ -17516,7 +17422,7 @@ or want to inquire about reinstating your registration for this event.{/ts}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -17526,7 +17432,7 @@ or want to inquire about reinstating your registration for this event.{/ts}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$event.event_title}Your pending event registration for %1 has expired
 because you did not confirm your registration.{/ts}</p>
     <p>{ts 1=$domain.phone 2=$domain.email}Please contact us at %1 or send email to %2 if you have questions
@@ -17638,8 +17544,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ', @tpl_ovid_participant_expired, 0,          1) ,      
       
       
-      ('Events - Registration Transferred Notice', '{ts 1=$event.event_title}Event Registration Transferred for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Registration Transferred Notice', '{ts 1=$event.event_title}Event Registration Transferred for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$to_participant}Your Event Registration has been transferred to %1.{/ts}
 
@@ -17697,7 +17603,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -17707,7 +17613,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$to_participant}Your Event Registration has been Transferred to %1.{/ts}</p>
    </td>
   </tr>
@@ -17814,8 +17720,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_participant_transferred, 1,          0),
-      ('Events - Registration Transferred Notice', '{ts 1=$event.event_title}Event Registration Transferred for %1{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Events - Registration Transferred Notice', '{ts 1=$event.event_title}Event Registration Transferred for %1{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$to_participant}Your Event Registration has been transferred to %1.{/ts}
 
@@ -17873,7 +17779,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -17883,7 +17789,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$to_participant}Your Event Registration has been Transferred to %1.{/ts}</p>
    </td>
   </tr>
@@ -18021,7 +17927,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -18078,7 +17984,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -18112,17 +18018,15 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {ts}Membership Confirmation and Receipt{/ts}
 {elseif $receiptType EQ \'membership renewal\'}
 {ts}Membership Renewal Confirmation and Receipt{/ts}
-{/if}
-', '{if $formValues.receipt_text_signup}
+{/if} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{if $formValues.receipt_text_signup}
 {$formValues.receipt_text_signup}
 {elseif $formValues.receipt_text_renewal}
 {$formValues.receipt_text_renewal}
-{else}{ts}Thank you for your support.{/ts}{/if}
+{else}{ts}Thank you for this contribution.{/ts}{/if}
 
-{if ! $cancelled}{ts}Please print this receipt for your records.{/ts}
-
-
-{/if}
 {if !$lineItem}
 ===========================================================
 {ts}Membership Information{/ts}
@@ -18196,7 +18100,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {/if}
 
 {if $isPrimary }
-{if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later  }
+{if $billingName}
 
 ===========================================================
 {ts}Billing Name and Address{/ts}
@@ -18206,7 +18110,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {$address}
 {/if}
 
-{if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later}
+{if $credit_card_type}
 ===========================================================
 {ts}Credit Card Information{/ts}
 
@@ -18239,7 +18143,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -18249,15 +18153,13 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     {if $formValues.receipt_text_signup}
      <p>{$formValues.receipt_text_signup|htmlize}</p>
     {elseif $formValues.receipt_text_renewal}
      <p>{$formValues.receipt_text_renewal|htmlize}</p>
     {else}
-     <p>{ts}Thank you for your support.{/ts}</p>
-    {/if}
-    {if ! $cancelled}
-     <p>{ts}Please print this receipt for your records.{/ts}</p>
+     <p>{ts}Thank you for this contribution.{/ts}</p>
     {/if}
    </td>
   </tr>
@@ -18452,7 +18354,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
     <td>
      <table style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse; width:100%;">
 
-      {if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later }
+      {if $billingName}
        <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
@@ -18466,7 +18368,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
        </tr>
       {/if}
 
-      {if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later}
+      {if $credit_card_type}
        <tr>
         <th {$headerStyle}>
          {ts}Credit Card Information{/ts}
@@ -18527,17 +18429,15 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {ts}Membership Confirmation and Receipt{/ts}
 {elseif $receiptType EQ \'membership renewal\'}
 {ts}Membership Renewal Confirmation and Receipt{/ts}
-{/if}
-', '{if $formValues.receipt_text_signup}
+{/if} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{if $formValues.receipt_text_signup}
 {$formValues.receipt_text_signup}
 {elseif $formValues.receipt_text_renewal}
 {$formValues.receipt_text_renewal}
-{else}{ts}Thank you for your support.{/ts}{/if}
+{else}{ts}Thank you for this contribution.{/ts}{/if}
 
-{if ! $cancelled}{ts}Please print this receipt for your records.{/ts}
-
-
-{/if}
 {if !$lineItem}
 ===========================================================
 {ts}Membership Information{/ts}
@@ -18611,7 +18511,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {/if}
 
 {if $isPrimary }
-{if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later  }
+{if $billingName}
 
 ===========================================================
 {ts}Billing Name and Address{/ts}
@@ -18621,7 +18521,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {$address}
 {/if}
 
-{if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later}
+{if $credit_card_type}
 ===========================================================
 {ts}Credit Card Information{/ts}
 
@@ -18654,7 +18554,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -18664,15 +18564,13 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     {if $formValues.receipt_text_signup}
      <p>{$formValues.receipt_text_signup|htmlize}</p>
     {elseif $formValues.receipt_text_renewal}
      <p>{$formValues.receipt_text_renewal|htmlize}</p>
     {else}
-     <p>{ts}Thank you for your support.{/ts}</p>
-    {/if}
-    {if ! $cancelled}
-     <p>{ts}Please print this receipt for your records.{/ts}</p>
+     <p>{ts}Thank you for this contribution.{/ts}</p>
     {/if}
    </td>
   </tr>
@@ -18867,7 +18765,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
     <td>
      <table style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse; width:100%;">
 
-      {if $contributeMode ne \'notify\' and !$isAmountzero and !$is_pay_later }
+      {if $billingName}
        <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
@@ -18881,7 +18779,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
        </tr>
       {/if}
 
-      {if $contributeMode eq \'direct\' and !$isAmountzero and !$is_pay_later}
+      {if $credit_card_type}
        <tr>
         <th {$headerStyle}>
          {ts}Credit Card Information{/ts}
@@ -18940,7 +18838,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ', @tpl_ovid_membership_offline_receipt, 0,          1) ,      
       
       
-      ('Memberships - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title}
+      ('Memberships - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title} - {contact.display_name}
 ', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $receipt_text}
 {$receipt_text}
@@ -18950,9 +18848,6 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ===========================================================
 {$pay_later_receipt}
 ===========================================================
-{else}
-
-{ts}Please print this receipt for your records.{/ts}
 {/if}
 
 {if $membership_assign && !$useForMember}
@@ -19100,14 +18995,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {/foreach}
 {/if}
 
-{if !( $contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\' ) and $is_monetary}
-{if $is_pay_later}
-===========================================================
-{ts}Registered Email{/ts}
-
-===========================================================
-{$email}
-{elseif $amount GT 0 OR $membership_amount GT 0 }
+{if $billingName}
 ===========================================================
 {ts}Billing Name and Address{/ts}
 
@@ -19116,9 +19004,14 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {$address}
 
 {$email}
-{/if} {* End ! is_pay_later condition. *}
-{/if}
-{if $contributeMode eq \'direct\' AND !$is_pay_later AND ( $amount GT 0 OR $membership_amount GT 0 ) }
+{elseif $email}
+===========================================================
+{ts}Registered Email{/ts}
+
+===========================================================
+{$email}
+{/if} {* End billingName or email *}
+{if $credit_card_type}
 
 ===========================================================
 {ts}Credit Card Information{/ts}
@@ -19200,7 +19093,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="500" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -19217,14 +19110,12 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
     {if $is_pay_later}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
   </tr>
   </table>
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
 
      {if $membership_assign && !$useForMember}
       <tr>
@@ -19583,35 +19474,33 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
       {/foreach}
      {/if}
 
-     {if ! ($contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\') and $is_monetary}
-      {if $is_pay_later}
+     {if $billingName}
        <tr>
-        <th {$headerStyle}>
-         {ts}Registered Email{/ts}
-        </th>
-       </tr>
-       <tr>
+         <th {$headerStyle}>
+           {ts}Billing Name and Address{/ts}
+         </th>
+      </tr>
+      <tr>
         <td colspan="2" {$valueStyle}>
-         {$email}
+          {$billingName}<br />
+          {$address|nl2br}<br />
+          {$email}
         </td>
-       </tr>
-      {elseif $amount GT 0 OR $membership_amount GT 0}
-       <tr>
+      </tr>
+    {elseif $email}
+      <tr>
         <th {$headerStyle}>
-         {ts}Billing Name and Address{/ts}
+          {ts}Registered Email{/ts}
         </th>
-       </tr>
-       <tr>
+      </tr>
+      <tr>
         <td colspan="2" {$valueStyle}>
-         {$billingName}<br />
-         {$address|nl2br}<br />
-         {$email}
+          {$email}
         </td>
-       </tr>
-      {/if}
-     {/if}
+      </tr>
+    {/if}
 
-     {if $contributeMode eq \'direct\' AND !$is_pay_later AND ($amount GT 0 OR $membership_amount GT 0)}
+     {if $credit_card_type}
       <tr>
        <th {$headerStyle}>
         {ts}Credit Card Information{/ts}
@@ -19745,7 +19634,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_membership_online_receipt, 1,          0),
-      ('Memberships - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title}
+      ('Memberships - Receipt (on-line)', '{if $is_pay_later}{ts}Invoice{/ts}{else}{ts}Receipt{/ts}{/if} - {$title} - {contact.display_name}
 ', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 {if $receipt_text}
 {$receipt_text}
@@ -19755,9 +19644,6 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ===========================================================
 {$pay_later_receipt}
 ===========================================================
-{else}
-
-{ts}Please print this receipt for your records.{/ts}
 {/if}
 
 {if $membership_assign && !$useForMember}
@@ -19905,14 +19791,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {/foreach}
 {/if}
 
-{if !( $contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\' ) and $is_monetary}
-{if $is_pay_later}
-===========================================================
-{ts}Registered Email{/ts}
-
-===========================================================
-{$email}
-{elseif $amount GT 0 OR $membership_amount GT 0 }
+{if $billingName}
 ===========================================================
 {ts}Billing Name and Address{/ts}
 
@@ -19921,9 +19800,14 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {$address}
 
 {$email}
-{/if} {* End ! is_pay_later condition. *}
-{/if}
-{if $contributeMode eq \'direct\' AND !$is_pay_later AND ( $amount GT 0 OR $membership_amount GT 0 ) }
+{elseif $email}
+===========================================================
+{ts}Registered Email{/ts}
+
+===========================================================
+{$email}
+{/if} {* End billingName or email *}
+{if $credit_card_type}
 
 ===========================================================
 {ts}Credit Card Information{/ts}
@@ -20005,7 +19889,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="500" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -20022,14 +19906,12 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
     {if $is_pay_later}
      <p>{$pay_later_receipt}</p> {* FIXME: this might be text rather than HTML *}
-    {else}
-     <p>{ts}Please print this confirmation for your records.{/ts}</p>
     {/if}
 
    </td>
   </tr>
   </table>
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
 
      {if $membership_assign && !$useForMember}
       <tr>
@@ -20388,35 +20270,33 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
       {/foreach}
      {/if}
 
-     {if ! ($contributeMode eq \'notify\' OR $contributeMode eq \'directIPN\') and $is_monetary}
-      {if $is_pay_later}
+     {if $billingName}
        <tr>
-        <th {$headerStyle}>
-         {ts}Registered Email{/ts}
-        </th>
-       </tr>
-       <tr>
+         <th {$headerStyle}>
+           {ts}Billing Name and Address{/ts}
+         </th>
+      </tr>
+      <tr>
         <td colspan="2" {$valueStyle}>
-         {$email}
+          {$billingName}<br />
+          {$address|nl2br}<br />
+          {$email}
         </td>
-       </tr>
-      {elseif $amount GT 0 OR $membership_amount GT 0}
-       <tr>
+      </tr>
+    {elseif $email}
+      <tr>
         <th {$headerStyle}>
-         {ts}Billing Name and Address{/ts}
+          {ts}Registered Email{/ts}
         </th>
-       </tr>
-       <tr>
+      </tr>
+      <tr>
         <td colspan="2" {$valueStyle}>
-         {$billingName}<br />
-         {$address|nl2br}<br />
-         {$email}
+          {$email}
         </td>
-       </tr>
-      {/if}
-     {/if}
+      </tr>
+    {/if}
 
-     {if $contributeMode eq \'direct\' AND !$is_pay_later AND ($amount GT 0 OR $membership_amount GT 0)}
+     {if $credit_card_type}
       <tr>
        <th {$headerStyle}>
         {ts}Credit Card Information{/ts}
@@ -20552,8 +20432,10 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ', @tpl_ovid_membership_online_receipt, 0,          1) ,      
       
       
-      ('Memberships - Auto-renew Cancellation Notification', '{ts}Autorenew Membership Cancellation Notification{/ts}
-', '{ts 1=$membershipType}The automatic renewal of your %1 membership has been cancelled as requested. This does not affect the status of your membership - you will receive a separate notification when your membership is up for renewal.{/ts}
+      ('Memberships - Auto-renew Cancellation Notification', '{ts}Autorenew Membership Cancellation Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{ts 1=$membershipType}The automatic renewal of your %1 membership has been cancelled as requested. This does not affect the status of your membership - you will receive a separate notification when your membership is up for renewal.{/ts}
 
 ===========================================================
 {ts}Membership Information{/ts}
@@ -20578,7 +20460,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="500" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -20588,13 +20470,13 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
-
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$membershipType}The automatic renewal of your %1 membership has been cancelled as requested. This does not affect the status of your membership - you will receive a separate notification when your membership is up for renewal.{/ts}</p>
 
    </td>
   </tr>
  </table>
- <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+ <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
 
       <tr>
        <th {$headerStyle}>
@@ -20636,8 +20518,10 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_membership_autorenew_cancelled, 1,          0),
-      ('Memberships - Auto-renew Cancellation Notification', '{ts}Autorenew Membership Cancellation Notification{/ts}
-', '{ts 1=$membershipType}The automatic renewal of your %1 membership has been cancelled as requested. This does not affect the status of your membership - you will receive a separate notification when your membership is up for renewal.{/ts}
+      ('Memberships - Auto-renew Cancellation Notification', '{ts}Autorenew Membership Cancellation Notification{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+{ts 1=$membershipType}The automatic renewal of your %1 membership has been cancelled as requested. This does not affect the status of your membership - you will receive a separate notification when your membership is up for renewal.{/ts}
 
 ===========================================================
 {ts}Membership Information{/ts}
@@ -20662,7 +20546,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="500" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -20672,13 +20556,13 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
-
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$membershipType}The automatic renewal of your %1 membership has been cancelled as requested. This does not affect the status of your membership - you will receive a separate notification when your membership is up for renewal.{/ts}</p>
 
    </td>
   </tr>
  </table>
- <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+ <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
 
       <tr>
        <th {$headerStyle}>
@@ -20722,7 +20606,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ', @tpl_ovid_membership_autorenew_cancelled, 0,          1) ,      
       
       
-      ('Memberships - Auto-renew Billing Updates', '{ts}Membership Autorenewal Billing Updates{/ts}', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Memberships - Auto-renew Billing Updates', '{ts}Membership Autorenewal Billing Updates{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$membershipType}Billing details for your automatically renewed %1 membership have been updated.{/ts}
 
@@ -20744,7 +20629,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {ts}Expires{/ts}: {$credit_card_exp_date|truncate:7:\'\'|crmDate}
 
 
-{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}
+', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -20757,7 +20643,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -20767,15 +20653,15 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$membershipType}Billing details for your automatically renewed %1 membership have been updated.{/ts}</p>
    </td>
   </tr>
   <tr>
  </table>
 
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
-<tr>
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+   <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
         </th>
@@ -20811,7 +20697,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_membership_autorenew_billing, 1,          0),
-      ('Memberships - Auto-renew Billing Updates', '{ts}Membership Autorenewal Billing Updates{/ts}', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Memberships - Auto-renew Billing Updates', '{ts}Membership Autorenewal Billing Updates{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$membershipType}Billing details for your automatically renewed %1 membership have been updated.{/ts}
 
@@ -20833,7 +20720,8 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {ts}Expires{/ts}: {$credit_card_exp_date|truncate:7:\'\'|crmDate}
 
 
-{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{ts 1=$receipt_from_email}If you have questions please contact us at %1{/ts}
+', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -20846,7 +20734,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -20856,15 +20744,15 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$membershipType}Billing details for your automatically renewed %1 membership have been updated.{/ts}</p>
    </td>
   </tr>
   <tr>
  </table>
 
-  <table width="500" style="border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
-<tr>
+  <table style="width:100%; max-width:500px; border: 1px solid #999; margin: 1em 0em 1em; border-collapse: collapse;">
+   <tr>
         <th {$headerStyle}>
          {ts}Billing Name and Address{/ts}
         </th>
@@ -20911,7 +20799,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
 ***********************************************************
 ', '<center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt_test" style="font-family: Arial, Verdana, sans-serif; text-align: left">
+ <table id="crm-event_receipt_test" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
   <tr>
    <td>
     <p>{ts}Test-drive Email / Receipt{/ts}</p>
@@ -20930,7 +20818,7 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 
 ***********************************************************
 ', '<center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt_test" style="font-family: Arial, Verdana, sans-serif; text-align: left">
+ <table id="crm-event_receipt_test" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
   <tr>
    <td>
     <p>{ts}Test-drive Email / Receipt{/ts}</p>
@@ -20942,10 +20830,10 @@ or want to inquire about reinstating your registration for this event.{/ts}</p>
 ', @tpl_ovid_test_preview, 0,          1) ,      
       
       
-      ('Pledges - Acknowledgement', '{ts}Thank you for your Pledge{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Pledges - Acknowledgement', '{ts}Thank you for your Pledge{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
 
-{ts}Thank you for your generous pledge. Please print this acknowledgment for your records.{/ts}
+{ts}Thank you for your generous pledge.{/ts}
 
 ===========================================================
 {ts}Pledge Information{/ts}
@@ -21001,7 +20889,7 @@ or need to modify your payment schedule.{/ts}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -21011,8 +20899,8 @@ or need to modify your payment schedule.{/ts}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}dear %1{/ts},</p>
-    <p>{ts}thank you for your generous pledge. please print this acknowledgment for your records.{/ts}</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+    <p>{ts}Thank you for your generous pledge.{/ts}</p>
    </td>
   </tr>
   <tr>
@@ -21106,10 +20994,10 @@ or need to modify your payment schedule.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_pledge_acknowledge, 1,          0),
-      ('Pledges - Acknowledgement', '{ts}Thank you for your Pledge{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Pledges - Acknowledgement', '{ts}Thank you for your Pledge{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
 
-{ts}Thank you for your generous pledge. Please print this acknowledgment for your records.{/ts}
+{ts}Thank you for your generous pledge.{/ts}
 
 ===========================================================
 {ts}Pledge Information{/ts}
@@ -21165,7 +21053,7 @@ or need to modify your payment schedule.{/ts}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -21175,8 +21063,8 @@ or need to modify your payment schedule.{/ts}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}dear %1{/ts},</p>
-    <p>{ts}thank you for your generous pledge. please print this acknowledgment for your records.{/ts}</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+    <p>{ts}Thank you for your generous pledge.{/ts}</p>
    </td>
   </tr>
   <tr>
@@ -21272,8 +21160,8 @@ or need to modify your payment schedule.{/ts}</p>
 ', @tpl_ovid_pledge_acknowledge, 0,          1) ,      
       
       
-      ('Pledges - Payment Reminder', '{ts}Pledge Payment Reminder{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Pledges - Payment Reminder', '{ts}Pledge Payment Reminder{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$next_payment|truncate:10:\'\'|crmDate}This is a reminder that the next payment on your pledge is due on %1.{/ts}
 
@@ -21319,7 +21207,7 @@ or need to modify your payment schedule.{/ts}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -21329,7 +21217,7 @@ or need to modify your payment schedule.{/ts}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$next_payment|truncate:10:\'\'|crmDate}This is a reminder that the next payment on your pledge is due on %1.{/ts}</p>
    </td>
   </tr>
@@ -21414,8 +21302,8 @@ or need to modify your payment schedule.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_pledge_reminder, 1,          0),
-      ('Pledges - Payment Reminder', '{ts}Pledge Payment Reminder{/ts}
-', '{ts 1=$contact.display_name}Dear %1{/ts},
+      ('Pledges - Payment Reminder', '{ts}Pledge Payment Reminder{/ts} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
 
 {ts 1=$next_payment|truncate:10:\'\'|crmDate}This is a reminder that the next payment on your pledge is due on %1.{/ts}
 
@@ -21461,7 +21349,7 @@ or need to modify your payment schedule.{/ts}
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -21471,7 +21359,7 @@ or need to modify your payment schedule.{/ts}
 
   <tr>
    <td>
-    <p>{ts 1=$contact.display_name}Dear %1{/ts},</p>
+    {assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
     <p>{ts 1=$next_payment|truncate:10:\'\'|crmDate}This is a reminder that the next payment on your pledge is due on %1.{/ts}</p>
    </td>
   </tr>
@@ -21558,7 +21446,7 @@ or need to modify your payment schedule.{/ts}</p>
 ', @tpl_ovid_pledge_reminder, 0,          1) ,      
       
       
-      ('Profiles - Admin Notification', '{$grouptitle} {ts 1=$displayName}Submitted by %1{/ts}
+      ('Profiles - Admin Notification', '{$grouptitle} {ts 1=$displayName}Submitted by %1{/ts} - {contact.display_name}
 ', '{ts}Submitted For:{/ts} {$displayName}
 {ts}Date:{/ts} {$currentDate}
 {ts}Contact Summary:{/ts} {$contactLink}
@@ -21583,7 +21471,7 @@ or need to modify your payment schedule.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -21645,7 +21533,7 @@ or need to modify your payment schedule.{/ts}</p>
 </body>
 </html>
 ', @tpl_ovid_uf_notify, 1,          0),
-      ('Profiles - Admin Notification', '{$grouptitle} {ts 1=$displayName}Submitted by %1{/ts}
+      ('Profiles - Admin Notification', '{$grouptitle} {ts 1=$displayName}Submitted by %1{/ts} - {contact.display_name}
 ', '{ts}Submitted For:{/ts} {$displayName}
 {ts}Date:{/ts} {$currentDate}
 {ts}Contact Summary:{/ts} {$contactLink}
@@ -21670,7 +21558,7 @@ or need to modify your payment schedule.{/ts}</p>
 {capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
 
 <center>
- <table width="620" border="0" cellpadding="0" cellspacing="0" id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+  <table id="crm-event_receipt" style="font-family: Arial, Verdana, sans-serif; text-align: left; width:100%; max-width:700px; padding:0; margin:0; border:0px;">
 
   <!-- BEGIN HEADER -->
   <!-- You can add table row(s) here with logo or other header elements -->
@@ -21734,20 +21622,32 @@ or need to modify your payment schedule.{/ts}</p>
 ', @tpl_ovid_uf_notify, 0,          1) ,      
       
       
-      ('Petition - signature added', 'Thank you for signing {$petition.title}', 'Thank you for signing {$petition.title}.
-', '<p>Thank you for signing {$petition.title}.</p>
+      ('Petition - signature added', 'Thank you for signing {$petition.title} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+Thank you for signing {$petition.title}.
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+
+<p>Thank you for signing {$petition.title}.</p>
 
 {include file="CRM/Campaign/Page/Petition/SocialNetwork.tpl" petition_id=$survey_id noscript=true emailMode=true}
 ', @tpl_ovid_petition_sign, 1,          0),
-      ('Petition - signature added', 'Thank you for signing {$petition.title}', 'Thank you for signing {$petition.title}.
-', '<p>Thank you for signing {$petition.title}.</p>
+      ('Petition - signature added', 'Thank you for signing {$petition.title} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+Thank you for signing {$petition.title}.
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+
+<p>Thank you for signing {$petition.title}.</p>
 
 {include file="CRM/Campaign/Page/Petition/SocialNetwork.tpl" petition_id=$survey_id noscript=true emailMode=true}
 ', @tpl_ovid_petition_sign, 0,          1) ,      
       
       
-      ('Petition - need verification', 'Confirmation of signature needed for {$petition.title}
-', 'Thank you for signing {$petition.title}.
+      ('Petition - need verification', 'Confirmation of signature needed for {$petition.title} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+Thank you for signing {$petition.title}.
 
 In order to complete your signature, we must confirm your e-mail.
 Please do so by visiting the following email confirmation web page:
@@ -21755,7 +21655,9 @@ Please do so by visiting the following email confirmation web page:
 {$petition.confirmUrlPlainText}
 
 If you did not sign this petition, please ignore this message.
-', '<p>Thank you for signing {$petition.title}.</p>
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+
+<p>Thank you for signing {$petition.title}.</p>
 
 <p>In order to <b>complete your signature</b>, we must confirm your e-mail.
 <br />
@@ -21766,8 +21668,10 @@ Email confirmation page: <a href="{$petition.confirmUrl} ">{$petition.confirmUrl
 
 <p>If you did not sign this petition, please ignore this message.</p>
 ', @tpl_ovid_petition_confirmation_needed, 1,          0),
-      ('Petition - need verification', 'Confirmation of signature needed for {$petition.title}
-', 'Thank you for signing {$petition.title}.
+      ('Petition - need verification', 'Confirmation of signature needed for {$petition.title} - {contact.display_name}
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}{$greeting},{/if}
+
+Thank you for signing {$petition.title}.
 
 In order to complete your signature, we must confirm your e-mail.
 Please do so by visiting the following email confirmation web page:
@@ -21775,7 +21679,9 @@ Please do so by visiting the following email confirmation web page:
 {$petition.confirmUrlPlainText}
 
 If you did not sign this petition, please ignore this message.
-', '<p>Thank you for signing {$petition.title}.</p>
+', '{assign var="greeting" value="{contact.email_greeting}"}{if $greeting}<p>{$greeting},</p>{/if}
+
+<p>Thank you for signing {$petition.title}.</p>
 
 <p>In order to <b>complete your signature</b>, we must confirm your e-mail.
 <br />
@@ -23218,27 +23124,11 @@ VALUES
   (@option_group_id_soft_credit_type   , 'Personal Campaign Page', 10, 'pcp', 10, 0, 1, 1),
   (@option_group_id_soft_credit_type   , 'Gift', 11, 'gift', 11, 0, 1, 1);
 -- +--------------------------------------------------------------------+
--- | CiviCRM version 5                                                  |
--- +--------------------------------------------------------------------+
--- | Copyright CiviCRM LLC (c) 2004-2019                                |
--- +--------------------------------------------------------------------+
--- | This file is a part of CiviCRM.                                    |
+-- | Copyright CiviCRM LLC. All rights reserved.                        |
 -- |                                                                    |
--- | CiviCRM is free software; you can copy, modify, and distribute it  |
--- | under the terms of the GNU Affero General Public License           |
--- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
--- |                                                                    |
--- | CiviCRM is distributed in the hope that it will be useful, but     |
--- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
--- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
--- | See the GNU Affero General Public License for more details.        |
--- |                                                                    |
--- | You should have received a copy of the GNU Affero General Public   |
--- | License and the CiviCRM Licensing Exception along                  |
--- | with this program; if not, contact CiviCRM LLC                     |
--- | at info[AT]civicrm[DOT]org. If you have questions about the        |
--- | GNU Affero General Public License or the licensing of CiviCRM,     |
--- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+-- | This work is published under the GNU AGPLv3 license with some      |
+-- | permitted exceptions and without any warranty. For full license    |
+-- | and copyright information, see https://civicrm.org/licensing       |
 -- +--------------------------------------------------------------------+
 -- Navigation Menu, Preferences and Mail Settings
 --
@@ -23793,7 +23683,8 @@ SET @devellastID:=LAST_INSERT_ID();
 INSERT INTO civicrm_navigation
 ( domain_id, url, label, name, permission, permission_operator, parent_id, is_active, has_separator, weight )
 VALUES
-( @domainID, 'civicrm/api', 'API Explorer','API Explorer', 'administer CiviCRM', '', @devellastID, '1', NULL, 1 ),
+( @domainID, 'civicrm/api3', 'Api Explorer v3', 'API Explorer', 'administer CiviCRM', '', @devellastID, '1', NULL, 1 ),
+( @domainID, 'civicrm/api4#/explorer', 'Api Explorer v4', 'Api Explorer v4', 'administer CiviCRM', '', @devellastID, '1', NULL, 2 ),
 ( @domainID, 'https://civicrm.org/developer-documentation?src=iam', 'Developer Docs', 'Developer Docs', 'administer CiviCRM', '', @devellastID, '1', NULL, 3 );
 
 INSERT INTO civicrm_navigation
@@ -23900,7 +23791,7 @@ VALUES
 INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
 VALUES
-    ( @domainID, 'LYBUNT (last year but not this year)', 'contribute/lybunt', 'Last year but not this year. Provides a list of constituents who donated last year but did not donate during the time period you specify as the current year.', 'access CiviContribute', 'a:19:{s:6:"fields";a:3:{s:9:"sort_name";s:1:"1";s:5:"email";s:1:"1";s:5:"phone";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"yid_op";s:2:"eq";s:9:"yid_value";s:4:"2011";s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:1:{i:0;s:1:"1";}s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:157:"Last year but not this year. Provides a list of constituents who donated last year but did not donate during the time period you specify as the current year.";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:21:"access CiviContribute";s:6:"groups";s:0:"";s:6:"charts";s:0:"";s:9:"domain_id";i:1;}');
+    ( @domainID, 'LYBUNT (last year but not this year)', 'contribute/lybunt', 'Last year but not this year. Provides a list of constituents who donated last year but did not donate during the time period you specify as the current year.', 'access CiviContribute', 'a:19:{s:6:"fields";a:5:{s:9:"sort_name";s:1:"1";s:5:"email";s:1:"1";s:5:"phone";s:1:"1";s:22:"last_year_total_amount";s:1:"1";s:23:"civicrm_life_time_total";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"yid_op";s:2:"eq";s:9:"yid_value";s:4:"2011";s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:1:{i:0;s:1:"1";}s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:157:"Last year but not this year. Provides a list of constituents who donated last year but did not donate during the time period you specify as the current year.";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:21:"access CiviContribute";s:6:"groups";s:0:"";s:6:"charts";s:0:"";s:9:"domain_id";i:1;}');
 
 INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
@@ -23956,17 +23847,17 @@ VALUES
 INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
 VALUES
-    ( @domainID, 'Membership Summary', 'member/summary', 'Provides a summary of memberships by type and join date.', 'access CiviMember', 'a:18:{s:6:"fields";a:2:{s:18:"membership_type_id";s:1:"1";s:12:"total_amount";s:1:"1";}s:18:"join_date_relative";s:1:"0";s:14:"join_date_from";s:0:"";s:12:"join_date_to";s:0:"";s:21:"membership_type_id_op";s:2:"in";s:24:"membership_type_id_value";a:0:{}s:12:"status_id_op";s:2:"in";s:15:"status_id_value";a:0:{}s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:0:{}s:9:"group_bys";a:2:{s:9:"join_date";s:1:"1";s:18:"membership_type_id";s:1:"1";}s:14:"group_bys_freq";a:1:{s:9:"join_date";s:5:"MONTH";}s:11:"description";s:56:"Provides a summary of memberships by type and join date.";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviMember";s:9:"domain_id";i:1;}');
+    ( @domainID, 'Membership Summary', 'member/summary', 'Provides a summary of memberships by type and join date.', 'access CiviMember', 'a:18:{s:6:"fields";a:2:{s:18:"membership_type_id";s:1:"1";s:12:"total_amount";s:1:"1";}s:29:"membership_join_date_relative";s:1:"0";s:25:"membership_join_date_from";s:0:"";s:23:"membership_join_date_to";s:0:"";s:21:"membership_type_id_op";s:2:"in";s:24:"membership_type_id_value";a:0:{}s:12:"status_id_op";s:2:"in";s:15:"status_id_value";a:0:{}s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:0:{}s:9:"group_bys";a:2:{s:9:"join_date";s:1:"1";s:18:"membership_type_id";s:1:"1";}s:14:"group_bys_freq";a:1:{s:9:"join_date";s:5:"MONTH";}s:11:"description";s:56:"Provides a summary of memberships by type and join date.";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviMember";s:9:"domain_id";i:1;}');
 
 INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
 VALUES
-    ( @domainID, 'Membership Details', 'member/detail', 'Provides a list of members along with their membership status and membership details (Join Date, Start Date, End Date). Can also display contributions (payments) associated with each membership.', 'access CiviMember', 'a:28:{s:6:"fields";a:5:{s:9:"sort_name";s:1:"1";s:18:"membership_type_id";s:1:"1";s:21:"membership_start_date";s:1:"1";s:19:"membership_end_date";s:1:"1";s:4:"name";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"id_min";s:0:"";s:6:"id_max";s:0:"";s:5:"id_op";s:3:"lte";s:8:"id_value";s:0:"";s:18:"join_date_relative";s:1:"0";s:14:"join_date_from";s:0:"";s:12:"join_date_to";s:0:"";s:23:"owner_membership_id_min";s:0:"";s:23:"owner_membership_id_max";s:0:"";s:22:"owner_membership_id_op";s:3:"lte";s:25:"owner_membership_id_value";s:0:"";s:6:"tid_op";s:2:"in";s:9:"tid_value";a:0:{}s:6:"sid_op";s:2:"in";s:9:"sid_value";a:0:{}s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:119:"Provides a list of members along with their membership status and membership details (Join Date, Start Date, End Date).";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviMember";s:9:"domain_id";i:1;}');
+    ( @domainID, 'Membership Details', 'member/detail', 'Provides a list of members along with their membership status and membership details (Join Date, Start Date, End Date). Can also display contributions (payments) associated with each membership.', 'access CiviMember', 'a:28:{s:6:"fields";a:5:{s:9:"sort_name";s:1:"1";s:18:"membership_type_id";s:1:"1";s:21:"membership_start_date";s:1:"1";s:19:"membership_end_date";s:1:"1";s:4:"name";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"id_min";s:0:"";s:6:"id_max";s:0:"";s:5:"id_op";s:3:"lte";s:8:"id_value";s:0:"";s:29:"membership_join_date_relative";s:1:"0";s:25:"membership_join_date_from";s:0:"";s:23:"membership_join_date_to";s:0:"";s:23:"owner_membership_id_min";s:0:"";s:23:"owner_membership_id_max";s:0:"";s:22:"owner_membership_id_op";s:3:"lte";s:25:"owner_membership_id_value";s:0:"";s:6:"tid_op";s:2:"in";s:9:"tid_value";a:0:{}s:6:"sid_op";s:2:"in";s:9:"sid_value";a:0:{}s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:119:"Provides a list of members along with their membership status and membership details (Join Date, Start Date, End Date).";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviMember";s:9:"domain_id";i:1;}');
 
 INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
 VALUES
-    ( @domainID, 'Contribution and Membership Details', 'member/contributionDetail', 'Contribution details for any type of contribution, plus associated membership information for contributions which are in payment for memberships.', 'access CiviMember', 'a:67:{s:6:"fields";a:12:{s:9:"sort_name";s:1:"1";s:5:"email";s:1:"1";s:5:"phone";s:1:"1";s:17:"financial_type_id";s:1:"1";s:12:"receive_date";s:1:"1";s:12:"total_amount";s:1:"1";s:18:"membership_type_id";s:1:"1";s:21:"membership_start_date";s:1:"1";s:19:"membership_end_date";s:1:"1";s:9:"join_date";s:1:"1";s:22:"membership_status_name";s:1:"1";s:10:"country_id";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"id_min";s:0:"";s:6:"id_max";s:0:"";s:5:"id_op";s:3:"lte";s:8:"id_value";s:0:"";s:21:"receive_date_relative";s:1:"0";s:17:"receive_date_from";s:0:"";s:15:"receive_date_to";s:0:"";s:20:"financial_type_id_op";s:2:"in";s:23:"financial_type_id_value";a:0:{}s:24:"payment_instrument_id_op";s:2:"in";s:27:"payment_instrument_id_value";a:0:{}s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:0:{}s:16:"total_amount_min";s:0:"";s:16:"total_amount_max";s:0:"";s:15:"total_amount_op";s:3:"lte";s:18:"total_amount_value";s:0:"";s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:13:"ordinality_op";s:2:"in";s:16:"ordinality_value";a:0:{}s:18:"join_date_relative";s:1:"0";s:14:"join_date_from";s:0:"";s:12:"join_date_to";s:0:"";s:30:"membership_start_date_relative";s:1:"0";s:26:"membership_start_date_from";s:0:"";s:24:"membership_start_date_to";s:0:"";s:28:"membership_end_date_relative";s:1:"0";s:24:"membership_end_date_from";s:0:"";s:22:"membership_end_date_to";s:0:"";s:23:"owner_membership_id_min";s:0:"";s:23:"owner_membership_id_max";s:0:"";s:22:"owner_membership_id_op";s:3:"lte";s:25:"owner_membership_id_value";s:0:"";s:6:"tid_op";s:2:"in";s:9:"tid_value";a:0:{}s:6:"sid_op";s:2:"in";s:9:"sid_value";a:0:{}s:17:"street_number_min";s:0:"";s:17:"street_number_max";s:0:"";s:16:"street_number_op";s:3:"lte";s:19:"street_number_value";s:0:"";s:14:"street_name_op";s:3:"has";s:17:"street_name_value";s:0:"";s:15:"postal_code_min";s:0:"";s:15:"postal_code_max";s:0:"";s:14:"postal_code_op";s:3:"lte";s:17:"postal_code_value";s:0:"";s:7:"city_op";s:3:"has";s:10:"city_value";s:0:"";s:12:"county_id_op";s:2:"in";s:15:"county_id_value";a:0:{}s:20:"state_province_id_op";s:2:"in";s:23:"state_province_id_value";a:0:{}s:13:"country_id_op";s:2:"in";s:16:"country_id_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:35:"Contribution and Membership Details";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:1:"0";s:9:"domain_id";i:1;}{s:6:"fields";a:12:{s:9:"sort_name";s:1:"1";s:5:"email";s:1:"1";s:5:"phone";s:1:"1";s:17:"financial_type_id";s:1:"1";s:12:"receive_date";s:1:"1";s:12:"total_amount";s:1:"1";s:18:"membership_type_id";s:1:"1";s:21:"membership_start_date";s:1:"1";s:19:"membership_end_date";s:1:"1";s:9:"join_date";s:1:"1";s:22:"membership_status_name";s:1:"1";s:10:"country_id";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"id_min";s:0:"";s:6:"id_max";s:0:"";s:5:"id_op";s:3:"lte";s:8:"id_value";s:0:"";s:21:"receive_date_relative";s:1:"0";s:17:"receive_date_from";s:0:"";s:15:"receive_date_to";s:0:"";s:20:"financial_type_id_op";s:2:"in";s:23:"financial_type_id_value";a:0:{}s:24:"payment_instrument_id_op";s:2:"in";s:27:"payment_instrument_id_value";a:0:{}s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:0:{}s:16:"total_amount_min";s:0:"";s:16:"total_amount_max";s:0:"";s:15:"total_amount_op";s:3:"lte";s:18:"total_amount_value";s:0:"";s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:13:"ordinality_op";s:2:"in";s:16:"ordinality_value";a:0:{}s:18:"join_date_relative";s:1:"0";s:14:"join_date_from";s:0:"";s:12:"join_date_to";s:0:"";s:30:"membership_start_date_relative";s:1:"0";s:26:"membership_start_date_from";s:0:"";s:24:"membership_start_date_to";s:0:"";s:28:"membership_end_date_relative";s:1:"0";s:24:"membership_end_date_from";s:0:"";s:22:"membership_end_date_to";s:0:"";s:23:"owner_membership_id_min";s:0:"";s:23:"owner_membership_id_max";s:0:"";s:22:"owner_membership_id_op";s:3:"lte";s:25:"owner_membership_id_value";s:0:"";s:6:"tid_op";s:2:"in";s:9:"tid_value";a:0:{}s:6:"sid_op";s:2:"in";s:9:"sid_value";a:0:{}s:17:"street_number_min";s:0:"";s:17:"street_number_max";s:0:"";s:16:"street_number_op";s:3:"lte";s:19:"street_number_value";s:0:"";s:14:"street_name_op";s:3:"has";s:17:"street_name_value";s:0:"";s:15:"postal_code_min";s:0:"";s:15:"postal_code_max";s:0:"";s:14:"postal_code_op";s:3:"lte";s:17:"postal_code_value";s:0:"";s:7:"city_op";s:3:"has";s:10:"city_value";s:0:"";s:12:"county_id_op";s:2:"in";s:15:"county_id_value";a:0:{}s:20:"state_province_id_op";s:2:"in";s:23:"state_province_id_value";a:0:{}s:13:"country_id_op";s:2:"in";s:16:"country_id_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:35:"Contribution and Membership Details";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviMember";s:9:"domain_id";i:1;}');
+    ( @domainID, 'Contribution and Membership Details', 'member/contributionDetail', 'Contribution details for any type of contribution, plus associated membership information for contributions which are in payment for memberships.', 'access CiviMember', 'a:67:{s:6:"fields";a:12:{s:9:"sort_name";s:1:"1";s:5:"email";s:1:"1";s:5:"phone";s:1:"1";s:17:"financial_type_id";s:1:"1";s:12:"receive_date";s:1:"1";s:12:"total_amount";s:1:"1";s:18:"membership_type_id";s:1:"1";s:21:"membership_start_date";s:1:"1";s:19:"membership_end_date";s:1:"1";s:9:"join_date";s:1:"1";s:22:"membership_status_name";s:1:"1";s:10:"country_id";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"id_min";s:0:"";s:6:"id_max";s:0:"";s:5:"id_op";s:3:"lte";s:8:"id_value";s:0:"";s:21:"receive_date_relative";s:1:"0";s:17:"receive_date_from";s:0:"";s:15:"receive_date_to";s:0:"";s:20:"financial_type_id_op";s:2:"in";s:23:"financial_type_id_value";a:0:{}s:24:"payment_instrument_id_op";s:2:"in";s:27:"payment_instrument_id_value";a:0:{}s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:0:{}s:16:"total_amount_min";s:0:"";s:16:"total_amount_max";s:0:"";s:15:"total_amount_op";s:3:"lte";s:18:"total_amount_value";s:0:"";s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:13:"ordinality_op";s:2:"in";s:16:"ordinality_value";a:0:{}s:29:"membership_join_date_relative";s:1:"0";s:25:"membership_join_date_from";s:0:"";s:23:"membership_join_date_to";s:0:"";s:30:"membership_start_date_relative";s:1:"0";s:26:"membership_start_date_from";s:0:"";s:24:"membership_start_date_to";s:0:"";s:28:"membership_end_date_relative";s:1:"0";s:24:"membership_end_date_from";s:0:"";s:22:"membership_end_date_to";s:0:"";s:23:"owner_membership_id_min";s:0:"";s:23:"owner_membership_id_max";s:0:"";s:22:"owner_membership_id_op";s:3:"lte";s:25:"owner_membership_id_value";s:0:"";s:6:"tid_op";s:2:"in";s:9:"tid_value";a:0:{}s:6:"sid_op";s:2:"in";s:9:"sid_value";a:0:{}s:17:"street_number_min";s:0:"";s:17:"street_number_max";s:0:"";s:16:"street_number_op";s:3:"lte";s:19:"street_number_value";s:0:"";s:14:"street_name_op";s:3:"has";s:17:"street_name_value";s:0:"";s:15:"postal_code_min";s:0:"";s:15:"postal_code_max";s:0:"";s:14:"postal_code_op";s:3:"lte";s:17:"postal_code_value";s:0:"";s:7:"city_op";s:3:"has";s:10:"city_value";s:0:"";s:12:"county_id_op";s:2:"in";s:15:"county_id_value";a:0:{}s:20:"state_province_id_op";s:2:"in";s:23:"state_province_id_value";a:0:{}s:13:"country_id_op";s:2:"in";s:16:"country_id_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:35:"Contribution and Membership Details";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:1:"0";s:9:"domain_id";i:1;}{s:6:"fields";a:12:{s:9:"sort_name";s:1:"1";s:5:"email";s:1:"1";s:5:"phone";s:1:"1";s:17:"financial_type_id";s:1:"1";s:12:"receive_date";s:1:"1";s:12:"total_amount";s:1:"1";s:18:"membership_type_id";s:1:"1";s:21:"membership_start_date";s:1:"1";s:19:"membership_end_date";s:1:"1";s:9:"join_date";s:1:"1";s:22:"membership_status_name";s:1:"1";s:10:"country_id";s:1:"1";}s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:6:"id_min";s:0:"";s:6:"id_max";s:0:"";s:5:"id_op";s:3:"lte";s:8:"id_value";s:0:"";s:21:"receive_date_relative";s:1:"0";s:17:"receive_date_from";s:0:"";s:15:"receive_date_to";s:0:"";s:20:"financial_type_id_op";s:2:"in";s:23:"financial_type_id_value";a:0:{}s:24:"payment_instrument_id_op";s:2:"in";s:27:"payment_instrument_id_value";a:0:{}s:25:"contribution_status_id_op";s:2:"in";s:28:"contribution_status_id_value";a:0:{}s:16:"total_amount_min";s:0:"";s:16:"total_amount_max";s:0:"";s:15:"total_amount_op";s:3:"lte";s:18:"total_amount_value";s:0:"";s:6:"gid_op";s:2:"in";s:9:"gid_value";a:0:{}s:13:"ordinality_op";s:2:"in";s:16:"ordinality_value";a:0:{}s:29:"membership_join_date_relative";s:1:"0";s:25:"membership_join_date_from";s:0:"";s:23:"membership_join_date_to";s:0:"";s:30:"membership_start_date_relative";s:1:"0";s:26:"membership_start_date_from";s:0:"";s:24:"membership_start_date_to";s:0:"";s:28:"membership_end_date_relative";s:1:"0";s:24:"membership_end_date_from";s:0:"";s:22:"membership_end_date_to";s:0:"";s:23:"owner_membership_id_min";s:0:"";s:23:"owner_membership_id_max";s:0:"";s:22:"owner_membership_id_op";s:3:"lte";s:25:"owner_membership_id_value";s:0:"";s:6:"tid_op";s:2:"in";s:9:"tid_value";a:0:{}s:6:"sid_op";s:2:"in";s:9:"sid_value";a:0:{}s:17:"street_number_min";s:0:"";s:17:"street_number_max";s:0:"";s:16:"street_number_op";s:3:"lte";s:19:"street_number_value";s:0:"";s:14:"street_name_op";s:3:"has";s:17:"street_name_value";s:0:"";s:15:"postal_code_min";s:0:"";s:15:"postal_code_max";s:0:"";s:14:"postal_code_op";s:3:"lte";s:17:"postal_code_value";s:0:"";s:7:"city_op";s:3:"has";s:10:"city_value";s:0:"";s:12:"county_id_op";s:2:"in";s:15:"county_id_value";a:0:{}s:20:"state_province_id_op";s:2:"in";s:23:"state_province_id_value";a:0:{}s:13:"country_id_op";s:2:"in";s:16:"country_id_value";a:0:{}s:8:"tagid_op";s:2:"in";s:11:"tagid_value";a:0:{}s:11:"description";s:35:"Contribution and Membership Details";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviMember";s:9:"domain_id";i:1;}');
 
 INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
@@ -24036,4 +23927,4 @@ INSERT INTO `civicrm_report_instance`
     ( `domain_id`, `title`, `report_id`, `description`, `permission`, `form_values`)
 VALUES
     (  @domainID, 'Survey Details', 'survey/detail', 'Detailed report for canvassing, phone-banking, walk lists or other surveys.', 'access CiviReport', 'a:39:{s:6:"fields";a:2:{s:9:"sort_name";s:1:"1";s:6:"result";s:1:"1";}s:22:"assignee_contact_id_op";s:2:"eq";s:25:"assignee_contact_id_value";s:0:"";s:12:"sort_name_op";s:3:"has";s:15:"sort_name_value";s:0:"";s:17:"street_number_min";s:0:"";s:17:"street_number_max";s:0:"";s:16:"street_number_op";s:3:"lte";s:19:"street_number_value";s:0:"";s:14:"street_name_op";s:3:"has";s:17:"street_name_value";s:0:"";s:15:"postal_code_min";s:0:"";s:15:"postal_code_max";s:0:"";s:14:"postal_code_op";s:3:"lte";s:17:"postal_code_value";s:0:"";s:7:"city_op";s:3:"has";s:10:"city_value";s:0:"";s:20:"state_province_id_op";s:2:"in";s:23:"state_province_id_value";a:0:{}s:13:"country_id_op";s:2:"in";s:16:"country_id_value";a:0:{}s:12:"survey_id_op";s:2:"in";s:15:"survey_id_value";a:0:{}s:12:"status_id_op";s:2:"eq";s:15:"status_id_value";s:1:"1";s:11:"custom_1_op";s:2:"in";s:14:"custom_1_value";a:0:{}s:11:"custom_2_op";s:2:"in";s:14:"custom_2_value";a:0:{}s:17:"custom_3_relative";s:1:"0";s:13:"custom_3_from";s:0:"";s:11:"custom_3_to";s:0:"";s:11:"description";s:75:"Detailed report for canvassing, phone-banking, walk lists or other surveys.";s:13:"email_subject";s:0:"";s:8:"email_to";s:0:"";s:8:"email_cc";s:0:"";s:10:"permission";s:17:"access CiviReport";s:6:"groups";s:0:"";s:9:"domain_id";i:1;}');
-UPDATE civicrm_domain SET version = '5.14.0';
+UPDATE civicrm_domain SET version = '5.21.0';

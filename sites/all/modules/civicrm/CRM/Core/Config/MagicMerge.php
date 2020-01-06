@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
@@ -106,8 +90,6 @@ class CRM_Core_Config_MagicMerge {
       'userFrameworkURLVar' => ['runtime'],
       'userHookClass' => ['runtime'],
       'cleanURL' => ['runtime'],
-      'configAndLogDir' => ['runtime'],
-      'templateCompileDir' => ['runtime'],
       'templateDir' => ['runtime'],
 
       // "boot-svc" properties are critical services needed during init.
@@ -170,6 +152,7 @@ class CRM_Core_Config_MagicMerge {
       'maxFileSize' => ['setting'],
       // renamed.
       'maxAttachments' => ['setting', 'max_attachments'],
+      'maxAttachmentsBackend' => ['setting', 'max_attachments_backend'],
       'monetaryDecimalPoint' => ['setting'],
       'monetaryThousandSeparator' => ['setting'],
       'moneyformat' => ['setting'],
@@ -189,6 +172,12 @@ class CRM_Core_Config_MagicMerge {
       'wkhtmltopdfPath' => ['setting'],
       'wpBasePage' => ['setting'],
       'wpLoadPhp' => ['setting'],
+
+      // "path" properties are managed via Civi::paths and $civicrm_paths
+      // Option: `mkdir` - auto-create dir
+      // Option: `restrict` - auto-restrict remote access
+      'configAndLogDir' => ['path', 'civicrm.log', ['mkdir', 'restrict']],
+      'templateCompileDir' => ['path', 'civicrm.compile', ['mkdir', 'restrict']],
 
       // "setting-path" properties are settings with special filtering
       // to return normalized file paths.
@@ -241,10 +230,14 @@ class CRM_Core_Config_MagicMerge {
       case 'setting':
         return $this->getSettings()->get($name);
 
+      // The interpretation of 'path' and 'setting-path' is similar, except
+      // that the latter originates in a stored setting.
+      case 'path':
       case 'setting-path':
         // Array(0 => $type, 1 => $setting, 2 => $actions).
-        $value = $this->getSettings()->get($name);
-        $value = Civi::paths()->getPath($value);
+        $value = ($type === 'path')
+          ? Civi::paths()->getVariable($name, 'path')
+          : Civi::paths()->getPath($this->getSettings()->get($name));
         if ($value) {
           $value = CRM_Utils_File::addTrailingSlash($value);
           if (isset($this->map[$k][2]) && in_array('mkdir', $this->map[$k][2])) {
@@ -318,25 +311,22 @@ class CRM_Core_Config_MagicMerge {
     unset($this->cache[$k]);
     $type = $this->map[$k][0];
 
-    // If foreign name is set, use that name (except with callback types because
-    // their second parameter is the object, not the foreign name).
-    $name = isset($this->map[$k][1]) && $type != 'callback' ? $this->map[$k][1] : $k;
-
     switch ($type) {
       case 'setting':
       case 'setting-path':
       case 'setting-url':
+      case 'path':
       case 'user-system':
       case 'runtime':
       case 'callback':
       case 'boot-svc':
         // In the past, changes to $config were not persisted automatically.
-        $this->cache[$name] = $v;
+        $this->cache[$k] = $v;
         return;
 
       case 'local':
         $this->initLocals();
-        $this->locals[$name] = $v;
+        $this->locals[$k] = $v;
         return;
 
       default:

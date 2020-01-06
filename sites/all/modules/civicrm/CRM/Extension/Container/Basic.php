@@ -1,33 +1,17 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -81,6 +65,14 @@ class CRM_Extension_Container_Basic implements CRM_Extension_Container_Interface
    * Note: Treat as private. This is only public to facilitate debugging.
    */
   public $relUrls = FALSE;
+
+  /**
+   * @var array
+   *   Array(function(CRM_Extension_Info $info): bool)
+   *   List of callables which determine whether an extension is visible.
+   *   Each function returns TRUE if the extension should be visible.
+   */
+  protected $filters = [];
 
   /**
    * @param string $baseDir
@@ -216,7 +208,16 @@ class CRM_Extension_Container_Basic implements CRM_Extension_Container_Interface
             CRM_Core_Error::debug_log_message("Parse error in extension: " . $e->getMessage());
             continue;
           }
-          $this->relPaths[$info->key] = $relPath;
+          $visible = TRUE;
+          foreach ($this->filters as $filter) {
+            if (!$filter($info)) {
+              $visible = FALSE;
+              break;
+            }
+          }
+          if ($visible) {
+            $this->relPaths[$info->key] = $relPath;
+          }
         }
         if ($this->cache) {
           $this->cache->set($this->cacheKey, $this->relPaths);
@@ -257,6 +258,20 @@ class CRM_Extension_Container_Basic implements CRM_Extension_Container_Interface
       $this->relUrls = self::convertPathsToUrls(DIRECTORY_SEPARATOR, $this->getRelPaths());
     }
     return $this->relUrls;
+  }
+
+  /**
+   * Register a filter which determine whether a copy of an extension
+   * appears as available.
+   *
+   * @param callable $callable
+   *   function(CRM_Extension_Info $info): bool
+   *   Each function returns TRUE if the extension should be visible.
+   * @return $this
+   */
+  public function addFilter($callable) {
+    $this->filters[] = $callable;
+    return $this;
   }
 
   /**

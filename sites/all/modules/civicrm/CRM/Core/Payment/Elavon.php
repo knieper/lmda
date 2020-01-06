@@ -77,7 +77,7 @@ class CRM_Core_Payment_Elavon extends CRM_Core_Payment {
     $requestFields['ssl_ship_to_last_name'] = $params['last_name'];
     $requestFields['ssl_card_number'] = $params['credit_card_number'];
     $requestFields['ssl_amount'] = trim($params['amount']);
-    $requestFields['ssl_exp_date'] = sprintf('%02d', (int) $params['month']) . substr($params['year'], 2, 2);;
+    $requestFields['ssl_exp_date'] = sprintf('%02d', (int) $params['month']) . substr($params['year'], 2, 2);
     $requestFields['ssl_cvv2cvc2'] = $params['cvv2'];
     // CVV field passed to processor
     $requestFields['ssl_cvv2cvc2_indicator'] = "1";
@@ -231,7 +231,7 @@ class CRM_Core_Payment_Elavon extends CRM_Core_Payment {
       if ($this->_mode == 'test') {
         $query = "SELECT MAX(trxn_id) FROM civicrm_contribution WHERE trxn_id LIKE 'test%'";
         $p = [];
-        $trxn_id = strval(CRM_Core_Dao::singleValueQuery($query, $p));
+        $trxn_id = strval(CRM_Core_DAO::singleValueQuery($query, $p));
         $trxn_id = str_replace('test', '', $trxn_id);
         $trxn_id = intval($trxn_id) + 1;
         $params['trxn_id'] = sprintf('test%08d', $trxn_id);
@@ -343,7 +343,13 @@ class CRM_Core_Payment_Elavon extends CRM_Core_Payment {
 
     $xml = '<txn>';
     foreach ($requestFields as $key => $value) {
-      $xml .= '<' . $key . '>' . self::tidyStringforXML($value, $xmlFieldLength[$key]) . '</' . $key . '>';
+      //dev/core/966 Don't send email through the urlencode.
+      if ($key == 'ssl_email') {
+        $xml .= '<' . $key . '>' . substr($value, 0, $xmlFieldLength[$key]) . '</' . $key . '>';
+      }
+      else {
+        $xml .= '<' . $key . '>' . self::tidyStringforXML($value, $xmlFieldLength[$key]) . '</' . $key . '>';
+      }
     }
     $xml .= '</txn>';
     return $xml;

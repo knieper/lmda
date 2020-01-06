@@ -1,33 +1,17 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -46,12 +30,13 @@ class CRM_Event_Form_ManageEvent_EventInfo extends CRM_Event_Form_ManageEvent {
    */
   public function preProcess() {
     parent::preProcess();
-    $this->assign('selectedChild', 'settings');
+    $this->setSelectedChild('settings');
 
-    if ($this->_id) {
-      $this->assign('entityID', $this->_id);
+    $entityID = $this->_id ?: $this->_templateId;
+    if ($entityID) {
+      $this->assign('entityID', $entityID);
       $eventType = CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event',
-        $this->_id,
+        $entityID,
         'event_type_id'
       );
     }
@@ -65,9 +50,9 @@ class CRM_Event_Form_ManageEvent_EventInfo extends CRM_Event_Form_ManageEvent {
       $this->set('type', 'Event');
       $this->set('subType', CRM_Utils_Array::value('event_type_id', $_POST));
       $this->assign('customDataSubType', CRM_Utils_Array::value('event_type_id', $_POST));
-      $this->set('entityId', $this->_id);
+      $this->set('entityId', $entityID);
 
-      CRM_Custom_Form_CustomData::preProcess($this, NULL, $this->_eventType, 1, 'Event', $this->_id);
+      CRM_Custom_Form_CustomData::preProcess($this, NULL, $this->_eventType, 1, 'Event', $entityID);
       CRM_Custom_Form_CustomData::buildQuickForm($this);
       CRM_Custom_Form_CustomData::setDefaultValues($this);
     }
@@ -127,7 +112,6 @@ class CRM_Event_Form_ManageEvent_EventInfo extends CRM_Event_Form_ManageEvent {
     if ($this->_eventType) {
       $this->assign('customDataSubType', $this->_eventType);
     }
-    $this->assign('entityId', $this->_id);
 
     $this->_first = TRUE;
     $this->applyFilter('__ALL__', 'trim');
@@ -228,7 +212,7 @@ class CRM_Event_Form_ManageEvent_EventInfo extends CRM_Event_Form_ManageEvent {
    * Process the form submission.
    */
   public function postProcess() {
-    $params = $this->controller->exportValues($this->_name);
+    $params = array_merge($this->controller->exportValues($this->_name), $this->_submitValues);
 
     //format params
     $params['start_date'] = CRM_Utils_Array::value('start_date', $params);
@@ -241,18 +225,22 @@ class CRM_Event_Form_ManageEvent_EventInfo extends CRM_Event_Form_ManageEvent {
     $params['default_role_id'] = CRM_Utils_Array::value('default_role_id', $params, FALSE);
     $params['id'] = $this->_id;
 
-    $customFields = CRM_Core_BAO_CustomField::getFields('Event', FALSE, FALSE,
-      CRM_Utils_Array::value('event_type_id', $params)
-    );
+    //merge params with defaults from templates
+    if (!empty($params['template_id'])) {
+      $params = array_merge(CRM_Event_BAO_Event::getTemplateDefaultValues($params['template_id']), $params);
+      foreach ($params as $key => $value) {
+        $customFieldInfo = CRM_Core_BAO_CustomField::getKeyID($key, TRUE);
+        if (!empty($customFieldInfo[1])) {
+          $params[str_replace($customFieldInfo[1], '-' . $customFieldInfo[1], $key)] = $value;
+          unset($params[$key]);
+        }
+      }
+    }
+
     $params['custom'] = CRM_Core_BAO_CustomField::postProcess($params,
       $this->_id,
       'Event'
     );
-
-    //merge params with defaults from templates
-    if (!empty($params['template_id'])) {
-      $params = array_merge(CRM_Event_BAO_Event::getTemplateDefaultValues($params['template_id']), $params);
-    }
 
     // now that we have the event’s id, do some more template-based stuff
     if (!empty($params['template_id'])) {

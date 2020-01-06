@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -126,17 +110,12 @@ class CRM_Contact_Form_Task_PDFLetterCommon extends CRM_Core_Form_Task_PDFLetter
   public static function postProcess(&$form) {
     $formValues = $form->controller->exportValues($form->getName());
     list($formValues, $categories, $html_message, $messageToken, $returnProperties) = self::processMessageTemplate($formValues);
-    $buttonName = $form->controller->getButtonName();
     $skipOnHold = isset($form->skipOnHold) ? $form->skipOnHold : FALSE;
     $skipDeceased = isset($form->skipDeceased) ? $form->skipDeceased : TRUE;
     $html = $activityIds = [];
 
-    // CRM-21255 - Hrm, CiviCase 4+5 seem to report buttons differently...
-    $c = $form->controller->container();
-    $isLiveMode = ($buttonName == '_qf_PDF_upload') || isset($c['values']['PDF']['buttons']['_qf_PDF_upload']);
-
     // CRM-16725 Skip creation of activities if user is previewing their PDF letter(s)
-    if ($isLiveMode) {
+    if (self::isLiveMode($form)) {
       $activityIds = self::createActivities($form, $html_message, $form->_contactIds, $formValues['subject'], CRM_Utils_Array::value('campaign_id', $formValues));
     }
 
@@ -185,7 +164,7 @@ class CRM_Contact_Form_Task_PDFLetterCommon extends CRM_Core_Form_Task_PDFLetter
     }
 
     $tee = NULL;
-    if ($isLiveMode && Civi::settings()->get('recordGeneratedLetters') === 'combined-attached') {
+    if (self::isLiveMode($form) && Civi::settings()->get('recordGeneratedLetters') === 'combined-attached') {
       if (count($activityIds) !== 1) {
         throw new CRM_Core_Exception("When recordGeneratedLetters=combined-attached, there should only be one activity.");
       }
@@ -346,6 +325,27 @@ class CRM_Contact_Form_Task_PDFLetterCommon extends CRM_Core_Form_Task_PDFLetter
       Civi::$statics[__CLASS__]['token_categories'] = array_keys($tokens);
     }
     return Civi::$statics[__CLASS__]['token_categories'];
+  }
+
+  /**
+   * Is the form in live mode (as opposed to being run as a preview).
+   *
+   * Returns true if the user has clicked the Download Document button on a
+   * Print/Merge Document (PDF Letter) search task form, or false if the Preview
+   * button was clicked.
+   *
+   * @param CRM_Core_Form $form
+   *
+   * @return bool
+   *   TRUE if the Download Document button was clicked (also defaults to TRUE
+   *     if the form controller does not exist), else FALSE
+   */
+  protected static function isLiveMode($form) {
+    // CRM-21255 - Hrm, CiviCase 4+5 seem to report buttons differently...
+    $buttonName = $form->controller->getButtonName();
+    $c = $form->controller->container();
+    $isLiveMode = ($buttonName == '_qf_PDF_upload') || isset($c['values']['PDF']['buttons']['_qf_PDF_upload']);
+    return $isLiveMode;
   }
 
 }

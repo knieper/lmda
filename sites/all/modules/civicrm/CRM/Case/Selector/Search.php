@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -42,6 +26,13 @@ class CRM_Case_Selector_Search extends CRM_Core_Selector_Base {
    * @var array
    */
   public static $_links = NULL;
+
+  /**
+   * The action links that we need to display for the browse screen.
+   *
+   * @var array
+   */
+  private static $_actionLinks;
 
   /**
    * We use desc to remind us what that column is, name is used in the tpl
@@ -72,14 +63,14 @@ class CRM_Case_Selector_Search extends CRM_Core_Selector_Base {
   /**
    * Are we restricting ourselves to a single contact
    *
-   * @var boolean
+   * @var bool
    */
   protected $_single = FALSE;
 
   /**
    * Are we restricting ourselves to a single contact
    *
-   * @var boolean
+   * @var bool
    */
   protected $_limit = NULL;
 
@@ -477,6 +468,201 @@ class CRM_Case_Selector_Search extends CRM_Core_Selector_Base {
    */
   public function getExportFileName($output = 'csv') {
     return ts('Case Search');
+  }
+
+  /**
+   * Add the set of "actionLinks" to the case activity
+   *
+   * @param int $caseID
+   * @param int $contactID
+   * @param int $userID
+   * @param string $context
+   * @param \CRM_Activity_BAO_Activity $dao
+   * @param bool $allowView
+   *
+   * @return string $linksMarkup
+   */
+  public static function addCaseActivityLinks($caseID, $contactID, $userID, $context, $dao, $allowView = TRUE) {
+    $caseDeleted = CRM_Core_DAO::getFieldValue('CRM_Case_DAO_Case', $caseID, 'is_deleted');
+    $actionLinks = self::actionLinks();
+    // Check logged in user for permission.
+    if (CRM_Case_BAO_Case::checkPermission($dao->id, 'view', $dao->activity_type_id, $userID)) {
+      $permissions[] = CRM_Core_Permission::VIEW;
+    }
+    if (!$allowView) {
+      unset($actionLinks[CRM_Core_Action::VIEW]);
+    }
+    if (!$dao->deleted) {
+      // Activity is not deleted, allow user to edit/delete if they have permission
+      // hide Edit link if:
+      // 1. User does not have edit permission.
+      // 2. Activity type is NOT editable (special case activities).CRM-5871
+      if (CRM_Case_BAO_Case::checkPermission($dao->id, 'edit', $dao->activity_type_id, $userID)) {
+        $permissions[] = CRM_Core_Permission::EDIT;
+      }
+      if (in_array($dao->activity_type_id, CRM_Activity_BAO_Activity::getViewOnlyActivityTypeIDs())) {
+        unset($actionLinks[CRM_Core_Action::UPDATE]);
+      }
+      if (CRM_Case_BAO_Case::checkPermission($dao->id, 'delete', $dao->activity_type_id, $userID)) {
+        $permissions[] = CRM_Core_Permission::DELETE;
+      }
+      unset($actionLinks[CRM_Core_Action::RENEW]);
+    }
+    $extraMask = 0;
+    if ($dao->deleted && !$caseDeleted
+      && (CRM_Case_BAO_Case::checkPermission($dao->id, 'delete', $dao->activity_type_id, $userID))) {
+      // Case is not deleted but activity is.
+      // Allow user to restore activity if they have delete permissions
+      unset($actionLinks[CRM_Core_Action::DELETE]);
+      $extraMask = CRM_Core_Action::RENEW;
+    }
+    if (!CRM_Case_BAO_Case::checkPermission($dao->id, 'Move To Case', $dao->activity_type_id)) {
+      unset($actionLinks[CRM_Core_Action::DETACH]);
+    }
+    if (!CRM_Case_BAO_Case::checkPermission($dao->id, 'Copy To Case', $dao->activity_type_id)) {
+      unset($actionLinks[CRM_Core_Action::COPY]);
+    }
+    $actionMask = CRM_Core_Action::mask($permissions) | $extraMask;
+    $values = [
+      'aid' => $dao->id,
+      'cid' => $contactID,
+      'cxt' => empty($context) ? '' : "&context={$context}",
+      'caseid' => $caseID,
+    ];
+    $linksMarkup = CRM_Core_Action::formLink($actionLinks,
+      $actionMask,
+      $values,
+      ts('more'),
+      FALSE,
+      'case.tab.row',
+      'Activity',
+      $dao->id
+    );
+    // if there are file attachments we will return how many and, if only one, add a link to it
+    if (!empty($dao->attachment_ids)) {
+      $linksMarkup .= implode(' ', CRM_Core_BAO_File::paperIconAttachment('civicrm_activity', $dao->id));
+    }
+    return $linksMarkup;
+  }
+
+  /**
+   * @param int $caseID
+   * @param int $contactID
+   * @param int $userID
+   * @param string $context
+   * @param int $activityTypeID
+   * @param int $activityDeleted
+   * @param int $activityID
+   * @param bool $allowView
+   *
+   * @return array|null
+   */
+  public static function permissionedActionLinks($caseID, $contactID, $userID, $context, $activityTypeID, $activityDeleted, $activityID, $allowView = TRUE) {
+    $caseDeleted = CRM_Core_DAO::getFieldValue('CRM_Case_DAO_Case', $caseID, 'is_deleted');
+    $values = [
+      'aid' => $activityID,
+      'cid' => $contactID,
+      'cxt' => empty($context) ? '' : "&context={$context}",
+      'caseid' => $caseID,
+    ];
+    $actionLinks = self::actionLinks();
+
+    // Check logged in user for permission.
+    if (CRM_Case_BAO_Case::checkPermission($activityID, 'view', $activityTypeID, $userID)) {
+      $permissions[] = CRM_Core_Permission::VIEW;
+    }
+    if (!$allowView) {
+      unset($actionLinks[CRM_Core_Action::VIEW]);
+    }
+    if (!$activityDeleted) {
+      // Activity is not deleted, allow user to edit/delete if they have permission
+
+      // hide Edit link if:
+      // 1. User does not have edit permission.
+      // 2. Activity type is NOT editable (special case activities).CRM-5871
+      if (CRM_Case_BAO_Case::checkPermission($activityID, 'edit', $activityTypeID, $userID)) {
+        $permissions[] = CRM_Core_Permission::EDIT;
+      }
+      if (in_array($activityTypeID, CRM_Activity_BAO_Activity::getViewOnlyActivityTypeIDs())) {
+        unset($actionLinks[CRM_Core_Action::UPDATE]);
+      }
+      if (CRM_Case_BAO_Case::checkPermission($activityID, 'delete', $activityTypeID, $userID)) {
+        $permissions[] = CRM_Core_Permission::DELETE;
+      }
+      unset($actionLinks[CRM_Core_Action::RENEW]);
+    }
+    $extraMask = 0;
+    if ($activityDeleted && !$caseDeleted
+      && (CRM_Case_BAO_Case::checkPermission($activityID, 'delete', $activityTypeID, $userID))) {
+      // Case is not deleted but activity is.
+      // Allow user to restore activity if they have delete permissions
+      unset($actionLinks[CRM_Core_Action::DELETE]);
+      $extraMask = CRM_Core_Action::RENEW;
+    }
+    if (!CRM_Case_BAO_Case::checkPermission($activityID, 'Move To Case', $activityTypeID)) {
+      unset($actionLinks[CRM_Core_Action::DETACH]);
+    }
+    if (!CRM_Case_BAO_Case::checkPermission($activityID, 'Copy To Case', $activityTypeID)) {
+      unset($actionLinks[CRM_Core_Action::COPY]);
+    }
+
+    $actionMask = CRM_Core_Action::mask($permissions) | $extraMask;
+    return CRM_Core_Action::filterLinks($actionLinks, $actionMask, $values, 'case.activity', 'Activity', $activityID);
+  }
+
+  /**
+   * Get the action links for this page.
+   *
+   * @return array
+   */
+  public static function actionLinks() {
+    // check if variable _actionsLinks is populated
+    if (!isset(self::$_actionLinks)) {
+      self::$_actionLinks = [
+        CRM_Core_Action::VIEW => [
+          'name' => ts('View'),
+          'url' => 'civicrm/case/activity/view',
+          'qs' => 'reset=1&cid=%%cid%%&caseid=%%caseid%%&aid=%%aid%%',
+          'title' => ts('View'),
+        ],
+        CRM_Core_Action::UPDATE => [
+          'name' => ts('Edit'),
+          'url' => 'civicrm/case/activity',
+          'qs' => 'reset=1&cid=%%cid%%&caseid=%%caseid%%&id=%%aid%%&action=update%%cxt%%',
+          'title' => ts('Edit'),
+          'icon' => 'fa-pencil',
+        ],
+        CRM_Core_Action::DELETE => [
+          'name' => ts('Delete'),
+          'url' => 'civicrm/case/activity',
+          'qs' => 'reset=1&cid=%%cid%%&caseid=%%caseid%%&id=%%aid%%&action=delete%%cxt%%',
+          'title' => ts('Delete'),
+          'icon' => 'fa-trash',
+        ],
+        CRM_Core_Action::RENEW => [
+          'name' => ts('Restore'),
+          'url' => 'civicrm/case/activity',
+          'qs' => 'reset=1&cid=%%cid%%&caseid=%%caseid%%&id=%%aid%%&action=renew%%cxt%%',
+          'title' => ts('Restore'),
+          'icon' => 'fa-undo',
+        ],
+        CRM_Core_Action::DETACH => [
+          'name' => ts('Move To Case'),
+          'ref' => 'move_to_case_action',
+          'title' => ts('Move To Case'),
+          'extra' => 'onclick = "Javascript:fileOnCase( \'move\', %%aid%%, %%caseid%%, this ); return false;"',
+          'icon' => 'fa-clipboard',
+        ],
+        CRM_Core_Action::COPY => [
+          'name' => ts('Copy To Case'),
+          'ref' => 'copy_to_case_action',
+          'title' => ts('Copy To Case'),
+          'extra' => 'onclick = "Javascript:fileOnCase( \'copy\', %%aid%%, %%caseid%%, this ); return false;"',
+          'icon' => 'fa-files-o',
+        ],
+      ];
+    }
+    return self::$_actionLinks;
   }
 
 }

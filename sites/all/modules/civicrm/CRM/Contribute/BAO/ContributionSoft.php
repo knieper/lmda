@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Contribute_BAO_ContributionSoft extends CRM_Contribute_DAO_ContributionSoft {
 
@@ -168,8 +152,9 @@ class CRM_Contribute_BAO_ContributionSoft extends CRM_Contribute_DAO_Contributio
         $honorId = CRM_Utils_Array::value(0, $ids);
       }
 
+      $null = [];
       $honorId = CRM_Contact_BAO_Contact::createProfileContact(
-        $params['honor'], CRM_Core_DAO::$_nullArray,
+        $params['honor'], $null,
         $honorId, NULL,
         $form->_values['honoree_profile_id']
       );
@@ -298,39 +283,53 @@ class CRM_Contribute_BAO_ContributionSoft extends CRM_Contribute_DAO_Contributio
    *   Array of soft contribution ids, amounts, and associated contact ids
    */
   public static function getSoftContribution($contributionID, $all = FALSE) {
-    $pcpFields = array(
+    $softContributionFields = self::getSoftCreditContributionFields([$contributionID], $all);
+    return isset($softContributionFields[$contributionID]) ? $softContributionFields[$contributionID] : [];
+  }
+
+  /**
+   * Retrieve soft contributions for an array of contribution records.
+   *
+   * @param array $contributionIDs
+   * @param bool $all
+   *   Include PCP data.
+   *
+   * @return array
+   *   Array of soft contribution ids, amounts, and associated contact ids
+   */
+  public static function getSoftCreditContributionFields($contributionIDs, $all = FALSE) {
+    $pcpFields = [
       'pcp_id',
       'pcp_title',
       'pcp_display_in_roll',
       'pcp_roll_nickname',
       'pcp_personal_note',
-    );
+    ];
 
-    $query = '
-    SELECT ccs.id, pcp_id, cpcp.title as pcp_title, pcp_display_in_roll, pcp_roll_nickname, pcp_personal_note, ccs.currency as currency, amount, ccs.contact_id as contact_id, c.display_name, ccs.soft_credit_type_id
+    $query = "
+    SELECT ccs.id, pcp_id, ccs.contribution_id as contribution_id, cpcp.title as pcp_title, pcp_display_in_roll, pcp_roll_nickname, pcp_personal_note, ccs.currency as currency, amount, ccs.contact_id as contact_id, c.display_name, ccs.soft_credit_type_id
     FROM civicrm_contribution_soft ccs INNER JOIN civicrm_contact c on c.id = ccs.contact_id
     LEFT JOIN civicrm_pcp cpcp ON ccs.pcp_id = cpcp.id
-    WHERE contribution_id = %1;
-    ';
+    WHERE contribution_id IN (%1)
+    ";
+    $queryParams = [1 => [implode(',', $contributionIDs), 'CommaSeparatedIntegers']];
+    $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
 
-    $params = array(1 => array($contributionID, 'Integer'));
-
-    $dao = CRM_Core_DAO::executeQuery($query, $params);
-
-    $softContribution = array();
-    $count = 1;
+    $softContribution = $indexes = [];
     while ($dao->fetch()) {
       if ($dao->pcp_id) {
         if ($all) {
           foreach ($pcpFields as $val) {
-            $softContribution[$val] = $dao->$val;
+            $softContribution[$dao->contribution_id][$val] = $dao->$val;
           }
-          $softContribution['pcp_soft_credit_to_name'] = $dao->display_name;
-          $softContribution['pcp_soft_credit_to_id'] = $dao->contact_id;
+          $softContribution[$dao->contribution_id]['pcp_soft_credit_to_name'] = $dao->display_name;
+          $softContribution[$dao->contribution_id]['pcp_soft_credit_to_id'] = $dao->contact_id;
         }
       }
       else {
-        $softContribution['soft_credit'][$count] = array(
+        // Use a 1-based array because that's what this function returned before refactoring in https://github.com/civicrm/civicrm-core/pull/14747
+        $indexes[$dao->contribution_id] = isset($indexes[$dao->contribution_id]) ? $indexes[$dao->contribution_id] + 1 : 1;
+        $softContribution[$dao->contribution_id]['soft_credit'][$indexes[$dao->contribution_id]] = [
           'contact_id' => $dao->contact_id,
           'soft_credit_id' => $dao->id,
           'currency' => $dao->currency,
@@ -338,8 +337,7 @@ class CRM_Contribute_BAO_ContributionSoft extends CRM_Contribute_DAO_Contributio
           'contact_name' => $dao->display_name,
           'soft_credit_type' => $dao->soft_credit_type_id,
           'soft_credit_type_label' => CRM_Core_PseudoConstant::getLabel('CRM_Contribute_BAO_ContributionSoft', 'soft_credit_type_id', $dao->soft_credit_type_id),
-        );
-        $count++;
+        ];
       }
     }
 

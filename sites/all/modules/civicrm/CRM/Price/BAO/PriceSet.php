@@ -1,34 +1,18 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-  +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -60,6 +44,9 @@ class CRM_Price_BAO_PriceSet extends CRM_Price_DAO_PriceSet {
    * @return CRM_Price_DAO_PriceSet
    */
   public static function create(&$params) {
+    $hook = empty($params['id']) ? 'create' : 'edit';
+    CRM_Utils_Hook::pre($hook, 'PriceSet', CRM_Utils_Array::value('id', $params), $params);
+
     if (empty($params['id']) && empty($params['name'])) {
       $params['name'] = CRM_Utils_String::munge($params['title'], '_', 242);
     }
@@ -81,7 +68,10 @@ class CRM_Price_BAO_PriceSet extends CRM_Price_DAO_PriceSet {
     if (self::eventPriceSetDomainID()) {
       $priceSetBAO->domain_id = CRM_Core_Config::domainID();
     }
-    return $priceSetBAO->save();
+    $priceSetBAO->save();
+
+    CRM_Utils_Hook::post($hook, 'PriceSet', $priceSetBAO->id, $priceSetBAO);
+    return $priceSetBAO;
   }
 
   /**
@@ -336,7 +326,7 @@ WHERE     cpf.price_set_id = %1";
    *                      array may contain either option id or
    *                      price field id
    *
-   * @return int|NULL
+   * @return int|null
    *   price set id on success, null  otherwise
    */
   public static function getSetId(&$params) {
@@ -565,19 +555,13 @@ WHERE  id = %1";
    * This function is not really a BAO function so the location is misleading.
    *
    * @param CRM_Core_Form $form
-   * @param int $id
    *   Form entity id.
    * @param string $entityTable
    * @param bool $validOnly
    * @param int $priceSetId
    *   Price Set ID
-   *
-   * @return bool|false|int|null
    */
-  public static function initSet(&$form, $id, $entityTable = 'civicrm_event', $validOnly = FALSE, $priceSetId = NULL) {
-    if (!$priceSetId) {
-      $priceSetId = self::getFor($entityTable, $id);
-    }
+  public static function initSet(&$form, $entityTable = 'civicrm_event', $validOnly = FALSE, $priceSetId = NULL) {
 
     //check if price set is is_config
     if (is_numeric($priceSetId)) {
@@ -660,10 +644,7 @@ WHERE  id = %1";
       }
       $form->set('priceSetId', $form->_priceSetId);
       $form->set('priceSet', $form->_priceSet);
-
-      return $priceSetId;
     }
-    return FALSE;
   }
 
   /**
@@ -727,7 +708,7 @@ WHERE  id = %1";
               $field['options'][$optionValueId]['tax_amount'] = round($taxAmount['tax_amount'], 2);
             }
           }
-          if (CRM_Utils_Array::value('tax_rate', $field['options'][$optionValueId])) {
+          if (!empty($field['options'][$optionValueId]['tax_rate'])) {
             $lineItem = self::setLineItem($field, $lineItem, $optionValueId, $totalTax);
           }
           $totalPrice += $lineItem[$firstOption['id']]['line_total'] + CRM_Utils_Array::value('tax_amount', $lineItem[key($field['options'])]);
@@ -742,7 +723,7 @@ WHERE  id = %1";
           $optionValueId = CRM_Utils_Array::key(1, $params["price_{$id}"]);
 
           CRM_Price_BAO_LineItem::format($id, $params, $field, $lineItem, $amount_override);
-          if (CRM_Utils_Array::value('tax_rate', $field['options'][$optionValueId])) {
+          if (!empty($field['options'][$optionValueId]['tax_rate'])) {
             $lineItem = self::setLineItem($field, $lineItem, $optionValueId, $totalTax);
             if ($amount_override) {
               $lineItem[$optionValueId]['line_total'] = $lineItem[$optionValueId]['unit_price'] = CRM_Utils_Rule::cleanMoney($lineItem[$optionValueId]['line_total'] - $lineItem[$optionValueId]['tax_amount']);
@@ -765,7 +746,7 @@ WHERE  id = %1";
           $optionValueId = CRM_Utils_Array::key(1, $params["price_{$id}"]);
 
           CRM_Price_BAO_LineItem::format($id, $params, $field, $lineItem, CRM_Utils_Array::value('partial_payment_total', $params));
-          if (CRM_Utils_Array::value('tax_rate', $field['options'][$optionValueId])) {
+          if (!empty($field['options'][$optionValueId]['tax_rate'])) {
             $lineItem = self::setLineItem($field, $lineItem, $optionValueId, $totalTax);
           }
           $totalPrice += $lineItem[$optionValueId]['line_total'] + CRM_Utils_Array::value('tax_amount', $lineItem[$optionValueId]);
@@ -782,7 +763,7 @@ WHERE  id = %1";
 
           CRM_Price_BAO_LineItem::format($id, $params, $field, $lineItem, CRM_Utils_Array::value('partial_payment_total', $params));
           foreach ($params["price_{$id}"] as $optionId => $option) {
-            if (CRM_Utils_Array::value('tax_rate', $field['options'][$optionId])) {
+            if (!empty($field['options'][$optionId]['tax_rate'])) {
               $lineItem = self::setLineItem($field, $lineItem, $optionId, $totalTax);
             }
             $totalPrice += $lineItem[$optionId]['line_total'] + CRM_Utils_Array::value('tax_amount', $lineItem[$optionId]);
@@ -1008,19 +989,9 @@ WHERE  id = %1";
     else {
       $feeBlock = &$form->_priceSet['fields'];
     }
-    if (CRM_Financial_BAO_FinancialType::isACLFinancialTypeStatus()) {
-      foreach ($feeBlock as $key => $value) {
-        foreach ($value['options'] as $k => $options) {
-          if (!CRM_Core_Permission::check('add contributions of type ' . CRM_Contribute_PseudoConstant::financialType($options['financial_type_id']))) {
-            unset($feeBlock[$key]['options'][$k]);
-          }
-        }
-        if (empty($feeBlock[$key]['options'])) {
-          unset($feeBlock[$key]);
-        }
-      }
-    }
-    // call the hook.
+
+    self::applyACLFinancialTypeStatusToFeeBlock($feeBlock);
+    // Call the buildAmount hook.
     CRM_Utils_Hook::buildAmount($component, $form, $feeBlock);
 
     // CRM-14492 Admin price fields should show up on event registration if user has 'administer CiviCRM' permissions
@@ -1069,6 +1040,29 @@ WHERE  id = %1";
             NULL,
             $options
           );
+        }
+      }
+    }
+  }
+
+  /**
+   * Apply ACLs on Financial Type to the price options in a fee block.
+   *
+   * @param array $feeBlock
+   *   Fee block: array of price fields.
+   *
+   * @return void
+   */
+  public static function applyACLFinancialTypeStatusToFeeBlock(&$feeBlock) {
+    if (CRM_Financial_BAO_FinancialType::isACLFinancialTypeStatus()) {
+      foreach ($feeBlock as $key => $value) {
+        foreach ($value['options'] as $k => $options) {
+          if (!CRM_Core_Permission::check('add contributions of type ' . CRM_Contribute_PseudoConstant::financialType($options['financial_type_id']))) {
+            unset($feeBlock[$key]['options'][$k]);
+          }
+        }
+        if (empty($feeBlock[$key]['options'])) {
+          unset($feeBlock[$key]);
         }
       }
     }
@@ -1559,7 +1553,7 @@ WHERE       ps.id = %1
         CRM_Price_BAO_PriceSet::addTo($baoName, $newId, $copyPriceSet->id);
       }
       else {
-        $copyPriceSet = &CRM_Core_DAO::copyGeneric('CRM_Price_DAO_PriceSetEntity',
+        $copyPriceSet = CRM_Core_DAO::copyGeneric('CRM_Price_DAO_PriceSetEntity',
           [
             'entity_id' => $id,
             'entity_table' => $baoName,

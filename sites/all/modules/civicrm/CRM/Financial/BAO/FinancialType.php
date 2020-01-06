@@ -1,34 +1,18 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-  +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
 
@@ -153,7 +137,7 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
         }
       }
       if (!empty($tables)) {
-        $message = ts('The following tables have an entry for this financial type: %1', ['%1' => implode(', ', $tables)]);
+        $message = ts('The following tables have an entry for this financial type: %1', [1 => implode(', ', $tables)]);
 
         $errors = [];
         $errors['is_error'] = 1;
@@ -217,27 +201,32 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
       return FALSE;
     }
     $financialTypes = CRM_Contribute_PseudoConstant::financialType();
-    $prefix = ts('CiviCRM') . ': ';
-    $actions = ['add', 'view', 'edit', 'delete'];
+    $actions = [
+      'add' => ts('add'),
+      'view' => ts('view'),
+      'edit' => ts('edit'),
+      'delete' => ts('delete'),
+    ];
+
     foreach ($financialTypes as $id => $type) {
-      foreach ($actions as $action) {
+      foreach ($actions as $action => $action_ts) {
         if ($descriptions) {
           $permissions[$action . ' contributions of type ' . $type] = [
-            $prefix . ts($action . ' contributions of type ') . $type,
-            ts(ucfirst($action) . ' contributions of type ') . $type,
+            ts("CiviCRM: %1 contributions of type %2", [1 => $action_ts, 2 => $type]),
+            ts('%1 contributions of type %2', [1 => $action_ts, 2 => $type]),
           ];
         }
         else {
-          $permissions[$action . ' contributions of type ' . $type] = $prefix . ts($action . ' contributions of type ') . $type;
+          $permissions[$action . ' contributions of type ' . $type] = ts("CiviCRM: %1 contributions of type %2", [1 => $action_ts, 2 => $type]);
         }
       }
     }
     if (!$descriptions) {
-      $permissions['administer CiviCRM Financial Types'] = $prefix . ts('administer CiviCRM Financial Types');
+      $permissions['administer CiviCRM Financial Types'] = ts('CiviCRM: administer CiviCRM Financial Types');
     }
     else {
       $permissions['administer CiviCRM Financial Types'] = [
-        $prefix . ts('administer CiviCRM Financial Types'),
+        ts('CiviCRM: administer CiviCRM Financial Types'),
         ts('Administer access to Financial Types'),
       ];
     }
@@ -482,7 +471,7 @@ class CRM_Financial_BAO_FinancialType extends CRM_Financial_DAO_FinancialType {
       $realSetting = \Civi::$statics[__CLASS__]['is_acl_enabled'] = Civi::settings()->get('acl_financial_type');
       if (!$realSetting) {
         $contributeSettings = Civi::settings()->get('contribution_invoice_settings');
-        if (CRM_Utils_Array::value('acl_financial_type', $contributeSettings)) {
+        if (!empty($contributeSettings['acl_financial_type'])) {
           \Civi::$statics[__CLASS__]['is_acl_enabled'] = TRUE;
         }
       }

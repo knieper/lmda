@@ -1,28 +1,12 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-  +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
@@ -172,6 +156,10 @@ function civicrm_api3_create_success($values = 1, $params = [], $entity = NULL, 
       if (!empty($item['financial_type_id'])) {
         // 4.3 legacy handling.
         $values[$key]['contribution_type_id'] = $item['financial_type_id'];
+      }
+      if (!empty($item['contribution_cancel_date'])) {
+        // 5.16 legacy handling.
+        $values[$key]['cancel_date'] = $item['contribution_cancel_date'];
       }
       if (!empty($item['next_sched_contribution_date'])) {
         // 4.4 legacy handling
@@ -380,6 +368,14 @@ function _civicrm_api3_get_BAO($name) {
     // Order basically maps to contribution at the top level but
     // has enhanced access to other entities.
     $name = 'Contribution';
+  }
+  if ($name === 'Dedupe') {
+    // Dedupe is a pseudoentity for PrevNextCache - but accessing dedupe related info
+    // not the other cache info like search results (which could in fact be in Redis or another cache engine)
+    $name = 'PrevNextCache';
+  }
+  if ($name === 'Payment') {
+    $name = 'FinancialTrxn';
   }
   $dao = _civicrm_api3_get_DAO($name);
   if (!$dao) {
@@ -774,7 +770,7 @@ function _civicrm_api3_apply_filters_to_dao($filterField, $filterValue, &$dao) {
  * @return array
  *   options extracted from params
  */
-function _civicrm_api3_get_options_from_params(&$params, $queryObject = FALSE, $entity = '', $action = '') {
+function _civicrm_api3_get_options_from_params($params, $queryObject = FALSE, $entity = '', $action = '') {
   $lowercase_entity = _civicrm_api_get_entity_name_from_camel($entity);
   $is_count = FALSE;
   $sort = CRM_Utils_Array::value('sort', $params, 0);
@@ -2153,7 +2149,8 @@ function _civicrm_api3_resolve_country_id($params) {
  * @param string $contactIdExpr
  *   E.g. "user_contact_id" or "@user:username".
  *
- * @return int|NULL|'unknown-user'
+ * @return int|null|'unknown-user'
+ * @throws \CRM_Core_Exception
  */
 function _civicrm_api3_resolve_contactID($contactIdExpr) {
   // If value = 'user_contact_id' replace value with logged in user id.

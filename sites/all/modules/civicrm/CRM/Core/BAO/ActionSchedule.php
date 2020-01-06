@@ -1,34 +1,18 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-   +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -120,13 +104,14 @@ class CRM_Core_BAO_ActionSchedule extends CRM_Core_DAO_ActionSchedule {
    * @param bool $namesOnly
    *   Return simple list of names.
    *
-   * @param \Civi\ActionSchedule\Mapping|NULL $filterMapping
+   * @param \Civi\ActionSchedule\Mapping|null $filterMapping
    *   Filter by the schedule's mapping type.
    * @param int $filterValue
    *   Filter by the schedule's entity_value.
    *
    * @return array
    *   (reference)   reminder list
+   * @throws \CRM_Core_Exception
    */
   public static function &getList($namesOnly = FALSE, $filterMapping = NULL, $filterValue = NULL) {
     $query = "
@@ -331,7 +316,6 @@ FROM civicrm_action_schedule cas
         CRM_Core_BAO_ActionLog::create($logParams);
       }
 
-      $dao->free();
     }
   }
 
@@ -458,7 +442,7 @@ FROM civicrm_action_schedule cas
    * @param Civi\ActionSchedule\Mapping $mapping
    * @param int $contactID
    * @param int $entityID
-   * @param int|NULL $caseID
+   * @param int|null $caseID
    * @throws CRM_Core_Exception
    */
   protected static function createMailingActivity($tokenRow, $mapping, $contactID, $entityID, $caseID) {
@@ -546,6 +530,12 @@ FROM civicrm_action_schedule cas
       return ["sms_phone_missing" => "Couldn't find recipient's phone number."];
     }
 
+    // dev/core#369 If an SMS provider is deleted then the relevant row in the action_schedule_table is set to NULL
+    // So we need to exclude them.
+    if (CRM_Utils_System::isNull($schedule->sms_provider_id)) {
+      return ["sms_provider_missing" => "SMS reminder cannot be sent because the SMS provider has been deleted."];
+    }
+
     $messageSubject = $tokenRow->render('subject');
     $sms_body_text = $tokenRow->render('sms_body_text');
 
@@ -568,12 +558,17 @@ FROM civicrm_action_schedule cas
 
     $activity = CRM_Activity_BAO_Activity::create($activityParams);
 
-    CRM_Activity_BAO_Activity::sendSMSMessage($tokenRow->context['contactId'],
-      $sms_body_text,
-      $smsParams,
-      $activity->id,
-      $userID
-    );
+    try {
+      CRM_Activity_BAO_Activity::sendSMSMessage($tokenRow->context['contactId'],
+        $sms_body_text,
+        $smsParams,
+        $activity->id,
+        $userID
+      );
+    }
+    catch (CRM_Core_Exception $e) {
+      return ["sms_send_error" => $e->getMessage()];
+    }
 
     return [];
   }

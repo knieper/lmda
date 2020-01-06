@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -291,7 +275,7 @@ FROM   {$this->_componentTable}
       $this->_greetingOptions = self::getGreetingOptions();
 
       foreach ($this->_greetingOptions as $key => $value) {
-        $fieldLabel = ts('%1 (merging > 2 contacts)', [1 => ucwords(str_replace('_', ' ', $key))]);
+        $fieldLabel = ts('%1 (when merging contacts)', [1 => ucwords(str_replace('_', ' ', $key))]);
         $this->addElement('select', $key, $fieldLabel,
           $value, ['onchange' => "showOther(this);"]
         );
@@ -361,7 +345,7 @@ FROM   {$this->_componentTable}
         if ((CRM_Utils_Array::value($otherOption, $self->_greetingOptions[$key]) == ts('Other')) && empty($params[$value])) {
 
           $label = ucwords(str_replace('_', ' ', $key));
-          $errors[$value] = ts('Please enter a value for %1 (merging > 2 contacts), or select a pre-configured option from the list.', [1 => $label]);
+          $errors[$value] = ts('Please enter a value for %1 (when merging contacts), or select a pre-configured option from the list.', [1 => $label]);
         }
       }
     }
@@ -387,22 +371,6 @@ FROM   {$this->_componentTable}
     // will send $exportParams as another argument, which is an array and suppose to contain
     // all submitted options or any other argument
     $exportParams = $params;
-
-    if (!empty($this->_greetingOptions)) {
-      foreach ($this->_greetingOptions as $key => $value) {
-        if ($option = CRM_Utils_Array::value($key, $exportParams)) {
-          if ($this->_greetingOptions[$key][$option] == ts('Other')) {
-            $exportParams[$key] = $exportParams["{$key}_other"];
-          }
-          elseif ($this->_greetingOptions[$key][$option] == ts('List of names')) {
-            $exportParams[$key] = '';
-          }
-          else {
-            $exportParams[$key] = $this->_greetingOptions[$key][$option];
-          }
-        }
-      }
-    }
 
     $mappingId = CRM_Utils_Array::value('mapping', $params);
     if ($mappingId) {
@@ -482,9 +450,9 @@ FROM   {$this->_componentTable}
 
     $this->set('mappingTypeId', CRM_Core_PseudoConstant::getKey('CRM_Core_BAO_Mapping', 'mapping_type_id', $exportType));
 
-    $mappings = CRM_Core_BAO_Mapping::getMappings($exportType);
+    $mappings = CRM_Core_BAO_Mapping::getMappings($exportType, TRUE);
     if (!empty($mappings)) {
-      $this->add('select', 'mapping', ts('Use Saved Field Mapping'), ['' => '-select-'] + $mappings);
+      $this->add('select2', 'mapping', ts('Use Saved Field Mapping'), $mappings, FALSE, ['placeholder' => ts('- select -')]);
     }
   }
 

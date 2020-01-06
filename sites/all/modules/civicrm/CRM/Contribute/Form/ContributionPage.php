@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -53,21 +37,21 @@ class CRM_Contribute_Form_ContributionPage extends CRM_Core_Form {
   /**
    * Are we in single form mode or wizard mode?
    *
-   * @var boolean
+   * @var bool
    */
   protected $_single;
 
   /**
    * Is this the first page?
    *
-   * @var boolean
+   * @var bool
    */
   protected $_first = FALSE;
 
   /**
    * Is this the last page?
    *
-   * @var boolean
+   * @var bool
    */
   protected $_last = FALSE;
 
@@ -85,6 +69,13 @@ class CRM_Contribute_Form_ContributionPage extends CRM_Core_Form {
    */
   public function getDefaultEntity() {
     return 'Contribution';
+  }
+
+  /**
+   * Explicitly declare the form context.
+   */
+  public function getDefaultContext() {
+    return 'create';
   }
 
   /**
@@ -120,13 +111,13 @@ class CRM_Contribute_Form_ContributionPage extends CRM_Core_Form {
     CRM_Contribute_Form_ContributionPage_TabHeader::build($this);
 
     if ($this->_action == CRM_Core_Action::UPDATE) {
-      CRM_Utils_System::setTitle(ts('Configure Page - %1', [1 => $title]));
+      $this->setTitle(ts('Configure Page - %1', [1 => $title]));
     }
     elseif ($this->_action == CRM_Core_Action::VIEW) {
-      CRM_Utils_System::setTitle(ts('Preview Page - %1', [1 => $title]));
+      $this->setTitle(ts('Preview Page - %1', [1 => $title]));
     }
     elseif ($this->_action == CRM_Core_Action::DELETE) {
-      CRM_Utils_System::setTitle(ts('Delete Page - %1', [1 => $title]));
+      $this->setTitle(ts('Delete Page - %1', [1 => $title]));
     }
 
     //cache values.
@@ -299,7 +290,7 @@ class CRM_Contribute_Form_ContributionPage extends CRM_Core_Form {
       ];
       foreach ($pledgeBlock as $key) {
         $defaults[$key] = CRM_Utils_Array::value($key, $pledgeBlockDefaults);
-        if ($key == 'pledge_start_date' && CRM_Utils_Array::value($key, $pledgeBlockDefaults)) {
+        if ($key == 'pledge_start_date' && !empty($pledgeBlockDefaults[$key])) {
           $defaultPledgeDate = (array) json_decode($pledgeBlockDefaults['pledge_start_date']);
           $pledgeDateFields = [
             'pledge_calendar_date' => 'calendar_date',
@@ -405,6 +396,11 @@ class CRM_Contribute_Form_ContributionPage extends CRM_Core_Form {
           $nextPage = 'thankyou';
           break;
 
+        case 'Widget':
+          $subPage = 'widget';
+          $nextPage = 'pcp';
+          break;
+
         default:
           $subPage = strtolower($className);
           $nextPage = strtolower($nextPage);
@@ -420,7 +416,7 @@ class CRM_Contribute_Form_ContributionPage extends CRM_Core_Form {
 
       CRM_Core_Session::setStatus(ts("'%1' information has been saved.",
         [1 => CRM_Utils_Array::value('title', CRM_Utils_Array::value($subPage, $this->get('tabHeader')), $className)]
-      ), ts('Saved'), 'success');
+      ), $this->getTitle(), 'success');
 
       $this->postProcessHook();
 

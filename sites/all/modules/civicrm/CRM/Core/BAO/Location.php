@@ -1,34 +1,18 @@
 <?php
 /*
-  +--------------------------------------------------------------------+
-  | CiviCRM version 5                                                  |
-  +--------------------------------------------------------------------+
-  | Copyright CiviCRM LLC (c) 2004-2019                                |
-  +--------------------------------------------------------------------+
-  | This file is a part of CiviCRM.                                    |
-  |                                                                    |
-  | CiviCRM is free software; you can copy, modify, and distribute it  |
-  | under the terms of the GNU Affero General Public License           |
-  | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
-  |                                                                    |
-  | CiviCRM is distributed in the hope that it will be useful, but     |
-  | WITHOUT ANY WARRANTY; without even the implied warranty of         |
-  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
-  | See the GNU Affero General Public License for more details.        |
-  |                                                                    |
-  | You should have received a copy of the GNU Affero General Public   |
-  | License and the CiviCRM Licensing Exception along                  |
-  | with this program; if not, contact CiviCRM LLC                     |
-  | at info[AT]civicrm[DOT]org. If you have questions about the        |
-  | GNU Affero General Public License or the licensing of CiviCRM,     |
-  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
-  +--------------------------------------------------------------------+
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC. All rights reserved.                        |
+ |                                                                    |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
+ +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -84,7 +68,7 @@ class CRM_Core_BAO_Location extends CRM_Core_DAO {
       // when we come from a form which displays all the location elements (like the edit form or the inline block
       // elements, we can skip the below check. The below check adds quite a feq queries to an already overloaded
       // form
-      if (!CRM_Utils_Array::value('updateBlankLocInfo', $params, FALSE)) {
+      if (empty($params['updateBlankLocInfo'])) {
         // make sure contact should have only one primary block, CRM-5051
         self::checkPrimaryBlocks(CRM_Utils_Array::value('contact_id', $params));
       }
@@ -211,7 +195,6 @@ WHERE e.id = %1";
         $dao->id = $id;
         $dao->find(TRUE);
         $dao->delete();
-        $dao->free();
       }
     }
   }
@@ -314,6 +297,7 @@ WHERE e.id = %1";
    *   newly created/updated location block id.
    */
   public static function copyLocBlock($locBlockId, $updateLocBlockId = NULL) {
+    CRM_Core_Error::deprecatedFunctionWarning('unused function which will be removed');
     //get the location info.
     $defaults = $updateValues = [];
     $locBlock = ['id' => $locBlockId];
@@ -345,7 +329,7 @@ WHERE e.id = %1";
       }
     }
 
-    $copyLocation = &CRM_Core_DAO::copyGeneric('CRM_Core_DAO_LocBlock',
+    $copyLocation = CRM_Core_DAO::copyGeneric('CRM_Core_DAO_LocBlock',
       ['id' => $locBlock['id']],
       $copyLocationParams
     );

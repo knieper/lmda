@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
@@ -40,6 +24,8 @@
  *
  * @return array
  *   API result Array.
+ * @throws \CRM_Core_Exception
+ * @throws \API_Exception
  */
 function civicrm_api3_event_create($params) {
   // Required fields for creating an event
@@ -55,13 +41,6 @@ function civicrm_api3_event_create($params) {
     civicrm_api3_verify_mandatory($params, NULL, [
       'template_title',
     ]);
-  }
-
-  // Clone event from template
-  if (!empty($params['template_id']) && empty($params['id'])) {
-    $copy = CRM_Event_BAO_Event::copy($params['template_id']);
-    $params['id'] = $copy->id;
-    unset($params['template_id']);
   }
 
   _civicrm_api3_event_create_legacy_support_42($params);
@@ -254,7 +233,7 @@ function _civicrm_api3_event_getlist_output($result, $request) {
         'id' => $row[$request['id_field']],
         'label' => $row[$request['label_field']],
         'description' => [
-          CRM_Core_Pseudoconstant::getLabel('CRM_Event_BAO_Event', 'event_type_id', $row['event_type_id']),
+          CRM_Core_PseudoConstant::getLabel('CRM_Event_BAO_Event', 'event_type_id', $row['event_type_id']),
         ],
       ];
       if (!empty($row['start_date'])) {

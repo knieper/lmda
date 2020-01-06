@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -133,7 +117,7 @@ class CRM_Utils_System_Backdrop extends CRM_Utils_System_DrupalBase {
 
     if (!empty($params['mail'])) {
       if (!valid_email_address($params['mail'])) {
-        $errors[$emailName] = ts('The e-mail address %1 is not valid.', ['%1' => $params['mail']]);
+        $errors[$emailName] = ts('The e-mail address %1 is not valid.', [1 => $params['mail']]);
       }
       else {
         $uid = db_query("SELECT uid FROM {users} WHERE mail = :mail", [':mail' => $params['mail']])->fetchField();
@@ -152,7 +136,7 @@ class CRM_Utils_System_Backdrop extends CRM_Utils_System_DrupalBase {
    */
   public function getLoginURL($destination = '') {
     $query = $destination ? ['destination' => $destination] : [];
-    return url('user', ['query' => $query, 'absolute' => TRUE]);
+    return url('user/login', ['query' => $query, 'absolute' => TRUE]);
   }
 
   /**
@@ -309,7 +293,7 @@ class CRM_Utils_System_Backdrop extends CRM_Utils_System_DrupalBase {
 
     $dbBackdrop = DB::connect($config->userFrameworkDSN);
     if (DB::isError($dbBackdrop)) {
-      CRM_Core_Error::fatal("Cannot connect to Backdrop database via $config->userFrameworkDSN, " . $dbBackdrop->getMessage());
+      throw new CRM_Core_Exception("Cannot connect to Backdrop database via $config->userFrameworkDSN, " . $dbBackdrop->getMessage());
     }
 
     $account = $userUid = $userMail = NULL;
@@ -487,7 +471,7 @@ AND    u.status = 1
    * Determine the native ID of the CMS user.
    *
    * @param string $username
-   * @return int|NULL
+   * @return int|null
    */
   public function getUfId($username) {
     $user = user_load_by_name($username);
@@ -879,9 +863,6 @@ AND    u.status = 1
       }
       else {
         $contactMatching++;
-      }
-      if (is_object($match)) {
-        $match->free();
       }
     }
 

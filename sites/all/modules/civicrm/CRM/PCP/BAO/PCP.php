@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_PCP_BAO_PCP extends CRM_PCP_DAO_PCP {
 
@@ -224,14 +208,22 @@ ORDER BY target_entity_type, target_entity_id
    *   Total amount
    */
   public static function thermoMeter($pcpId) {
+    $completedStatusId = CRM_Core_PseudoConstant::getKey(
+      'CRM_Contribute_BAO_Contribution',
+      'contribution_status_id',
+      'Completed'
+    );
     $query = "
 SELECT SUM(cc.total_amount) as total
 FROM civicrm_pcp pcp
 LEFT JOIN civicrm_contribution_soft cs ON ( pcp.id = cs.pcp_id )
 LEFT JOIN civicrm_contribution cc ON ( cs.contribution_id = cc.id)
-WHERE pcp.id = %1 AND cc.contribution_status_id =1 AND cc.is_test = 0";
+WHERE pcp.id = %1 AND cc.contribution_status_id = %2 AND cc.is_test = 0";
 
-    $params = [1 => [$pcpId, 'Integer']];
+    $params = [
+      1 => [$pcpId, 'Integer'],
+      2 => [$completedStatusId, 'Integer'],
+    ];
     return CRM_Core_DAO::singleValueQuery($query, $params);
   }
 
@@ -244,16 +236,25 @@ WHERE pcp.id = %1 AND cc.contribution_status_id =1 AND cc.is_test = 0";
    * @return array
    */
   public static function honorRoll($pcpId) {
+    $completedStatusId = CRM_Core_PseudoConstant::getKey(
+      'CRM_Contribute_BAO_Contribution',
+      'contribution_status_id',
+      'Completed'
+    );
     $query = "
             SELECT cc.id, cs.pcp_roll_nickname, cs.pcp_personal_note,
                    cc.total_amount, cc.currency
             FROM civicrm_contribution cc
                  LEFT JOIN civicrm_contribution_soft cs ON cc.id = cs.contribution_id
-            WHERE cs.pcp_id = {$pcpId}
+            WHERE cs.pcp_id = %1
                   AND cs.pcp_display_in_roll = 1
-                  AND contribution_status_id = 1
+                  AND contribution_status_id = %2
                   AND is_test = 0";
-    $dao = CRM_Core_DAO::executeQuery($query);
+    $params = [
+      1 => [$pcpId, 'Integer'],
+      2 => [$completedStatusId, 'Integer'],
+    ];
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
     $honor = [];
     while ($dao->fetch()) {
       $honor[$dao->id]['nickname'] = ucwords($dao->pcp_roll_nickname);

@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -36,10 +20,15 @@ class CRM_Core_BAO_CustomValueTable {
 
   /**
    * @param array $customParams
+   * @param string $parentOperation Operation being taken on the parent entity.
+   *   If we know the parent entity is doing an insert we can skip the
+   *   ON DUPLICATE UPDATE - which improves performance and reduces deadlocks.
+   *   - edit
+   *   - create
    *
    * @throws Exception
    */
-  public static function create(&$customParams) {
+  public static function create($customParams, $parentOperation = NULL) {
     if (empty($customParams) ||
       !is_array($customParams)
     ) {
@@ -176,7 +165,6 @@ class CRM_Core_BAO_CustomValueTable {
               $entityFileDAO->entity_id = $field['entity_id'];
               $entityFileDAO->file_id = $field['file_id'];
               $entityFileDAO->save();
-              $entityFileDAO->free();
               $value = $field['file_id'];
               $type = 'String';
               break;
@@ -257,7 +245,7 @@ class CRM_Core_BAO_CustomValueTable {
             $fieldValues = implode(',', array_values($set));
             $query = "$sqlOP ( $fieldNames ) VALUES ( $fieldValues )";
             // for multiple values we dont do on duplicate key update
-            if (!$isMultiple) {
+            if (!$isMultiple && $parentOperation !== 'create') {
               $query .= " ON DUPLICATE KEY UPDATE $setClause";
             }
           }
@@ -338,8 +326,13 @@ class CRM_Core_BAO_CustomValueTable {
    * @param array $params
    * @param $entityTable
    * @param int $entityID
+   * @param string $parentOperation Operation being taken on the parent entity.
+   *   If we know the parent entity is doing an insert we can skip the
+   *   ON DUPLICATE UPDATE - which improves performance and reduces deadlocks.
+   *   - edit
+   *   - create
    */
-  public static function store(&$params, $entityTable, $entityID) {
+  public static function store($params, $entityTable, $entityID, $parentOperation = NULL) {
     $cvParams = [];
     foreach ($params as $fieldID => $param) {
       foreach ($param as $index => $customValue) {
@@ -376,7 +369,7 @@ class CRM_Core_BAO_CustomValueTable {
       }
     }
     if (!empty($cvParams)) {
-      self::create($cvParams);
+      self::create($cvParams, $parentOperation);
     }
   }
 

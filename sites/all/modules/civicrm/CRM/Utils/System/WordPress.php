@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  * $Id$
  *
  */
@@ -270,11 +254,7 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
       // pre-existing logic
       if (isset($path)) {
         $queryParts[] = 'page=CiviCRM';
-        // Encode all but the *path* placeholder
-        if ($path !== '*path*') {
-          $path = rawurlencode($path);
-        }
-        $queryParts[] = "q={$path}";
+        $queryParts[] = 'q=' . rawurlencode($path);
       }
       if ($wpPageParam) {
         $queryParts[] = $wpPageParam;
@@ -392,16 +372,18 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
 
   /**
    * FIXME: Use CMS-native approach
+   * @throws \CRM_Core_Exception
    */
   public function permissionDenied() {
-    CRM_Core_Error::fatal(ts('You do not have permission to access this page.'));
+    throw new CRM_Core_Exception(ts('You do not have permission to access this page.'));
   }
 
   /**
    * Determine the native ID of the CMS user.
    *
    * @param string $username
-   * @return int|NULL
+   *
+   * @return int|null
    */
   public function getUfId($username) {
     $userdata = get_user_by('login', $username);
@@ -466,6 +448,7 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
    * @param mixed $realPath
    *
    * @return bool
+   * @throws \CRM_Core_Exception
    */
   public function loadBootStrap($params = [], $loadUser = TRUE, $throwError = TRUE, $realPath = NULL) {
     global $wp, $wp_rewrite, $wp_the_query, $wp_query, $wpdb, $current_site, $current_blog, $current_user;
@@ -479,7 +462,7 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
 
     $cmsRootPath = $this->cmsRootPath();
     if (!$cmsRootPath) {
-      CRM_Core_Error::fatal("Could not find the install directory for WordPress");
+      throw new CRM_Core_Exception("Could not find the install directory for WordPress");
     }
     $path = Civi::settings()->get('wpLoadPhp');
     if (!empty($path)) {
@@ -489,7 +472,7 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
       require_once $cmsRootPath . DIRECTORY_SEPARATOR . 'wp-load.php';
     }
     else {
-      CRM_Core_Error::fatal("Could not find the bootstrap file for WordPress");
+      throw new CRM_Core_Exception("Could not find the bootstrap file for WordPress");
     }
     $wpUserTimezone = get_option('timezone_string');
     if ($wpUserTimezone) {
@@ -548,35 +531,57 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
    *   local file system path to CMS root, or NULL if it cannot be determined
    */
   public function cmsRootPath() {
+
+    // Return early if the path is already set.
     global $civicrm_paths;
     if (!empty($civicrm_paths['cms.root']['path'])) {
       return $civicrm_paths['cms.root']['path'];
     }
 
-    $cmsRoot = $valid = NULL;
+    // Return early if constant has been defined.
     if (defined('CIVICRM_CMSDIR')) {
       if ($this->validInstallDir(CIVICRM_CMSDIR)) {
-        $cmsRoot = CIVICRM_CMSDIR;
-        $valid = TRUE;
+        return CIVICRM_CMSDIR;
       }
     }
-    else {
-      $pathVars = explode('/', str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']));
 
-      //might be windows installation.
-      $firstVar = array_shift($pathVars);
-      if ($firstVar) {
-        $cmsRoot = $firstVar;
+    // Return early if path to wp-load.php can be retrieved from settings.
+    $setting = Civi::settings()->get('wpLoadPhp');
+    if (!empty($setting)) {
+      $path = str_replace('wp-load.php', '', $setting);
+      $cmsRoot = rtrim($path, '/\\');
+      if ($this->validInstallDir($cmsRoot)) {
+        return $cmsRoot;
       }
+    }
 
-      //start w/ csm dir search.
-      foreach ($pathVars as $var) {
-        $cmsRoot .= "/$var";
-        if ($this->validInstallDir($cmsRoot)) {
-          //stop as we found bootstrap.
-          $valid = TRUE;
-          break;
-        }
+    /*
+     * Keep previous logic as fallback of last resort.
+     *
+     * At some point, it would be good to remove this because there are serious
+     * problems in correctly locating WordPress in this manner. In summary, it
+     * is impossible to do so reliably.
+     *
+     * @see https://github.com/civicrm/civicrm-wordpress/pull/63#issuecomment-61792328
+     * @see https://github.com/civicrm/civicrm-core/pull/11086#issuecomment-335454992
+     */
+    $cmsRoot = $valid = NULL;
+
+    $pathVars = explode('/', str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']));
+
+    // Might be Windows installation.
+    $firstVar = array_shift($pathVars);
+    if ($firstVar) {
+      $cmsRoot = $firstVar;
+    }
+
+    // Start with CMS dir search.
+    foreach ($pathVars as $var) {
+      $cmsRoot .= "/$var";
+      if ($this->validInstallDir($cmsRoot)) {
+        // Stop as we found bootstrap.
+        $valid = TRUE;
+        break;
       }
     }
 
@@ -850,9 +855,6 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
       else {
         $contactMatching++;
       }
-      if (is_object($match)) {
-        $match->free();
-      }
     }
 
     return [
@@ -860,6 +862,21 @@ class CRM_Utils_System_WordPress extends CRM_Utils_System_Base {
       'contactMatching' => $contactMatching,
       'contactCreated' => $contactCreated,
     ];
+  }
+
+  /**
+   * Send an HTTP Response base on PSR HTTP RespnseInterface response.
+   *
+   * @param \Psr\Http\Message\ResponseInterface $response
+   */
+  public function sendResponse(\Psr\Http\Message\ResponseInterface $response) {
+    // use WordPress function status_header to ensure 404 response is sent
+    status_header($response->getStatusCode());
+    foreach ($response->getHeaders() as $name => $values) {
+      CRM_Utils_System::setHttpHeader($name, implode(', ', (array) $values));
+    }
+    echo $response->getBody();
+    CRM_Utils_System::civiExit();
   }
 
 }

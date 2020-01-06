@@ -14,6 +14,8 @@
  * $Id: Dummy.php 45429 2013-02-06 22:11:18Z lobo $
  */
 
+use Civi\Payment\Exception\PaymentProcessorException;
+
 /**
  * Dummy payment processor
  */
@@ -73,6 +75,7 @@ class CRM_Core_Payment_Dummy extends CRM_Core_Payment {
    *
    * @return array
    *   the result in a nice formatted array (or an error object)
+   * @throws \Civi\Payment\Exception\PaymentProcessorException
    */
   public function doDirectPayment(&$params) {
     // Invoke hook_civicrm_paymentProcessor
@@ -93,19 +96,21 @@ class CRM_Core_Payment_Dummy extends CRM_Core_Payment {
     // be more complete.
     if (!empty($params['credit_card_exp_date']['Y']) && date('Y') >
       CRM_Core_Payment_Form::getCreditCardExpirationYear($params)) {
-      $error = new CRM_Core_Error(ts('transaction failed'));
-      return $error;
+      throw new PaymentProcessorException(ts('Invalid expiry date'));
     }
     //end of hook invocation
     if (!empty($this->_doDirectPaymentResult)) {
       $result = $this->_doDirectPaymentResult;
+      if (CRM_Utils_Array::value('payment_status_id', $result) === 'failed') {
+        throw new PaymentProcessorException($result['message'] ?? 'failed');
+      }
       $result['trxn_id'] = array_shift($this->_doDirectPaymentResult['trxn_id']);
       return $result;
     }
     if ($this->_mode == 'test') {
       $query = "SELECT MAX(trxn_id) FROM civicrm_contribution WHERE trxn_id LIKE 'test\\_%'";
       $p = [];
-      $trxn_id = strval(CRM_Core_Dao::singleValueQuery($query, $p));
+      $trxn_id = strval(CRM_Core_DAO::singleValueQuery($query, $p));
       $trxn_id = str_replace('test_', '', $trxn_id);
       $trxn_id = intval($trxn_id) + 1;
       $params['trxn_id'] = 'test_' . $trxn_id . '_' . uniqid();
@@ -113,7 +118,7 @@ class CRM_Core_Payment_Dummy extends CRM_Core_Payment {
     else {
       $query = "SELECT MAX(trxn_id) FROM civicrm_contribution WHERE trxn_id LIKE 'live_%'";
       $p = [];
-      $trxn_id = strval(CRM_Core_Dao::singleValueQuery($query, $p));
+      $trxn_id = strval(CRM_Core_DAO::singleValueQuery($query, $p));
       $trxn_id = str_replace('live_', '', $trxn_id);
       $trxn_id = intval($trxn_id) + 1;
       $params['trxn_id'] = 'live_' . $trxn_id . '_' . uniqid();
@@ -122,6 +127,7 @@ class CRM_Core_Payment_Dummy extends CRM_Core_Payment {
     // Add a fee_amount so we can make sure fees are handled properly in underlying classes.
     $params['fee_amount'] = 1.50;
     $params['net_amount'] = $params['gross_amount'] - $params['fee_amount'];
+    $params['description'] = $this->getPaymentDescription($params);
 
     return $params;
   }

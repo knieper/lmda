@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Utils_Migrate_Import {
 
@@ -85,9 +69,6 @@ class CRM_Utils_Migrate_Import {
     $this->profileGroups($xml, $idMap);
     $this->profileFields($xml, $idMap);
     $this->profileJoins($xml, $idMap);
-
-    // create DB Template String sample data
-    $this->dbTemplateString($xml, $idMap);
 
     // clean up all caches etc
     CRM_Core_Config::clearDBCache();
@@ -160,7 +141,7 @@ class CRM_Utils_Migrate_Import {
         $optionValue->option_group_id = $idMap['option_group'][(string ) $optionValueXML->option_group_name];
         if (empty($optionValue->option_group_id)) {
           //CRM-17410 check if option group already exist.
-          $optionValue->option_group_id = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup', $optionValueXML->option_group_name, 'id', 'name');
+          $optionValue->option_group_id = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup', (string) $optionValueXML->option_group_name, 'id', 'name');
         }
         $this->copyData($optionValue, $optionValueXML, FALSE, 'label');
         if (!isset($optionValue->value)) {
@@ -358,59 +339,44 @@ AND        v.name = %1
     foreach ($xml->CustomFields as $customFieldsXML) {
       $total = count($customFieldsXML->CustomField);
       foreach ($customFieldsXML->CustomField as $customFieldXML) {
+        if (empty($customFieldXML->option_group_id) && isset($customFieldXML->option_group_name)) {
+          $customFieldXML->option_group_id = $this->getOptionGroupIDFromName((string) $customFieldXML->option_group_name, $idMap);
+        }
+
         $id = $idMap['custom_group'][(string ) $customFieldXML->custom_group_name];
         $fields_indexed_by_group_id[$id][] = $customFieldXML;
       }
     }
+
     foreach ($fields_indexed_by_group_id as $group_id => $fields) {
-      $total = count($fields);
-      $count = 0;
-      foreach ($fields as $customFieldXML) {
-        $count++;
-        $customField = new CRM_Core_DAO_CustomField();
-        $customField->custom_group_id = $group_id;
-        $skipStore = FALSE;
-        if (!$this->copyData($customField, $customFieldXML, FALSE, 'label')) {
-          $skipStore = TRUE;
-        }
-
-        if (empty($customField->option_group_id) &&
-          isset($customFieldXML->option_group_name)
-        ) {
-          $customField->option_group_id = $idMap['option_group'][(string ) $customFieldXML->option_group_name];
-        }
-        if ($skipStore) {
-          continue;
-        }
-        $customField->save();
-
-        // Only rebuild the table's trigger on the last field added to avoid un-necessary
-        // and slow rebuilds when adding many fields at the same time.
-        $triggerRebuild = FALSE;
-        if ($count == $total) {
-          $triggerRebuild = TRUE;
-        }
-        $indexExist = FALSE;
-        CRM_Core_BAO_CustomField::createField($customField, 'add', $indexExist, $triggerRebuild);
-      }
+      \Civi\Api4\CustomField::save()
+        ->setCheckPermissions(FALSE)
+        ->setDefaults(['custom_group_id' => $group_id])
+        ->setRecords(json_decode(json_encode($fields), TRUE))
+        ->execute();
     }
   }
 
   /**
-   * @param $xml
+   * Get Option Group ID.
+   *
+   * Returns an option group's ID, given its name.
+   *
+   * @param $groupName
    * @param $idMap
+   *
+   * @return int|null
    */
-  public function dbTemplateString(&$xml, &$idMap) {
-    foreach ($xml->Persistent as $persistentXML) {
-      foreach ($persistentXML->Persistent as $persistent) {
-        $persistentObj = new CRM_Core_DAO_Persistent();
-
-        if ($persistent->is_config == 1) {
-          $persistent->data = serialize(explode(',', $persistent->data));
-        }
-        $this->copyData($persistentObj, $persistent, TRUE, 'context');
-      }
+  private function getOptionGroupIDFromName($groupName, &$idMap) {
+    if (empty($groupName)) {
+      return NULL;
     }
+
+    if (!isset($idMap['option_group'][$groupName])) {
+      $idMap['option_group'][$groupName] = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup', $groupName, 'id', 'name');
+    }
+
+    return $idMap['option_group'][$groupName];
   }
 
   /**

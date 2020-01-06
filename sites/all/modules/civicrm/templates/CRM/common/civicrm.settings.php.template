@@ -184,6 +184,21 @@ if (!defined('CIVICRM_TEMPLATE_COMPILEDIR')) {
 }
 
 /**
+ * SMARTY Compile Check:
+ *
+ * This tells Smarty whether to check for recompiling or not. Recompiling
+ * does not need to happen unless a template or config file is changed.
+ * Typically you enable this during development, and disable for production.
+ *
+ * Related issue:
+ * https://lab.civicrm.org/dev/core/issues/1073
+ *
+ */
+//if (!defined('CIVICRM_TEMPLATE_COMPILE_CHECK')) {
+//  define( 'CIVICRM_TEMPLATE_COMPILE_CHECK', FALSE);
+//}
+
+/**
  * Site URLs:
  *
  * This section defines absolute and relative URLs to access the host CMS (Backdrop, Drupal, or Joomla) resources.
@@ -446,20 +461,6 @@ if (!defined('CIVICRM_PSR16_STRICT')) {
  * advanced setting intended for high-traffic databases & experienced developers/ admins.
  */
 define('CIVICRM_DEADLOCK_RETRIES', 3);
-
-/**
- * Enable support for multiple locks.
- *
- * This is a transitional setting. When enabled sites with mysql 5.7.5+ or equivalent
- * MariaDB can improve their DB conflict management.
- *
- * There is no known or expected downside or enabling this (and definite upside).
- * The setting only exists to allow sites to manage change in their environment
- * conservatively for the first 3 months.
- *
- * See https://github.com/civicrm/civicrm-core/pull/13854
- */
- // define('CIVICRM_SUPPORT_MULTIPLE_LOCKS', TRUE);
 
 /**
  * Configure MySQL to throw more errors when encountering unusual SQL expressions.

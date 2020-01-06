@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 require_once 'Mail.php';
@@ -72,7 +56,7 @@ class CRM_Mailing_BAO_MailingJob extends CRM_Mailing_DAO_MailingJob {
     $jobDAO = new CRM_Mailing_BAO_MailingJob();
     $jobDAO->copyValues($params, TRUE);
     $jobDAO->save();
-    if (!empty($params['mailing_id'])) {
+    if (!empty($params['mailing_id']) && empty('is_calling_function_updated_to_reflect_deprecation')) {
       CRM_Mailing_BAO_Mailing::getRecipients($params['mailing_id']);
     }
     CRM_Utils_Hook::post($op, 'MailingJob', $jobDAO->id, $jobDAO);
@@ -501,7 +485,6 @@ VALUES (%1, %2, %3, %4, %5, %6, %7)
     $mailing = new CRM_Mailing_BAO_Mailing();
     $mailing->id = $this->mailing_id;
     $mailing->find(TRUE);
-    $mailing->free();
 
     $config = NULL;
 
@@ -509,7 +492,7 @@ VALUES (%1, %2, %3, %4, %5, %6, %7)
       $config = CRM_Core_Config::singleton();
     }
 
-    if (property_exists($mailing, 'language') && $mailing->language && $mailing->language != 'en_US') {
+    if (property_exists($mailing, 'language') && $mailing->language && $mailing->language != CRM_Core_I18n::getLocale()) {
       $swapLang = CRM_Utils_AutoClean::swap('global://dbLocale?getter', 'call://i18n/setLocale', $mailing->language);
     }
 
@@ -542,7 +525,6 @@ VALUES (%1, %2, %3, %4, %5, %6, %7)
         if (!empty($fields)) {
           $this->deliverGroup($fields, $mailing, $mailer, $job_date, $attachments);
         }
-        $eq->free();
         return FALSE;
       }
       self::$mailsProcessed++;
@@ -557,14 +539,11 @@ VALUES (%1, %2, %3, %4, %5, %6, %7)
       if (count($fields) == self::MAX_CONTACTS_TO_PROCESS) {
         $isDelivered = $this->deliverGroup($fields, $mailing, $mailer, $job_date, $attachments);
         if (!$isDelivered) {
-          $eq->free();
           return $isDelivered;
         }
         $fields = [];
       }
     }
-
-    $eq->free();
 
     if (!empty($fields)) {
       $isDelivered = $this->deliverGroup($fields, $mailing, $mailer, $job_date, $attachments);
@@ -590,7 +569,7 @@ VALUES (%1, %2, %3, %4, %5, %6, %7)
     static $smtpConnectionErrors = 0;
 
     if (!is_object($mailer) || empty($fields)) {
-      CRM_Core_Error::fatal();
+      throw new CRM_Core_Exception('Either mailer is not an object or we don\'t have recipients to send to in this group');
     }
 
     // get the return properties
@@ -994,7 +973,7 @@ AND    status IN ( 'Scheduled', 'Running', 'Paused' )
           $activityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Bulk Email');
         }
         if (!$activityTypeID) {
-          CRM_Core_Error::fatal();
+          throw new CRM_Core_Execption(ts('No relevant activity type found when recording Mailing Event delivered Activity'));
         }
       }
 
@@ -1006,7 +985,7 @@ AND    status IN ( 'Scheduled', 'Running', 'Paused' )
         'source_record_id' => $this->mailing_id,
         'activity_date_time' => $job_date,
         'subject' => $mailing->subject,
-        'status_id' => 2,
+        'status_id' => 'Completed',
         'deleteActivityTarget' => FALSE,
         'campaign_id' => $mailing->campaign_id,
       ];
@@ -1053,7 +1032,10 @@ AND    record_type_id = $targetRecordID
         }
       }
 
-      if (is_a(CRM_Activity_BAO_Activity::create($activity), 'CRM_Core_Error')) {
+      try {
+        civicrm_api3('Activity', 'create', $activity);
+      }
+      catch (Exception $e) {
         $result = FALSE;
       }
 

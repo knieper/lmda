@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC (c) 2004-2020
  */
 
 /**
@@ -40,7 +24,6 @@ return [
     'group' => 'core',
     'name' => 'contact_view_options',
     'type' => 'String',
-    'quick_form_type' => 'CheckBoxes',
     'html_type' => 'checkboxes',
     'pseudoconstant' => [
       'optionGroupName' => 'contact_view_options',
@@ -289,7 +272,6 @@ return [
     'group' => 'core',
     'name' => 'contact_autocomplete_options',
     'type' => 'String',
-    'quick_form_type' => 'CheckBoxes',
     'html_type' => 'checkboxes',
     'pseudoconstant' => [
       'callback' => 'CRM_Admin_Form_Setting_Search::getContactAutocompleteOptions',
@@ -302,13 +284,13 @@ return [
     'description' => ts("Selected fields will be displayed in back-office autocomplete dropdown search results (Quick Search, etc.). Contact Name is always included."),
     'help_text' => NULL,
     'serialize' => CRM_Core_DAO::SERIALIZE_SEPARATOR_BOOKEND,
+    'validate_callback' => 'CRM_Admin_Form_Setting_Search::enableOptionOne',
   ],
   'contact_reference_options' => [
     'group_name' => 'CiviCRM Preferences',
     'group' => 'core',
     'name' => 'contact_reference_options',
     'type' => 'String',
-    'quick_form_type' => 'CheckBoxes',
     'html_type' => 'checkboxes',
     'pseudoconstant' => [
       'callback' => 'CRM_Admin_Form_Setting_Search::getContactReferenceOptions',
@@ -321,6 +303,7 @@ return [
     'description' => ts("Selected fields will be displayed in autocomplete dropdown search results for 'Contact Reference' custom fields. Contact Name is always included. NOTE: You must assign 'access contact reference fields' permission to the anonymous role if you want to use custom contact reference fields in profiles on public pages. For most situations, you should use the 'Limit List to Group' setting when configuring a contact reference field which will be used in public forms to prevent exposing your entire contact list."),
     'help_text' => NULL,
     'serialize' => CRM_Core_DAO::SERIALIZE_SEPARATOR_BOOKEND,
+    'validate_callback' => 'CRM_Admin_Form_Setting_Search::enableOptionOne',
   ],
   'contact_smart_group_display' => [
     'group_name' => 'CiviCRM Preferences',
@@ -388,7 +371,27 @@ return [
     'title' => ts('Maximum Attachments'),
     'is_domain' => 1,
     'is_contact' => 0,
-    'description' => ts('Maximum number of files (documents, images, etc.) which can be attached to emails or activities.'),
+    'description' => ts('Maximum number of files (documents, images, etc.) which can be attached to emails or activities. This setting applies to UI forms and limits the number of fields available on the form.'),
+    'help_text' => NULL,
+  ],
+  'max_attachments_backend' => [
+    'group_name' => 'CiviCRM Preferences',
+    'group' => 'core',
+    'name' => 'max_attachments_backend',
+    'legacy_key' => 'maxAttachmentsBackend',
+    'type' => 'Integer',
+    'quick_form_type' => 'Element',
+    'html_type' => 'text',
+    'html_attributes' => [
+      'size' => 2,
+      'maxlength' => 8,
+    ],
+    'default' => CRM_Core_BAO_File::DEFAULT_MAX_ATTACHMENTS_BACKEND,
+    'add' => '5.20',
+    'title' => ts('Maximum Attachments For Backend Processes'),
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => ts('Maximum number of files (documents, images, etc.) which can be processed during backend processing such as automated inbound email processing. This should be a big number higher than the other Maximum Attachments setting above. This setting here merely provides an upper limit to prevent attacks that might overload the server.'),
     'help_text' => NULL,
   ],
   'maxFileSize' => [
@@ -732,13 +735,7 @@ return [
     'group' => 'core',
     'name' => 'enable_components',
     'type' => 'Array',
-    'quick_form_type' => 'Element',
-    'html_type' => 'advmultiselect',
-    'html_attributes' => [
-      'size' => 5,
-      'style' => 'width:150px',
-      'class' => 'advmultiselect',
-    ],
+    'html_type' => 'checkboxes',
     'default' => NULL,
     'add' => '4.4',
     'title' => ts('Enable Components'),
@@ -750,6 +747,9 @@ return [
       'CRM_Case_Info::onToggleComponents',
       'CRM_Core_Component::flushEnabledComponents',
       'call://resources/resetCacheCode',
+    ],
+    'pseudoconstant' => [
+      'callback' => 'CRM_Core_SelectValues::getComponentSelectValues',
     ],
   ],
   'disable_core_css' => [
@@ -1050,7 +1050,7 @@ return [
     'is_contact' => 0,
     'description' => ts('Color of the CiviCRM main menu.'),
     'help_text' => NULL,
-    'validate_callback' => 'CRM_Utils_Rule::color',
+    'validate_callback' => 'CRM_Utils_Color::normalize',
   ],
   'requestableMimeTypes' => [
     'group_name' => 'CiviCRM Preferences',
@@ -1065,5 +1065,66 @@ return [
     'is_contact' => 0,
     'description' => ts('Acceptable Mime Types that can be used as part of file urls'),
     'help_text' => NULL,
+  ],
+  'theme_frontend' => [
+    'group_name' => 'CiviCRM Preferences',
+    'group' => 'core',
+    'name' => 'theme_frontend',
+    'type' => 'String',
+    'quick_form_type' => 'Select',
+    'html_type' => 'Select',
+    'html_attributes' => array(
+      'class' => 'crm-select2',
+    ),
+    'pseudoconstant' => array(
+      'callback' => 'call://themes/getAvailable',
+    ),
+    'default' => 'default',
+    'add' => '5.16',
+    'title' => ts('Frontend Theme'),
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => ts('Theme to use on frontend pages'),
+    'help_text' => NULL,
+  ],
+  'theme_backend' => [
+    'group_name' => 'CiviCRM Preferences',
+    'group' => 'core',
+    'name' => 'theme_backend',
+    'type' => 'String',
+    'quick_form_type' => 'Select',
+    'html_type' => 'Select',
+    'html_attributes' => array(
+      'class' => 'crm-select2',
+    ),
+    'pseudoconstant' => array(
+      'callback' => 'call://themes/getAvailable',
+    ),
+    'default' => 'default',
+    'add' => '5.16',
+    'title' => ts('Backend Theme'),
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => ts('Theme to use on backend pages'),
+    'help_text' => NULL,
+  ],
+  'http_timeout' => [
+    'group_name' => 'CiviCRM Preferences',
+    'group' => 'core',
+    'name' => 'http_timeout',
+    'type' => 'Integer',
+    'quick_form_type' => 'Element',
+    'html_type' => 'text',
+    'html_attributes' => [
+      'size' => 2,
+      'maxlength' => 3,
+    ],
+    'default' => 5,
+    'add' => '5.14',
+    'title' => ts('HTTP request timeout'),
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => ts('How long should HTTP requests through Guzzle application run for in seconds'),
+    'help_text' => ts('Set the number of seconds http requests should run for before terminating'),
   ],
 ];

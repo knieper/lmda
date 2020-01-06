@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
@@ -43,7 +27,7 @@
  * This provides greater consistency/predictability after flushing.
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Core_PseudoConstant {
 
@@ -220,14 +204,12 @@ class CRM_Core_PseudoConstant {
       if ($options && $flip) {
         $options = array_flip($options);
       }
-      $customField->free();
       return $options;
     }
 
     // Core field: load schema
     $dao = new $daoName();
     $fieldSpec = $dao->getFieldSpec($fieldName);
-    $dao->free();
 
     // Ensure we have the canonical name for this field
     $fieldName = CRM_Utils_Array::value('name', $fieldSpec, $fieldName);
@@ -254,20 +236,6 @@ class CRM_Core_PseudoConstant {
         'keyColumn' => CRM_Utils_Array::value('keyColumn', $pseudoconstant),
         'labelColumn' => CRM_Utils_Array::value('labelColumn', $pseudoconstant),
       ];
-
-      if ($context == 'abbreviate') {
-        switch ($fieldName) {
-          case 'state_province_id':
-            $params['labelColumn'] = 'abbreviation';
-            break;
-
-          case 'country_id':
-            $params['labelColumn'] = 'iso_code';
-            break;
-
-          default:
-        }
-      }
 
       // Fetch option group from option_value table
       if (!empty($pseudoconstant['optionGroupName'])) {
@@ -302,8 +270,8 @@ class CRM_Core_PseudoConstant {
         $cacheKey = $daoName . $fieldName . serialize($params);
 
         // Retrieve cached options
-        if (isset(self::$cache[$cacheKey]) && empty($params['fresh'])) {
-          $output = self::$cache[$cacheKey];
+        if (isset(\Civi::$statics[__CLASS__][$cacheKey]) && empty($params['fresh'])) {
+          $output = \Civi::$statics[__CLASS__][$cacheKey];
         }
         else {
           $daoName = CRM_Core_DAO_AllCoreTables::getClassForTable($pseudoconstant['table']);
@@ -313,7 +281,6 @@ class CRM_Core_PseudoConstant {
           // Get list of fields for the option table
           $dao = new $daoName();
           $availableFields = array_keys($dao->fieldKeys());
-          $dao->free();
 
           $select = "SELECT %1 AS id, %2 AS label";
           $from = "FROM %3";
@@ -330,6 +297,12 @@ class CRM_Core_PseudoConstant {
               $params[$nameField] = 'name';
             }
           }
+
+          // Use abbrColum if context is abbreviate
+          if ($context == 'abbreviate' && (in_array('abbreviation', $availableFields) || !empty($pseudoconstant['abbrColumn']))) {
+            $params['labelColumn'] = $pseudoconstant['abbrColumn'] ?? 'abbreviation';
+          }
+
           // Condition param can be passed as an sql clause string or an array of clauses
           if (!empty($params['condition'])) {
             $wheres[] = implode(' AND ', (array) $params['condition']);
@@ -375,7 +348,6 @@ class CRM_Core_PseudoConstant {
           while ($dao->fetch()) {
             $output[$dao->id] = $dao->label;
           }
-          $dao->free();
           // Localize results
           if (!empty($params['localize']) || $pseudoconstant['table'] == 'civicrm_country' || $pseudoconstant['table'] == 'civicrm_state_province') {
             $I18nParams = [];
@@ -390,7 +362,7 @@ class CRM_Core_PseudoConstant {
             }
           }
           CRM_Utils_Hook::fieldOptions($entity, $fieldName, $output, $params);
-          self::$cache[$cacheKey] = $output;
+          \Civi::$statics[__CLASS__][$cacheKey] = $output;
         }
         return $flip ? array_flip($output) : $output;
       }
@@ -411,7 +383,7 @@ class CRM_Core_PseudoConstant {
    *
    * @param string $baoName
    * @param string $fieldName
-   * @param string|Int $key
+   * @param string|int $key
    *
    * TODO: Accept multivalued input?
    *
@@ -433,7 +405,7 @@ class CRM_Core_PseudoConstant {
    *
    * @param string $baoName
    * @param string $fieldName
-   * @param string|Int $key
+   * @param string|int $key
    *
    * @return bool|null|string
    *   FALSE if the given field has no associated option list
@@ -453,7 +425,7 @@ class CRM_Core_PseudoConstant {
    *
    * @param string $baoName
    * @param string $fieldName
-   * @param string|Int $value
+   * @param string|int $value
    *
    * @return bool|null|string|int
    *   FALSE if the given field has no associated option list
@@ -490,7 +462,7 @@ class CRM_Core_PseudoConstant {
         WHERE page_callback LIKE '%CRM_Admin_Page_$child%' OR page_callback LIKE '%CRM_{$parent}_Page_$child%'
         ORDER BY page_callback
         LIMIT 1";
-      return CRM_Core_Dao::singleValueQuery($sql);
+      return CRM_Core_DAO::singleValueQuery($sql);
     }
     return NULL;
   }
@@ -534,7 +506,7 @@ class CRM_Core_PseudoConstant {
     $key = 'id',
     $force = NULL
   ) {
-    $cacheKey = CRM_Core_BAO_Cache::cleanKey("CRM_PC_{$name}_{$all}_{$key}_{$retrieve}_{$filter}_{$condition}_{$orderby}");
+    $cacheKey = CRM_Utils_Cache::cleanKey("CRM_PC_{$name}_{$all}_{$key}_{$retrieve}_{$filter}_{$condition}_{$orderby}");
     $cache = CRM_Utils_Cache::singleton();
     $var = $cache->get($cacheKey);
     if ($var !== NULL && empty($force)) {
@@ -848,9 +820,9 @@ WHERE  id = %1";
       self::populate(self::$country, 'CRM_Core_DAO_Country', TRUE, 'name', 'is_active', $whereClause);
 
       // if default country is set, percolate it to the top
-      if ($config->defaultContactCountry()) {
+      if (CRM_Core_BAO_Country::defaultContactCountry()) {
         $countryIsoCodes = self::countryIsoCode();
-        $defaultID = array_search($config->defaultContactCountry(), $countryIsoCodes);
+        $defaultID = array_search(CRM_Core_BAO_Country::defaultContactCountry(), $countryIsoCodes);
         if ($defaultID !== FALSE) {
           $default[$defaultID] = CRM_Utils_Array::value($defaultID, self::$country);
           self::$country = $default + self::$country;
@@ -1466,6 +1438,7 @@ WHERE  id = %1
    */
   public static function &getExtensions() {
     if (!self::$extensions) {
+      $compat = CRM_Extension_System::getCompatibilityInfo();
       self::$extensions = [];
       $sql = '
         SELECT full_name, label
@@ -1474,6 +1447,9 @@ WHERE  id = %1
       ';
       $dao = CRM_Core_DAO::executeQuery($sql);
       while ($dao->fetch()) {
+        if (!empty($compat[$dao->full_name]['force-uninstall'])) {
+          continue;
+        }
         self::$extensions[$dao->full_name] = $dao->label;
       }
     }

@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 
 /**
@@ -259,7 +243,9 @@ class CRM_Core_BAO_CustomGroup extends CRM_Core_DAO_CustomGroup {
    */
   public static function setIsActive($id, $is_active) {
     // reset the cache
-    CRM_Core_BAO_Cache::deleteGroup('contact fields');
+    Civi::cache('fields')->flush();
+    // reset ACL and system caches.
+    CRM_Core_BAO_Cache::resetCaches();
 
     if (!$is_active) {
       CRM_Core_BAO_UFField::setUFFieldStatus($id, $is_active);
@@ -481,6 +467,7 @@ LEFT JOIN civicrm_custom_field ON (civicrm_custom_field.custom_group_id = civicr
 
     $params = [];
     $sqlParamKey = 1;
+    $subType = '';
     if (!empty($subTypes)) {
       foreach ($subTypes as $key => $subType) {
         $subTypeClauses[] = self::whereListHas("civicrm_custom_group.extends_entity_column_value", self::validateSubTypeByEntity($entityType, $subType));
@@ -562,67 +549,7 @@ ORDER BY civicrm_custom_group.weight,
     }
 
     if (empty($groupTree)) {
-      $groupTree = $multipleFieldGroups = [];
-      $crmDAO = CRM_Core_DAO::executeQuery($queryString, $params);
-      $customValueTables = [];
-
-      // process records
-      while ($crmDAO->fetch()) {
-        // get the id's
-        $groupID = $crmDAO->civicrm_custom_group_id;
-        $fieldId = $crmDAO->civicrm_custom_field_id;
-        if ($crmDAO->civicrm_custom_group_is_multiple) {
-          $multipleFieldGroups[$groupID] = $crmDAO->civicrm_custom_group_table_name;
-        }
-        // create an array for groups if it does not exist
-        if (!array_key_exists($groupID, $groupTree)) {
-          $groupTree[$groupID] = [];
-          $groupTree[$groupID]['id'] = $groupID;
-
-          // populate the group information
-          foreach ($toReturn['custom_group'] as $fieldName) {
-            $fullFieldName = "civicrm_custom_group_$fieldName";
-            if ($fieldName == 'id' ||
-              is_null($crmDAO->$fullFieldName)
-            ) {
-              continue;
-            }
-            // CRM-5507
-            // This is an old bit of code - per the CRM number & probably does not work reliably if
-            // that one contact sub-type exists.
-            if ($fieldName == 'extends_entity_column_value' && !empty($subTypes[0])) {
-              $groupTree[$groupID]['subtype'] = self::validateSubTypeByEntity($entityType, $subType);
-            }
-            $groupTree[$groupID][$fieldName] = $crmDAO->$fullFieldName;
-          }
-          $groupTree[$groupID]['fields'] = [];
-
-          $customValueTables[$crmDAO->civicrm_custom_group_table_name] = [];
-        }
-
-        // add the fields now (note - the query row will always contain a field)
-        // we only reset this once, since multiple values come is as multiple rows
-        if (!array_key_exists($fieldId, $groupTree[$groupID]['fields'])) {
-          $groupTree[$groupID]['fields'][$fieldId] = [];
-        }
-
-        $customValueTables[$crmDAO->civicrm_custom_group_table_name][$crmDAO->civicrm_custom_field_column_name] = 1;
-        $groupTree[$groupID]['fields'][$fieldId]['id'] = $fieldId;
-        // populate information for a custom field
-        foreach ($toReturn['custom_field'] as $fieldName) {
-          $fullFieldName = "civicrm_custom_field_$fieldName";
-          if ($fieldName == 'id' ||
-            is_null($crmDAO->$fullFieldName)
-          ) {
-            continue;
-          }
-          $groupTree[$groupID]['fields'][$fieldId][$fieldName] = $crmDAO->$fullFieldName;
-        }
-      }
-
-      if (!empty($customValueTables)) {
-        $groupTree['info'] = ['tables' => $customValueTables];
-      }
+      list($multipleFieldGroups, $groupTree) = self::buildGroupTree($entityType, $toReturn, $subTypes, $queryString, $params, $subType);
 
       $cache->set($cacheKey, $groupTree);
       $cache->set($multipleFieldGroupCacheKey, $multipleFieldGroups);
@@ -1877,7 +1804,7 @@ SELECT IF( EXISTS(SELECT name FROM civicrm_contact_type WHERE name like %1), 1, 
 
     // fetch submitted custom field values later use to set as a default values
     if ($qfKey) {
-      $submittedValues = CRM_Core_BAO_Cache::getItem('custom data', $qfKey);
+      $submittedValues = Civi::cache('customData')->get($qfKey);
     }
 
     foreach ($groupTree as $key => $value) {
@@ -1936,7 +1863,7 @@ SELECT IF( EXISTS(SELECT name FROM civicrm_contact_type WHERE name like %1), 1, 
       if (count($formValues)) {
         $qf = $form->get('qfKey');
         $form->assign('qfKey', $qf);
-        CRM_Core_BAO_Cache::setItem($formValues, 'custom data', $qf);
+        Civi::cache('customData')->set($qf, $formValues);
       }
 
       // hack for field type File
@@ -2210,6 +2137,84 @@ SELECT  civicrm_custom_group.id as groupID, civicrm_custom_group.title as groupT
       $multipleGroup[$dao->id] = $dao->title;
     }
     return $multipleGroup;
+  }
+
+  /**
+   * Build the metadata tree for the custom group.
+   *
+   * @param string $entityType
+   * @param array $toReturn
+   * @param array $subTypes
+   * @param string $queryString
+   * @param array $params
+   * @param string $subType
+   *
+   * @return array
+   * @throws \CRM_Core_Exception
+   */
+  private static function buildGroupTree($entityType, $toReturn, $subTypes, $queryString, $params, $subType) {
+    $groupTree = $multipleFieldGroups = [];
+    $crmDAO = CRM_Core_DAO::executeQuery($queryString, $params);
+    $customValueTables = [];
+
+    // process records
+    while ($crmDAO->fetch()) {
+      // get the id's
+      $groupID = $crmDAO->civicrm_custom_group_id;
+      $fieldId = $crmDAO->civicrm_custom_field_id;
+      if ($crmDAO->civicrm_custom_group_is_multiple) {
+        $multipleFieldGroups[$groupID] = $crmDAO->civicrm_custom_group_table_name;
+      }
+      // create an array for groups if it does not exist
+      if (!array_key_exists($groupID, $groupTree)) {
+        $groupTree[$groupID] = [];
+        $groupTree[$groupID]['id'] = $groupID;
+
+        // populate the group information
+        foreach ($toReturn['custom_group'] as $fieldName) {
+          $fullFieldName = "civicrm_custom_group_$fieldName";
+          if ($fieldName == 'id' ||
+            is_null($crmDAO->$fullFieldName)
+          ) {
+            continue;
+          }
+          // CRM-5507
+          // This is an old bit of code - per the CRM number & probably does not work reliably if
+          // that one contact sub-type exists.
+          if ($fieldName == 'extends_entity_column_value' && !empty($subTypes[0])) {
+            $groupTree[$groupID]['subtype'] = self::validateSubTypeByEntity($entityType, $subType);
+          }
+          $groupTree[$groupID][$fieldName] = $crmDAO->$fullFieldName;
+        }
+        $groupTree[$groupID]['fields'] = [];
+
+        $customValueTables[$crmDAO->civicrm_custom_group_table_name] = [];
+      }
+
+      // add the fields now (note - the query row will always contain a field)
+      // we only reset this once, since multiple values come is as multiple rows
+      if (!array_key_exists($fieldId, $groupTree[$groupID]['fields'])) {
+        $groupTree[$groupID]['fields'][$fieldId] = [];
+      }
+
+      $customValueTables[$crmDAO->civicrm_custom_group_table_name][$crmDAO->civicrm_custom_field_column_name] = 1;
+      $groupTree[$groupID]['fields'][$fieldId]['id'] = $fieldId;
+      // populate information for a custom field
+      foreach ($toReturn['custom_field'] as $fieldName) {
+        $fullFieldName = "civicrm_custom_field_$fieldName";
+        if ($fieldName == 'id' ||
+          is_null($crmDAO->$fullFieldName)
+        ) {
+          continue;
+        }
+        $groupTree[$groupID]['fields'][$fieldId][$fieldName] = $crmDAO->$fullFieldName;
+      }
+    }
+
+    if (!empty($customValueTables)) {
+      $groupTree['info'] = ['tables' => $customValueTables];
+    }
+    return [$multipleFieldGroups, $groupTree];
   }
 
 }

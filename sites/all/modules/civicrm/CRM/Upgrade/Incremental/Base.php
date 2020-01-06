@@ -1,27 +1,11 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5  .alpha1                                         |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
@@ -149,7 +133,8 @@ class CRM_Upgrade_Incremental_Base {
    * @param string $column
    * @param string $properties
    * @param bool $localizable is this a field that should be localized
-   * @param string|NULL $version CiviCRM version to use if rebuilding multilingual schema
+   * @param string|null $version CiviCRM version to use if rebuilding multilingual schema
+   *
    * @return bool
    */
   public static function addColumn($ctx, $table, $column, $properties, $localizable = FALSE, $version = NULL) {
@@ -194,6 +179,29 @@ class CRM_Upgrade_Incremental_Base {
     $messageTemplateObject = new CRM_Upgrade_Incremental_MessageTemplates($version);
     $messageTemplateObject->updateTemplates();
 
+  }
+
+  /**
+   * Re-save any valid values from contribute settings into the normal setting
+   * format.
+   *
+   * We render the array of contribution_invoice_settings and any that have
+   * metadata defined we add to the correct key. This is safe to run even if no
+   * settings are to be converted, per the test in
+   * testConvertUpgradeContributeSettings.
+   *
+   * @param $ctx
+   *
+   * @return bool
+   */
+  public static function updateContributeSettings($ctx) {
+    $settings = Civi::settings()->get('contribution_invoice_settings');
+    $metadata = \Civi\Core\SettingsMetadata::getMetadata();
+    $conversions = array_intersect_key((array) $settings, $metadata);
+    foreach ($conversions as $key => $conversion) {
+      Civi::settings()->set($key, $conversion);
+    }
+    return TRUE;
   }
 
   /**
@@ -256,9 +264,30 @@ class CRM_Upgrade_Incremental_Base {
   }
 
   /**
+   * Drop a table... but only if it's empty.
+   *
+   * @param CRM_Queue_TaskContext $ctx
+   * @param string $table
+   * @return bool
+   */
+  public static function dropTableIfEmpty($ctx, $table) {
+    if (CRM_Core_DAO::checkTableExists($table)) {
+      if (!CRM_Core_DAO::checkTableHasData($table)) {
+        CRM_Core_BAO_SchemaHandler::dropTable($table);
+      }
+      else {
+        $ctx->log->warning("dropTableIfEmpty($table): Found data. Preserved table.");
+      }
+    }
+
+    return TRUE;
+  }
+
+  /**
    * Rebuild Multilingual Schema.
    * @param CRM_Queue_TaskContext $ctx
-   * @param string|NULL $version CiviCRM version to use if rebuilding multilingual schema
+   * @param string|null $version CiviCRM version to use if rebuilding multilingual schema
+   *
    * @return bool
    */
   public static function rebuildMultilingalSchema($ctx, $version = NULL) {

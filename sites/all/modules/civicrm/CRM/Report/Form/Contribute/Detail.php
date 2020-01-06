@@ -1,34 +1,18 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 5                                                  |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2019                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
+ | Copyright CiviCRM LLC. All rights reserved.                        |
  |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ | This work is published under the GNU AGPLv3 license with some      |
+ | permitted exceptions and without any warranty. For full license    |
+ | and copyright information, see https://civicrm.org/licensing       |
  +--------------------------------------------------------------------+
  */
 
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2019
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
 
@@ -180,6 +164,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
           ],
           'cancel_date' => [
             'title' => ts('Cancelled / Refunded Date'),
+            'name' => 'contribution_cancel_date',
           ],
           'cancel_reason' => [
             'title' => ts('Cancellation / Refund Reason'),
@@ -235,7 +220,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
           'contribution_status_id' => [
             'title' => ts('Contribution Status'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'options' => CRM_Contribute_PseudoConstant::contributionStatus(),
+            'options' => CRM_Contribute_BAO_Contribution::buildOptions('contribution_status_id', 'search'),
             'default' => [1],
             'type' => CRM_Utils_Type::T_INT,
           ],
@@ -243,6 +228,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
           'cancel_date' => [
             'title' => ts('Cancelled / Refunded Date'),
             'operatorType' => CRM_Report_Form::OP_DATE,
+            'name' => 'contribution_cancel_date',
           ],
           'cancel_reason' => [
             'title' => ts('Cancellation / Refund Reason'),
@@ -378,7 +364,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
     $contributionOrSoftVal = $this->getElementValue('contribution_or_soft_value');
     if ($contributionOrSoftVal[0] == 'contributions_only') {
       $groupBySoft = $this->getElementValue('group_bys');
-      if (CRM_Utils_Array::value('soft_credit_id', $groupBySoft)) {
+      if (!empty($groupBySoft['soft_credit_id'])) {
         $this->setElementError('group_bys', ts('You cannot group by soft credit when displaying contributions only.  Please uncheck "Soft Credit" in the Grouping tab.'));
       }
     }
@@ -528,7 +514,7 @@ GROUP BY {$this->_aliases['civicrm_contribution']}.currency";
       $this->noDisplayContributionOrSoftColumn = TRUE;
     }
 
-    if (CRM_Utils_Array::value('contribution_or_soft_value', $this->_params) == 'contributions_only') {
+    if (CRM_Utils_Array::value('contribution_or_soft_value', $this->_params, 'contributions_only') == 'contributions_only') {
       $this->isContributionBaseMode = TRUE;
     }
     if ($this->isContributionBaseMode &&
@@ -631,7 +617,7 @@ UNION ALL
     $entryFound = FALSE;
     $display_flag = $prev_cid = $cid = 0;
     $contributionTypes = CRM_Contribute_PseudoConstant::financialType();
-    $contributionStatus = CRM_Contribute_PseudoConstant::contributionStatus();
+    $contributionStatus = CRM_Contribute_PseudoConstant::contributionStatus(NULL, 'label');
     $paymentInstruments = CRM_Contribute_PseudoConstant::paymentInstrument();
     $contributionPages = CRM_Contribute_PseudoConstant::contributionPage();
     $batches = CRM_Batch_BAO_Batch::getBatches();
